@@ -257,6 +257,34 @@
                     </div>
                 </div>
 
+                <div class="profile-divider"></div>
+
+                <!-- Section 4 : Accessibilité & Ergonomie pour Malvoyants -->
+                <div class="profile-section">
+                    <div class="section-header-row">
+                        <span class="section-header-icon">👁️</span>
+                        <h2 class="section-title">Accessibilité & Confort Visuel (Malvoyants)</h2>
+                    </div>
+                    <p class="section-subtitle">
+                        Spécialement conçu pour les ouvriers et transporteurs nécessitant une lisibilité accrue sur les quais, en entrepôt ou en extérieur.
+                    </p>
+
+                    <div class="a11y-profile-card">
+                        <div class="a11y-profile-left">
+                            <div class="a11y-profile-icon-box">🔍</div>
+                            <div class="a11y-profile-info">
+                                <h3 class="a11y-profile-title">Mode Grand Texte (+20% & Contrastes Élevés)</h3>
+                                <p class="a11y-profile-desc">
+                                    Agrandit l'échelle typographique de tous les modules (entrepôts, créneaux, profil) et renforce la netteté des badges et tableaux.
+                                </p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-a11y-toggle" id="profileA11yToggleBtn" onclick="toggleTextSize()">
+                            <span id="profileA11yBtnText">Activer le Grand Texte</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Actions de soumission -->
                 <div class="profile-actions-bar">
                     <a href="{% url 'landing' %}" class="btn-profile-cancel">Annuler</a>
