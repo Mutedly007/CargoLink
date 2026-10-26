@@ -30,9 +30,9 @@ RÈGLES ABSOLUES ET STRICTES DE COMPORTEMENT :
 
     def __init__(self, api_key: str = None):
         self.api_key = api_key or getattr(settings, 'GEMINI_API_KEY', '') or ''
-        # Modèle recommandé par Google
-        self.model_name = "gemini-1.5-flash"
-        self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent"
+        # Modèles optimisés pour rapidité et compatibilité avec la clé API
+        self.models_to_try = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-flash-latest"]
+        self.base_api_url = "https://generativelanguage.googleapis.com/v1beta/models"
 
     def ask(self, user_prompt: str, user=None) -> dict:
         """
@@ -123,46 +123,42 @@ LISTE DES CRÉNEAUX EN BASE :
 """
 
     def _call_gemini_api(self, user_prompt: str, context_data: str) -> dict:
-        """Appel HTTP à l'API Google Gemini 1.5 Flash."""
-        try:
-            full_prompt = f"{self.SYSTEM_PROMPT}\n\n{context_data}\n\nQUESTION DE L'UTILISATEUR :\n{user_prompt}"
+        """Appel HTTP à l'API Google Gemini avec bascule automatique de modèle."""
+        full_prompt = f"{self.SYSTEM_PROMPT}\n\n{context_data}\n\nQUESTION DE L'UTILISATEUR :\n{user_prompt}"
 
-            payload = {
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": full_prompt}
-                        ]
-                    }
-                ],
-                "generationConfig": {
-                    "temperature": 0.2,
-                    "maxOutputTokens": 600
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": full_prompt}
+                    ]
                 }
+            ],
+            "generationConfig": {
+                "temperature": 0.2,
+                "maxOutputTokens": 600
             }
+        }
 
-            headers = {"Content-Type": "application/json"}
-            url = f"{self.api_url}?key={self.api_key}"
+        headers = {"Content-Type": "application/json"}
 
-            resp = requests.post(url, headers=headers, json=payload, timeout=12)
+        for model in self.models_to_try:
+            url = f"{self.base_api_url}/{model}:generateContent?key={self.api_key}"
+            try:
+                resp = requests.post(url, headers=headers, json=payload, timeout=12)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    answer = data['candidates'][0]['content']['parts'][0]['text']
+                    return {
+                        'success': True,
+                        'source': 'gemini_api',
+                        'response': answer
+                    }
+            except Exception:
+                continue
 
-            if resp.status_code == 200:
-                data = resp.json()
-                answer = data['candidates'][0]['content']['parts'][0]['text']
-                return {
-                    'success': True,
-                    'source': 'gemini_api',
-                    'response': answer
-                }
-            else:
-                # Si erreur de clé API ou quota
-                return {
-                    'success': True,
-                    'source': 'fallback_error',
-                    'response': f"⚠️ Réponse Gemini API ({resp.status_code}) : {resp.text}\n\nActivation du mode expert local pour vos créneaux."
-                }
-        except Exception as e:
-            return self._expert_local_fallback(user_prompt, context_data, error_msg=str(e))
+        # Si l'appel distant échoue ou timeout
+        return self._expert_local_fallback(user_prompt, context_data)
 
     def _expert_local_fallback(self, user_prompt: str, context_data: str, error_msg: str = None) -> dict:
         """
