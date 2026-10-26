@@ -14,6 +14,15 @@
     <!-- Base Stylesheet -->
     <link rel="stylesheet" href="{% static 'landing/css/base.css' %}">
     {% block extra_css %}{% endblock %}
+
+    <!-- Prevent Theme Flash on Page Load -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cargolink_theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
 </head>
 <body>
     <header class="site-header">
@@ -35,6 +44,15 @@
             </ul>
 
             <div class="nav-auth">
+                <!-- Theme Switcher Button (Light / Dark Mode) -->
+                <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Basculer Mode Clair / Sombre" title="Basculer entre Mode Sombre et Mode Clair">
+                    <span class="theme-toggle-track">
+                        <span class="theme-icon icon-sun">☀️</span>
+                        <span class="theme-icon icon-moon">🌙</span>
+                        <span class="theme-toggle-thumb"></span>
+                    </span>
+                </button>
+
                 {% if user.is_authenticated %}
                     <div class="user-dropdown-wrapper" id="userDropdownWrapper">
                         <button type="button" class="user-pill-btn" id="userMenuTrigger" aria-expanded="false" aria-haspopup="true">
@@ -237,6 +255,17 @@
                         trigger.setAttribute('aria-expanded', 'false');
                         trigger.focus();
                     }
+                });
+            }
+
+            // Theme Switcher Persistence Logic
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('cargolink_theme', newTheme);
                 });
             }
         });
