@@ -6,10 +6,13 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.db.models import Q, Count
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from .models import Chauffeur, VisiteChauffeur
 from .forms import ChauffeurForm, VisiteChauffeurForm
 from creneaux.models import Creneau
+from camions.models import Camion
+from entrepots.models import Entrepot, Quai
 
 
 def chauffeur_session_required(view_func):
@@ -151,10 +154,21 @@ def chauffeur_detail(request, pk):
         Q(immatriculation_camion__iexact=chauffeur.immatriculation_camion)
     ).select_related('quai', 'quai__entrepot').order_by('-date_creneau')[:5]
 
+    camions_disponibles = Camion.objects.filter(etat='DISPONIBLE').order_by('immatriculation')
+    quais_disponibles = Quai.objects.filter(statut='DISPONIBLE').select_related('entrepot').order_by('entrepot__nom', 'numero')
+    creneaux_disponibles = Creneau.objects.filter(
+        quai__statut='DISPONIBLE',
+        statut__in=['CONFIRME', 'EN_ATTENTE']
+    ).select_related('quai', 'quai__entrepot').order_by('date_creneau', 'heure_debut')
+
     context = {
         'chauffeur': chauffeur,
         'visites': visites,
         'creneaux_associes': creneaux_associes,
+        'camions_disponibles': camions_disponibles,
+        'quais_disponibles': quais_disponibles,
+        'creneaux_disponibles': creneaux_disponibles,
+        'camion_actif': chauffeur.camion_associe_obj,
     }
     return render(request, 'chauffeurs/chauffeur_detail.html', context)
 
@@ -232,6 +246,25 @@ def chauffeur_delete(request, pk):
     return render(request, 'chauffeurs/chauffeur_confirm_delete.html', context)
 
 
+def _safe_redirect(next_url, chauffeur):
+    """
+    Redirection sécurisée garantissant la transmission du pk si la cible est chauffeur_detail.
+    """
+    if not next_url or next_url == 'chauffeurs:chauffeur_portal_mobile':
+        return redirect('chauffeurs:chauffeur_portal_mobile')
+    if next_url in ['chauffeurs:chauffeur_detail', 'chauffeur_detail']:
+        return redirect('chauffeurs:chauffeur_detail', pk=chauffeur.pk)
+    if next_url.startswith('/') or next_url.startswith('http'):
+        return redirect(next_url)
+    try:
+        return redirect(next_url, pk=chauffeur.pk)
+    except Exception:
+        try:
+            return redirect(next_url)
+        except Exception:
+            return redirect('chauffeurs:chauffeur_detail', pk=chauffeur.pk)
+
+
 @chauffeur_session_required
 def chauffeur_statut_update(request, pk):
     """
@@ -247,9 +280,8 @@ def chauffeur_statut_update(request, pk):
         messages.success(request, f"Statut de {chauffeur.nom_complet} changé en « {chauffeur.get_statut_display()} ».")
 
     next_url = request.POST.get('next') or request.GET.get('next') or 'chauffeurs:chauffeur_detail'
-    if next_url == 'chauffeurs:chauffeur_detail':
-        return redirect('chauffeurs:chauffeur_detail', pk=chauffeur.pk)
-    return redirect(next_url)
+    return _safe_redirect(next_url, chauffeur)
+
 
 
 @chauffeur_session_required
@@ -288,7 +320,7 @@ def chauffeur_portal_mobile(request):
     """
     Portail Chauffeur Mobile & Responsive (Conforme au slide 9).
     Offre une ergonomie optimisée pour smartphones : statut en temps réel,
-    prochain créneau, bouton d'urgence et accès rapide aux quais.
+    affectation camion/créneau/quai disponibles, prochain créneau et accès rapide.
     """
     chauffeurs = Chauffeur.objects.all().order_by('nom')
     chauffeur_id = request.GET.get('id')
@@ -296,23 +328,206 @@ def chauffeur_portal_mobile(request):
     chauffeur_selectionne = None
     if chauffeur_id:
         chauffeur_selectionne = Chauffeur.objects.filter(pk=chauffeur_id).first()
+    if not chauffeur_selectionne and request.user.is_authenticated:
+        chauffeur_selectionne = (
+            Chauffeur.objects.filter(transporteur_user=request.user).first()
+            or Chauffeur.objects.filter(email__iexact=request.user.email).first()
+            or Chauffeur.objects.filter(nom__icontains=request.user.last_name or request.user.username.split('_')[0]).first()
+            or Chauffeur.objects.filter(prenom__icontains=request.user.first_name).first()
+        )
     if not chauffeur_selectionne:
         chauffeur_selectionne = chauffeurs.first()
 
     prochain_creneau = None
+    camion_actif = None
     if chauffeur_selectionne:
         prochain_creneau = Creneau.objects.filter(
             Q(chauffeur_nom__icontains=chauffeur_selectionne.nom) |
             Q(immatriculation_camion__iexact=chauffeur_selectionne.immatriculation_camion),
-            statut__in=['CONFIRME', 'ARRIVE', 'EN_COURS']
-        ).first()
+            statut__in=['CONFIRME', 'ARRIVE', 'EN_COURS', 'EN_ATTENTE']
+        ).select_related('quai', 'quai__entrepot').order_by('-date_creneau').first()
+        camion_actif = chauffeur_selectionne.camion_associe_obj
+
+    camions_disponibles = Camion.objects.filter(etat='DISPONIBLE').order_by('immatriculation')
+    quais_disponibles = Quai.objects.filter(statut='DISPONIBLE').select_related('entrepot').order_by('entrepot__nom', 'numero')
+    creneaux_disponibles = Creneau.objects.filter(
+        quai__statut='DISPONIBLE',
+        statut__in=['CONFIRME', 'EN_ATTENTE']
+    ).select_related('quai', 'quai__entrepot').order_by('date_creneau', 'heure_debut')
 
     context = {
         'chauffeurs': chauffeurs,
         'chauffeur': chauffeur_selectionne,
         'prochain_creneau': prochain_creneau,
+        'camion_actif': camion_actif,
+        'camions_disponibles': camions_disponibles,
+        'quais_disponibles': quais_disponibles,
+        'creneaux_disponibles': creneaux_disponibles,
     }
     return render(request, 'chauffeurs/chauffeur_portal_mobile.html', context)
+
+
+@chauffeur_session_required
+def chauffeur_affecter_mission(request, pk):
+    """
+    Affecte un chauffeur à un camion disponible et à un créneau sur quai disponible.
+    Règles de validation :
+    1. Le camion sélectionné DOIT être DISPONIBLE.
+    2. Le quai sélectionné DOIT être DISPONIBLE.
+    3. Le créneau sélectionné DOIT être sur un quai disponible (ou créé directement sur le quai libre).
+    """
+    chauffeur = get_object_or_404(Chauffeur, pk=pk)
+
+    if request.method == 'POST':
+        camion_id = request.POST.get('camion_id')
+        quai_id = request.POST.get('quai_id')
+        creneau_id = request.POST.get('creneau_id')
+        type_op = request.POST.get('type_operation') or 'DECHARGEMENT'
+
+        next_url = request.POST.get('next') or request.GET.get('next') or 'chauffeurs:chauffeur_portal_mobile'
+
+        # 1. Vérification Camion Disponible
+        camion = Camion.objects.filter(pk=camion_id).first()
+        if not camion:
+            messages.error(request, "Veuillez sélectionner un camion valide.")
+            return _safe_redirect(next_url, chauffeur)
+
+        if camion.etat != 'DISPONIBLE' and camion.immatriculation != chauffeur.immatriculation_camion:
+            messages.error(
+                request,
+                f"Le camion {camion.immatriculation} n'est pas disponible (État actuel : {camion.get_etat_display()}). "
+                f"Seul un camion disponible peut être affecté."
+            )
+            return _safe_redirect(next_url, chauffeur)
+
+        # 2. Vérification Quai Disponible
+        quai = Quai.objects.filter(pk=quai_id).select_related('entrepot').first()
+        if not quai:
+            messages.error(request, "Veuillez sélectionner un quai logistique valide.")
+            return _safe_redirect(next_url, chauffeur)
+
+        if quai.statut != 'DISPONIBLE':
+            messages.error(
+                request,
+                f"Le quai {quai.numero} ({quai.entrepot.nom}) n'est pas disponible (Statut : {quai.get_statut_display()}). "
+                f"Veuillez choisir un quai libre."
+            )
+            return _safe_redirect(next_url, chauffeur)
+
+        # 3. Récupération ou création du créneau disponible
+        creneau = None
+        if creneau_id:
+            creneau = Creneau.objects.filter(pk=creneau_id).first()
+            if not creneau or creneau.statut in ['ANNULE', 'TERMINE']:
+                messages.error(request, "Le créneau sélectionné n'est plus disponible.")
+                return _safe_redirect(next_url, chauffeur)
+            if creneau.quai_id != quai.id:
+                creneau.quai = quai
+                creneau.entrepot = quai.entrepot
+        else:
+            today = date.today()
+            now = timezone.localtime().time()
+            heure_fin = (timezone.localtime() + timedelta(hours=2)).time()
+            creneau = Creneau.objects.create(
+                entrepot=quai.entrepot,
+                quai=quai,
+                demandeur=request.user,
+                date_creneau=today,
+                heure_debut=now,
+                heure_fin=heure_fin,
+                type_operation=type_op,
+                statut='CONFIRME',
+                transporteur_nom=chauffeur.entreprise_transport,
+                immatriculation_camion=camion.immatriculation,
+                type_camion=camion.type_camion,
+                chauffeur_nom=chauffeur.nom_complet,
+                chauffeur_telephone=chauffeur.telephone,
+                nb_palettes=15,
+                consignes=f"Affectation opérationnelle directe du chauffeur {chauffeur.nom_complet} avec {camion.immatriculation}"
+            )
+
+        # 4. Affectation sur le Chauffeur
+        chauffeur.immatriculation_camion = camion.immatriculation
+        chauffeur.marque_camion = f"{camion.marque} {camion.modele}"
+        chauffeur.type_camion = camion.type_camion
+        chauffeur.capacite_camion_tonnes = camion.capacite_tonnage
+        chauffeur.statut = 'EN_MISSION'
+        chauffeur.save(update_fields=['immatriculation_camion', 'marque_camion', 'type_camion', 'capacite_camion_tonnes', 'statut'])
+
+        # 5. Mise à jour de l'état du Camion
+        camion.etat = 'EN_TRANSIT'
+        camion.save(update_fields=['etat'])
+
+        # 6. Mise à jour du Créneau
+        creneau.chauffeur_nom = chauffeur.nom_complet
+        creneau.chauffeur_telephone = chauffeur.telephone
+        creneau.immatriculation_camion = camion.immatriculation
+        creneau.transporteur_nom = chauffeur.entreprise_transport
+        creneau.statut = 'CONFIRME'
+        creneau.save()
+
+        # 7. Création de la visite d'accès quai
+        VisiteChauffeur.objects.create(
+            chauffeur=chauffeur,
+            entrepot=quai.entrepot,
+            quai_numero=quai.numero,
+            creneau=creneau,
+            type_operation=creneau.type_operation,
+            statut='PLANIFIE',
+            date_visite=creneau.date_creneau,
+            heure_arrivee=creneau.heure_debut,
+            notes=f"Affectation réussie : Camion {camion.immatriculation} • Quai {quai.numero} ({quai.entrepot.nom}) • Créneau {creneau.reference}"
+        )
+
+        messages.success(
+            request,
+            f"Affectation réussie ! {chauffeur.nom_complet} est affecté au camion disponible {camion.immatriculation} "
+            f"pour le créneau {creneau.reference} sur le {quai.numero} ({quai.entrepot.nom})."
+        )
+
+    return _safe_redirect(next_url, chauffeur)
+
+
+@chauffeur_session_required
+def chauffeur_liberer_mission(request, pk):
+    """
+    Libère l'affectation active du chauffeur : remet le camion en DISPONIBLE,
+    clôture le créneau et rend le quai DISPONIBLE.
+    """
+    chauffeur = get_object_or_404(Chauffeur, pk=pk)
+    next_url = request.POST.get('next') or request.GET.get('next') or 'chauffeurs:chauffeur_portal_mobile'
+
+    # 1. Rendre le camion disponible
+    immat = chauffeur.immatriculation_camion
+    if immat:
+        camion = Camion.objects.filter(immatriculation__iexact=immat).first()
+        if camion:
+            camion.etat = 'DISPONIBLE'
+            camion.save(update_fields=['etat'])
+
+    # 2. Clôturer les créneaux actifs
+    creneaux_actifs = Creneau.objects.filter(
+        Q(chauffeur_nom__icontains=chauffeur.nom) |
+        Q(immatriculation_camion__iexact=immat),
+        statut__in=['CONFIRME', 'ARRIVE', 'EN_COURS', 'EN_ATTENTE']
+    )
+    for cr in creneaux_actifs:
+        cr.statut = 'TERMINE'
+        cr.save(update_fields=['statut'])
+        if cr.quai and cr.quai.statut != 'DISPONIBLE':
+            cr.quai.statut = 'DISPONIBLE'
+            cr.quai.save(update_fields=['statut'])
+
+    # 3. Remettre le chauffeur en Disponible
+    chauffeur.statut = 'DISPONIBLE'
+    chauffeur.save(update_fields=['statut'])
+
+    messages.info(
+        request,
+        f"Mission libérée avec succès pour {chauffeur.nom_complet}. "
+        f"Le camion ({immat or 'N/A'}) et le quai sont de nouveau DISPONIBLES."
+    )
+    return _safe_redirect(next_url, chauffeur)
 
 
 @chauffeur_session_required

@@ -16,6 +16,10 @@ urlpatterns = [
     # Actions rapides & Statut
     path('<int:pk>/statut/', views.chauffeur_statut_update, name='chauffeur_statut_update'),
     
+    # Affectation Mission Opérationnelle (Camion dispo + Créneau dispo + Quai dispo)
+    path('<int:pk>/affecter-mission/', views.chauffeur_affecter_mission, name='chauffeur_affecter_mission'),
+    path('<int:pk>/liberer-mission/', views.chauffeur_liberer_mission, name='chauffeur_liberer_mission'),
+    
     # Historique des visites / passages
     path('<int:chauffeur_pk>/visites/nouveau/', views.visite_create, name='visite_create'),
     
