@@ -5,27 +5,93 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+<style>
+    /* RTL Support for Form */
+    html[dir="rtl"] .chauffeur-form-container,
+    .chauffeur-form-container[dir="rtl"] {
+        text-align: right;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .top-bar-nav,
+    .chauffeur-form-container[dir="rtl"] .top-bar-nav {
+        flex-direction: row-reverse;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-section-title,
+    .chauffeur-form-container[dir="rtl"] .form-section-title {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-group,
+    .chauffeur-form-container[dir="rtl"] .form-group {
+        text-align: right;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-label,
+    .chauffeur-form-container[dir="rtl"] .form-label {
+        text-align: right;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container input[type="text"],
+    html[dir="rtl"] .chauffeur-form-container input[type="email"],
+    html[dir="rtl"] .chauffeur-form-container input[type="tel"],
+    html[dir="rtl"] .chauffeur-form-container input[type="number"],
+    html[dir="rtl"] .chauffeur-form-container input[type="date"],
+    html[dir="rtl"] .chauffeur-form-container select,
+    html[dir="rtl"] .chauffeur-form-container textarea,
+    .chauffeur-form-container[dir="rtl"] input[type="text"],
+    .chauffeur-form-container[dir="rtl"] input[type="email"],
+    .chauffeur-form-container[dir="rtl"] input[type="tel"],
+    .chauffeur-form-container[dir="rtl"] input[type="number"],
+    .chauffeur-form-container[dir="rtl"] input[type="date"],
+    .chauffeur-form-container[dir="rtl"] select,
+    .chauffeur-form-container[dir="rtl"] textarea {
+        text-align: right;
+        direction: rtl;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .checkbox-label,
+    .chauffeur-form-container[dir="rtl"] .checkbox-label {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-actions-bottom,
+    .chauffeur-form-container[dir="rtl"] .form-actions-bottom {
+        flex-direction: row-reverse;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-errors-box ul,
+    .chauffeur-form-container[dir="rtl"] .form-errors-box ul {
+        margin: 0.5rem 1.25rem 0 0;
+        padding-right: 1.25rem;
+        padding-left: 0;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="chauffeur-form-container">
-    <div style="margin-bottom: 1.5rem;">
+<div class="chauffeur-form-container" id="chauffeurFormContainer" dir="ltr" data-is-edit="{% if chauffeur %}1{% else %}0{% endif %}" data-chauffeur-name="{{ chauffeur.nom_complet|default:'' }}" data-initial-lang="{{ current_lang|default:'fr' }}">
+    <!-- Top Bar with Back Button & Language Switcher -->
+    <div class="top-bar-nav" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-            &larr; Annuler et retourner
+            <span id="formBackArrow">&larr;</span> <span data-i18n="btn_cancel_back">Annuler et retourner</span>
         </a>
+
     </div>
 
     <div class="form-card-box">
-        <h1 style="font-size: 1.8rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;">
+        <h1 id="formMainTitle" style="font-size: 1.8rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;" data-chauffeur-name="{{ chauffeur.nom_complet|default:'' }}">
             {{ action_title }}
         </h1>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+        <p data-i18n="form_subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
             Renseignez les données administratives, les catégories de permis et le véhicule attitré du conducteur.
         </p>
 
         {% if form.errors %}
-            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5; font-size: 0.9rem;">
-                <strong>Erreurs détectées :</strong>
+            <div class="form-errors-box" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5; font-size: 0.9rem;">
+                <strong data-i18n="form_errors_title">Erreurs détectées :</strong>
                 <ul style="margin: 0.5rem 0 0 1.25rem;">
                     {% for field, errors in form.errors.items %}
                         {% for error in errors %}
@@ -45,48 +111,48 @@
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
-                1. Informations Personnelles & Contact
+                <span data-i18n="sec1_title">1. Informations Personnelles & Contact</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Prénom *</label>
+                    <label class="form-label" data-i18n="lbl_prenom">Prénom *</label>
                     {{ form.prenom }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nom de famille *</label>
+                    <label class="form-label" data-i18n="lbl_nom">Nom de famille *</label>
                     {{ form.nom }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Numéro CIN / Passeport</label>
+                    <label class="form-label" data-i18n="lbl_cin">Numéro CIN / Passeport</label>
                     {{ form.cin }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Adresse Email</label>
+                    <label class="form-label" data-i18n="lbl_email">Adresse Email</label>
                     {{ form.email }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Téléphone principal *</label>
+                    <label class="form-label" data-i18n="lbl_phone">Téléphone principal *</label>
                     {{ form.telephone }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Téléphone d'urgence</label>
+                    <label class="form-label" data-i18n="lbl_emergency_phone">Téléphone d'urgence</label>
                     {{ form.telephone_urgence }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date de naissance</label>
+                    <label class="form-label" data-i18n="lbl_birthdate">Date de naissance</label>
                     {{ form.date_naissance }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date d'embauche</label>
+                    <label class="form-label" data-i18n="lbl_hiredate">Date d'embauche</label>
                     {{ form.date_embauche }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Ville de résidence</label>
+                    <label class="form-label" data-i18n="lbl_residence">Ville de résidence</label>
                     {{ form.ville_residence }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Photo du chauffeur</label>
+                    <label class="form-label" data-i18n="lbl_photo">Photo du chauffeur</label>
                     {{ form.photo }}
                 </div>
             </div>
@@ -98,24 +164,24 @@
                     <line x1="7" y1="8" x2="17" y2="8"/>
                     <line x1="7" y1="12" x2="13" y2="12"/>
                 </svg>
-                2. Permis de Conduire & Validité
+                <span data-i18n="sec2_title">2. Permis de Conduire & Validité</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Numéro de Permis *</label>
+                    <label class="form-label" data-i18n="lbl_license_num">Numéro de Permis *</label>
                     {{ form.numero_permis }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Catégorie de Permis *</label>
+                    <label class="form-label" data-i18n="lbl_license_cat">Catégorie de Permis *</label>
                     {{ form.categorie_permis }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date de délivrance</label>
+                    <label class="form-label" data-i18n="lbl_license_issued">Date de délivrance</label>
                     {{ form.date_delivrance_permis }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date d'expiration / Validité *</label>
+                    <label class="form-label" data-i18n="lbl_license_expiry">Date d'expiration / Validité *</label>
                     {{ form.date_expiration_permis }}
                 </div>
             </div>
@@ -128,32 +194,32 @@
                     <circle cx="5.5" cy="18.5" r="2.5"/>
                     <circle cx="18.5" cy="18.5" r="2.5"/>
                 </svg>
-                3. Entreprise de Transport & Véhicule Associé
+                <span data-i18n="sec3_title">3. Entreprise de Transport & Véhicule Associé</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Société / Entreprise de Transport *</label>
+                    <label class="form-label" data-i18n="lbl_company">Société / Entreprise de Transport *</label>
                     {{ form.entreprise_transport }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Compte Utilisateur Transporteur</label>
+                    <label class="form-label" data-i18n="lbl_carrier_account">Compte Utilisateur Transporteur</label>
                     {{ form.transporteur_user }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Immatriculation du Camion</label>
+                    <label class="form-label" data-i18n="lbl_truck_plate">Immatriculation du Camion</label>
                     {{ form.immatriculation_camion }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Marque / Modèle</label>
+                    <label class="form-label" data-i18n="lbl_truck_model">Marque / Modèle</label>
                     {{ form.marque_camion }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Type de gabarit</label>
+                    <label class="form-label" data-i18n="lbl_truck_type">Type de gabarit</label>
                     {{ form.type_camion }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Capacité (Tonnes)</label>
+                    <label class="form-label" data-i18n="lbl_truck_capacity">Capacité (Tonnes)</label>
                     {{ form.capacite_camion_tonnes }}
                 </div>
             </div>
@@ -164,22 +230,22 @@
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                 </svg>
-                4. Statut Opérationnel & Sécurité
+                <span data-i18n="sec4_title">4. Statut Opérationnel & Sécurité</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Statut Opérationnel *</label>
+                    <label class="form-label" data-i18n="lbl_statut">Statut Opérationnel *</label>
                     {{ form.statut }}
                 </div>
                 <div class="form-group" style="justify-content: center;">
-                    <label style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
                         {{ form.badge_acces_portuaire }}
-                        <span>Badge d'accès portuaire / sécurisé actif</span>
+                        <span data-i18n="lbl_badge_portuaire">Badge d'accès portuaire / sécurisé actif</span>
                     </label>
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
-                    <label class="form-label">Remarques & Habilitations particulières</label>
+                    <label class="form-label" data-i18n="lbl_remarks">Remarques & Habilitations particulières</label>
                     {{ form.observations }}
                 </div>
             </div>
@@ -187,13 +253,29 @@
             <!-- Bottom Actions -->
             <div class="form-actions-bottom">
                 <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline">
-                    Annuler
+                    <span data-i18n="btn_cancel">Annuler</span>
                 </a>
-                <button type="submit" class="btn btn-accent" style="padding: 0.75rem 2rem;">
+                <button type="submit" id="btnSubmitForm" class="btn btn-accent" style="padding: 0.75rem 2rem;">
                     {{ button_text }}
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Global CargoLink i18n Bridge for Chauffeur Form -->
+<script>
+    window.addEventListener('cargolink:languageChanged', function(e) {
+        if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+            window.CargoLinkI18n.translateChauffeurs(e.detail.lang);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const current = (window.CargoLinkI18n && window.CargoLinkI18n.currentLang) || localStorage.getItem('cargolink_lang') || 'fr';
+        if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+            window.CargoLinkI18n.translateChauffeurs(current);
+        }
+    });
+</script>
 {% endblock %}

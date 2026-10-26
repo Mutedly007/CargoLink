@@ -138,6 +138,7 @@ def chauffeur_list(request):
         'permis_expires_count': permis_expires_count,
         'permis_bientot_count': permis_bientot_count,
         'total_visites': total_visites,
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_list.html', context)
 
@@ -172,6 +173,7 @@ def chauffeur_detail(request, pk):
         'quais_disponibles': quais_disponibles,
         'creneaux_disponibles': creneaux_disponibles,
         'camion_actif': chauffeur.camion_associe_obj,
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_detail.html', context)
 
@@ -199,6 +201,7 @@ def chauffeur_create(request):
         'form': form,
         'action_title': "Nouveau Chauffeur",
         'button_text': "Enregistrer le Chauffeur",
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_form.html', context)
 
@@ -226,6 +229,7 @@ def chauffeur_update(request, pk):
         'chauffeur': chauffeur,
         'action_title': f"Modifier {chauffeur.nom_complet}",
         'button_text': "Enregistrer les Modifications",
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_form.html', context)
 
