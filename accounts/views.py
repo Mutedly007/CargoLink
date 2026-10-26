@@ -6,12 +6,6 @@ from .forms import SignUpForm, LoginForm
 from .models import UserProfile
 
 
-def landing_page(request):
-    """Page d'accueil moderne présentant CargoLink et ses piliers logistiques."""
-    context = {
-        'page_title': 'CargoLink - Connecter, Planifier, Optimiser le Fret et les Quais',
-    }
-    return render(request, 'accounts/landing.html', context)
 
 
 def signup_view(request):

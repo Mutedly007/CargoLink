@@ -1,0 +1,102 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}CargoLink &bull; Régulation des Quais & Gestion du Fret{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'landing/css/landing.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="hero">
+    <div>
+        <div class="hero-badge">
+            <span class="hero-badge-pulse"></span>
+            <span>Régulation Intelligente des Flux de Fret</span>
+        </div>
+
+        <h1 class="hero-title">
+            Connecter, Planifier,<br>
+            <span class="gradient-text">Optimiser la Logistique.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            Synchronisez vos entrepôts, vos quais et vos transporteurs en temps réel pour éliminer les temps d'attente, prévenir les conflits de créneaux et fluidifier le transport de marchandises.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{% url 'signup' %}" class="btn btn-accent hero-cta">
+                Créer un compte &rarr;
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline hero-cta">
+                Se connecter
+            </a>
+        </div>
+    </div>
+
+    <!-- Live Monitoring Widget (Empty State) -->
+    <div class="hero-visual">
+        <div class="visual-card">
+            <div class="visual-header">
+                <div class="visual-title">
+                    <span class="live-dot-idle"></span>
+                    <span>Monitoring Quais en Direct</span>
+                </div>
+                <span class="badge-status">En attente de quais</span>
+            </div>
+
+            <!-- Empty State Container -->
+            <div class="dock-empty-state">
+                <div class="dock-empty-icon">🏗️</div>
+                <h3 class="dock-empty-title">Aucun quai actif pour le moment</h3>
+                <p class="dock-empty-desc">
+                    Les quais s'afficheront ici en temps réel dès leur configuration dans vos entrepôts.
+                </p>
+                <div class="dock-empty-pill">
+                    <span>0 quais configurés</span> &bull; <span>0 camions en approche</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Capacité instantanée</span>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #94a3b8;">Aucune donnée (0/0 Palettes)</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ROLE SELECTION CTA SECTION -->
+<section class="roles-banner" id="roles">
+    <div class="roles-box">
+        <span class="section-tag">Accès Sur Mesure</span>
+        <h2 class="section-title">Rejoignez l'Espace CargoLink</h2>
+        <p class="section-desc" style="max-width: 580px; margin: 0 auto;">
+            Sélectionnez votre activité pour accéder à votre espace de travail dédié.
+        </p>
+
+        <div class="roles-grid">
+            <a href="{% url 'signup' %}?role=ENTREPOT" class="role-btn-card">
+                <div class="role-icon">🏢</div>
+                <div class="role-name">Gestionnaire d'Entrepôt</div>
+                <div class="role-sub">Gérez vos sites de stockage, quais et réceptions.</div>
+                <div class="role-link-text">S'inscrire comme Gestionnaire &rarr;</div>
+            </a>
+
+            <a href="{% url 'signup' %}?role=TRANSPORTEUR" class="role-btn-card">
+                <div class="role-icon">🚚</div>
+                <div class="role-name">Transporteur / Chauffeur</div>
+                <div class="role-sub">Consultez vos créneaux et optimisez vos trajets.</div>
+                <div class="role-link-text">S'inscrire comme Transporteur &rarr;</div>
+            </a>
+
+            <a href="{% url 'signup' %}?role=PLANIFICATEUR" class="role-btn-card">
+                <div class="role-icon">⏱️</div>
+                <div class="role-name">Planificateur de Créneaux</div>
+                <div class="role-sub">Programmez les arrivées et prévenez les retards.</div>
+                <div class="role-link-text">S'inscrire comme Planificateur &rarr;</div>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

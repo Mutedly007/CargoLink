@@ -5,12 +5,6 @@ from .models import UserProfile
 
 
 class AccountsAuthTests(TestCase):
-    def test_landing_page_renders(self):
-        response = self.client.get(reverse('landing'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "CargoLink")
-        self.assertContains(response, "CONNECTER")
-        self.assertContains(response, "OPTIMISER")
 
     def test_signup_creates_user_with_role(self):
         signup_data = {

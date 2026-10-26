@@ -1,0 +1,357 @@
+/* ===================================================
+   AUTHENTICATION STYLES (LOGIN & SIGNUP)
+   =================================================== */
+
+.auth-page,
+.signup-page {
+    min-height: calc(100vh - 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+}
+
+/* Login Wrapper (Split screen) */
+.auth-wrapper {
+    width: 100%;
+    max-width: 960px;
+    background: rgba(15, 27, 49, 0.75);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    overflow: hidden;
+}
+
+/* Left Branding Banner in Login */
+.auth-banner {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(249, 115, 22, 0.25)), #081120;
+    border-right: 1px solid var(--card-border);
+    padding: 3.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+.auth-banner::before {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%);
+    top: -40px;
+    left: -40px;
+}
+
+.banner-brand-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.banner-tagline {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.banner-quote {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.banner-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.banner-features li {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.banner-footer-team {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Right Form Side */
+.auth-form-side {
+    padding: 3.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.35rem;
+}
+
+.form-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Signup Wrapper */
+.signup-wrapper {
+    width: 100%;
+    max-width: 860px;
+    background: rgba(15, 27, 49, 0.8);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(24px);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    padding: 3.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.signup-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2563eb, #f97316, #10b981);
+}
+
+.signup-header {
+    text-align: center;
+    max-width: 580px;
+    margin: 0 auto 2.5rem;
+}
+
+.signup-header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.35rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.signup-header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* Role Selection Grid */
+.role-selection-section {
+    margin-bottom: 2.5rem;
+}
+
+.role-section-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.role-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.role-card-option {
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.role-card-option:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(249, 115, 22, 0.4);
+    transform: translateY(-3px);
+}
+
+.role-card-option.active {
+    background: rgba(249, 115, 22, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 0 25px rgba(249, 115, 22, 0.25);
+}
+
+.role-card-icon {
+    font-size: 2.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.role-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.35rem;
+}
+
+.role-card-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.role-check-indicator {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: transparent;
+    transition: all 0.2s;
+}
+
+.role-card-option.active .role-check-indicator {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+/* Form Inputs & Grids */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.form-group {
+    margin-bottom: 1.35rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    margin-bottom: 0.45rem;
+}
+
+.form-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-input::placeholder {
+    color: #64748b;
+}
+
+.field-error {
+    color: #fca5a5;
+    font-size: 0.8rem;
+    margin-top: 0.35rem;
+}
+
+.form-errors,
+.form-errors-banner {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.75rem;
+    font-size: 0.875rem;
+}
+
+.btn-submit,
+.btn-submit-signup {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 18px var(--accent-glow);
+    margin-top: 0.75rem;
+}
+
+.btn-submit:hover,
+.btn-submit-signup:hover {
+    box-shadow: 0 6px 25px rgba(249, 115, 22, 0.5);
+    transform: translateY(-2px);
+}
+
+.form-switch,
+.switch-auth {
+    text-align: center;
+    margin-top: 1.75rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.form-switch a,
+.switch-auth a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.form-switch a:hover,
+.switch-auth a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .auth-wrapper { grid-template-columns: 1fr; }
+    .auth-banner { display: none; }
+    .auth-form-side { padding: 2.5rem 1.5rem; }
+    .signup-wrapper { padding: 2.25rem 1.5rem; }
+    .role-cards-grid { grid-template-columns: 1fr; }
+    .form-grid-2 { grid-template-columns: 1fr; gap: 0; }
+    .signup-header h1 { font-size: 1.95rem; }
+}

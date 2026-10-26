@@ -1,216 +1,10 @@
-{% extends 'accounts/base.html' %}
+{% extends 'landing/base.html' %}
+{% load static %}
 
 {% block title %}Connexion &bull; CargoLink{% endblock %}
 
 {% block extra_css %}
-<style>
-    .auth-page {
-        min-height: calc(100vh - 180px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3rem 1.5rem;
-    }
-
-    .auth-wrapper {
-        width: 100%;
-        max-width: 960px;
-        background: rgba(15, 27, 49, 0.75);
-        border: 1px solid var(--card-border);
-        backdrop-filter: blur(20px);
-        border-radius: var(--radius-lg);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        display: grid;
-        grid-template-columns: 1fr 1.15fr;
-        overflow: hidden;
-    }
-
-    /* Left Branding Banner */
-    .auth-banner {
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(249, 115, 22, 0.25)), #081120;
-        border-right: 1px solid var(--card-border);
-        padding: 3.5rem 2.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        position: relative;
-    }
-
-    .auth-banner::before {
-        content: "";
-        position: absolute;
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%);
-        top: -40px;
-        left: -40px;
-    }
-
-    .banner-brand-title {
-        font-family: 'Outfit', sans-serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: #ffffff;
-        margin-bottom: 0.5rem;
-    }
-
-    .banner-tagline {
-        font-size: 0.75rem;
-        color: var(--accent);
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
-        display: block;
-    }
-
-    .banner-quote {
-        font-size: 0.95rem;
-        color: var(--text-sub);
-        line-height: 1.6;
-        margin-bottom: 2rem;
-    }
-
-    .banner-features {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .banner-features li {
-        font-size: 0.85rem;
-        color: #cbd5e1;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .banner-footer-team {
-        margin-top: 2rem;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    /* Right Form Side */
-    .auth-form-side {
-        padding: 3.5rem 3rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .form-header {
-        margin-bottom: 2rem;
-    }
-
-    .form-header h2 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: #ffffff;
-        margin-bottom: 0.35rem;
-    }
-
-    .form-header p {
-        color: var(--text-muted);
-        font-size: 0.95rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.35rem;
-    }
-
-    .form-label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-sub);
-        margin-bottom: 0.5rem;
-    }
-
-    .form-input {
-        width: 100%;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-        padding: 0.8rem 1rem;
-        border-radius: var(--radius-sm);
-        font-size: 0.95rem;
-        font-family: inherit;
-        transition: all 0.2s ease;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-glow);
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .form-input::placeholder {
-        color: #64748b;
-    }
-
-    .form-errors {
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        color: #fca5a5;
-        padding: 0.75rem 1rem;
-        border-radius: var(--radius-sm);
-        font-size: 0.85rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .form-errors ul {
-        margin: 0;
-        padding-left: 1.25rem;
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 0.85rem;
-        font-size: 1rem;
-        font-weight: 700;
-        border-radius: var(--radius-sm);
-        background: linear-gradient(135deg, #f97316, #ea580c);
-        color: #ffffff;
-        border: none;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        box-shadow: 0 4px 15px var(--accent-glow);
-        margin-top: 0.5rem;
-    }
-
-    .btn-submit:hover {
-        box-shadow: 0 6px 22px rgba(249, 115, 22, 0.5);
-        transform: translateY(-2px);
-    }
-
-    .form-switch {
-        margin-top: 2rem;
-        text-align: center;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-    }
-
-    .form-switch a {
-        color: var(--accent);
-        text-decoration: none;
-        font-weight: 700;
-    }
-
-    .form-switch a:hover {
-        text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-        .auth-wrapper { grid-template-columns: 1fr; }
-        .auth-banner { display: none; }
-        .auth-form-side { padding: 2.5rem 1.5rem; }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -221,7 +15,7 @@
             <div>
                 <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🚛</div>
                 <h1 class="banner-brand-title">CargoLink</h1>
-                <span class="banner-tagline">CONNECTER &bull; PLANIFIER &bull; OPTIMISER</span>
+                <span class="banner-tagline">LOGISTIQUE &bull; QUAIS &bull; FRET</span>
                 
                 <p class="banner-quote">
                     « Optimisez vos flux logistiques, vos quais et vos créneaux en un seul point d'accès. »
@@ -235,7 +29,7 @@
             </div>
 
             <div class="banner-footer-team">
-                Projet CodeCraft &bull; ESPRIT UP Web
+                CargoLink Technologies
             </div>
         </div>
 
@@ -261,17 +55,15 @@
                     <label class="form-label" for="{{ form.username.id_for_label }}">Nom d'utilisateur ou Email</label>
                     {{ form.username }}
                     {% if form.username.errors %}
-                        <div style="color: #fca5a5; font-size: 0.8rem; margin-top: 0.35rem;">{{ form.username.errors.0 }}</div>
+                        <div class="field-error">{{ form.username.errors.0 }}</div>
                     {% endif %}
                 </div>
 
                 <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <label class="form-label" for="{{ form.password.id_for_label }}" style="margin: 0;">Mot de passe</label>
-                    </div>
+                    <label class="form-label" for="{{ form.password.id_for_label }}">Mot de passe</label>
                     {{ form.password }}
                     {% if form.password.errors %}
-                        <div style="color: #fca5a5; font-size: 0.8rem; margin-top: 0.35rem;">{{ form.password.errors.0 }}</div>
+                        <div class="field-error">{{ form.password.errors.0 }}</div>
                     {% endif %}
                 </div>
 
