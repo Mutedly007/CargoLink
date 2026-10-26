@@ -12,8 +12,8 @@
     <!-- Top Bar -->
     <div class="page-top-bar">
         <div class="page-title-box">
-            <h1>Planning Graphique d'Occupation des Quais</h1>
-            <p>Vue temporelle synchronisée pour superviser l'occupation des quais, éviter les goulots d'étranglement et détecter les conflits.</p>
+            <h1 data-i18n="planning_page_title">Planning Graphique d'Occupation des Quais</h1>
+            <p data-i18n="planning_page_sub">Vue temporelle synchronisée pour superviser l'occupation des quais, éviter les goulots d'étranglement et détecter les conflits.</p>
         </div>
 
         <div class="top-actions-group">
@@ -26,11 +26,11 @@
                     <line x1="3" y1="12" x2="3.01" y2="12"/>
                     <line x1="3" y1="18" x2="3.01" y2="18"/>
                 </svg>
-                Vue Tableau / Liste
+                <span data-i18n="btn_table_view">Vue Tableau / Liste</span>
             </a>
             {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
-                + Planifier un Créneau
+                <span data-i18n="btn_new_slot">+ Planifier un Créneau</span>
             </a>
             {% endif %}
         </div>
@@ -41,7 +41,7 @@
         <!-- Sélecteur Entrepôt -->
         <form method="get" id="planningFilterForm" style="display: flex; align-items: center; gap: 0.75rem;">
             <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
-            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Site Logistique :</label>
+            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;" data-i18n="planning_site_label">Site Logistique :</label>
             <select name="entrepot" onchange="document.getElementById('planningFilterForm').submit();" class="filter-select" style="min-width: 220px;">
                 {% for ent in entrepots %}
                     <option value="{{ ent.id }}" {% if current_entrepot and current_entrepot.id == ent.id %}selected{% endif %}>
@@ -53,16 +53,16 @@
 
         <!-- Sélecteur de Date -->
         <div class="date-navigator">
-            <a href="?entrepot={{ current_entrepot.id }}&date={{ prev_date|date:'Y-m-d' }}" class="nav-day-btn" title="Jour précédent">
+            <a href="?entrepot={{ current_entrepot.id }}&date={{ prev_date|date:'Y-m-d' }}" class="nav-day-btn" title="Jour précédent" data-i18n="nav_yesterday">
                 ◀ Hier
             </a>
             <span class="current-date-title">
                 📅 {{ selected_date|date:"l d F Y" }}
             </span>
-            <a href="?entrepot={{ current_entrepot.id }}&date={{ next_date|date:'Y-m-d' }}" class="nav-day-btn" title="Jour suivant">
+            <a href="?entrepot={{ current_entrepot.id }}&date={{ next_date|date:'Y-m-d' }}" class="nav-day-btn" title="Jour suivant" data-i18n="nav_tomorrow">
                 Demain ▶
             </a>
-            <a href="?entrepot={{ current_entrepot.id }}" class="nav-day-btn" style="border-color: #3b82f6; color: #60a5fa;" title="Revenir à aujourd'hui">
+            <a href="?entrepot={{ current_entrepot.id }}" class="nav-day-btn" style="border-color: #3b82f6; color: #60a5fa;" title="Revenir à aujourd'hui" data-i18n="nav_today">
                 Aujourd'hui
             </a>
         </div>
@@ -73,7 +73,7 @@
         <div class="timeline-grid">
             <!-- Ligne des Heures (Entête) -->
             <div class="timeline-hours-header">
-                <div style="text-align: left; padding-left: 0.5rem;">QUAI D'ACCÈS</div>
+                <div style="text-align: left; padding-left: 0.5rem;" data-i18n="th_dock_access">QUAI D'ACCÈS</div>
                 {% for h in heures %}
                     <div>{{ h }}</div>
                 {% endfor %}
