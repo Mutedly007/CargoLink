@@ -160,6 +160,8 @@ class MoteurAffectation:
             'camion_id': camion.pk,
             'camion_label': f"{camion.immatriculation} • {camion.marque} {camion.modele}",
             'camion_type': camion.get_type_camion_display(),
+            'capacite_tonnes': float(camion.capacite_tonnage),
+            'capacite_palettes': camion.capacite_palettes,
             'chauffeur_id': chauffeur.pk,
             'chauffeur_label': chauffeur.nom_complet,
             'chauffeur_permis': chauffeur.get_categorie_permis_display(),

@@ -193,15 +193,22 @@ class DeepSeekLivraisonAI:
     def rediger_message(self, livraison, langue='fr', objectif='information'):
         langue = langue if langue in LANGUES else 'fr'
         local = message_local(livraison, langue, objectif)
+        consignes_objectif = {
+            'information': "confirmer que la livraison est en cours et donner l'heure d'arrivée estimée (eta_estimee).",
+            'retard': "annoncer explicitement le RETARD dès la première phrase, présenter des excuses, puis donner "
+                      "la nouvelle heure d'arrivée estimée (eta_estimee) et le retard en minutes (retard_estime_min). "
+                      "L'objet doit mentionner le retard.",
+            'livree': "confirmer que la livraison a été livrée (livree_le) et remercier le destinataire.",
+        }[objectif]
         tache = (
-            f"Rédige un SMS / email court destiné au destinataire de la livraison, en {LANGUES[langue]}.\n"
-            f"Objectif du message : {objectif} (information = confirmer le passage et l'heure estimée ; "
-            "retard = s'excuser et donner la nouvelle heure estimée ; livree = confirmer la livraison et remercier).\n"
+            f"Rédige un SMS / email court destiné au destinataire de la livraison, en {LANGUES[langue]} uniquement.\n"
+            f"Objectif obligatoire : {consignes_objectif}\n"
             "Contraintes : ton professionnel et chaleureux, 450 caractères maximum, inclure la référence de livraison "
-            "et le code de suivi, ne promettre aucune heure absente des données, signer « L'équipe CargoLink ».\n"
+            "et le code de suivi, n'utiliser que les heures présentes dans les données, signer « L'équipe CargoLink ».\n"
             'Schéma JSON attendu : {"objet": "objet de l\'email", "message": "texte du message"}'
         )
         donnees = contexte_livraison(livraison, pour_destinataire=True)
+        donnees['objectif'] = objectif
         brut = self._appeler(tache, donnees, max_tokens=500, temperature=0.5)
         if not brut or not _texte(brut.get('message'), 900):
             return local
@@ -223,6 +230,9 @@ class DeepSeekLivraisonAI:
             "Le moteur d'affectation CargoLink a classé des couples camion + chauffeur pour une livraison. "
             "Explique au planificateur pourquoi le premier choix est recommandé et ce qu'il doit surveiller. "
             "Ne modifie pas le classement.\n"
+            "Règles : la capacité réelle d'un camion est donnée par capacite_tonnes et capacite_palettes "
+            "(le libellé du gabarit n'est pas sa capacité). « vigilance » ne contient que de vrais risques issus de "
+            "points_attention ou des exclusions ; liste vide s'il n'y en a pas. N'évoque jamais l'absence de données.\n"
             'Schéma JSON attendu : {"synthese": "2 phrases maximum", '
             '"vigilance": ["point d\'attention 1", "..."], '
             '"alternative": "quand préférer la 2e proposition, en 1 phrase (ou null)"}'
@@ -230,12 +240,13 @@ class DeepSeekLivraisonAI:
         donnees = {
             'livraison': contexte,
             'classement': [
-                {k: p[k] for k in ('camion_label', 'camion_type', 'chauffeur_label', 'chauffeur_permis', 'score',
-                                   'remplissage_pct', 'details', 'points_forts', 'points_attention')}
+                {k: p[k] for k in ('camion_label', 'camion_type', 'capacite_tonnes', 'capacite_palettes',
+                                   'chauffeur_label', 'chauffeur_permis', 'score', 'remplissage_pct', 'details',
+                                   'points_forts', 'points_attention')}
                 for p in resultat['recommandations']
             ],
-            'nb_camions_exclus': len(resultat.get('exclusions_camions', [])),
-            'nb_chauffeurs_exclus': len(resultat.get('exclusions_chauffeurs', [])),
+            'camions_exclus': resultat.get('exclusions_camions', [])[:8],
+            'chauffeurs_exclus': resultat.get('exclusions_chauffeurs', [])[:8],
         }
         brut = self._appeler(tache, donnees, max_tokens=400)
         if not brut or not _texte(brut.get('synthese'), 500):
@@ -274,6 +285,7 @@ def contexte_livraison(livraison, pour_destinataire=False):
     if pour_destinataire:
         donnees['destinataire'] = livraison.destinataire_nom or livraison.libelle_destination
         donnees['nb_palettes'] = livraison.nb_palettes
+        donnees['retard_estime_min'] = livraison.retard_minutes
         if livraison.date_livraison_reelle:
             donnees['livree_le'] = local(livraison.date_livraison_reelle).strftime('%d/%m/%Y %H:%M')
         return donnees
