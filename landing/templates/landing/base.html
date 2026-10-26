@@ -57,7 +57,13 @@
                     <div class="user-dropdown-wrapper" id="userDropdownWrapper">
                         <button type="button" class="user-pill-btn" id="userMenuTrigger" aria-expanded="false" aria-haspopup="true">
                             <div class="user-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
-                                {% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-avatar-img">
+                                {% elif user.profile.initials %}
+                                    {{ user.profile.initials }}
+                                {% else %}
+                                    {{ user.username|slice:":1"|upper }}
+                                {% endif %}
                             </div>
                             <div class="user-info">
                                 <div class="user-name-row">
@@ -84,7 +90,13 @@
                             <!-- Identity Card -->
                             <div class="dropdown-header">
                                 <div class="dropdown-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
-                                    {% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                                    {% if user.profile.avatar %}
+                                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="dropdown-avatar-img">
+                                    {% elif user.profile.initials %}
+                                        {{ user.profile.initials }}
+                                    {% else %}
+                                        {{ user.username|slice:":1"|upper }}
+                                    {% endif %}
                                 </div>
                                 <div class="dropdown-identity">
                                     <div class="dropdown-name-line">

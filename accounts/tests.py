@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import UserProfile
 
 
@@ -260,6 +261,69 @@ class AccountsAuthTests(TestCase):
 
         user.refresh_from_db()
         self.assertTrue(user.check_password('CurrentPassword123!'))
+
+    def test_profile_update_avatar_upload(self):
+        """Un utilisateur peut téléverser une photo de profil valide."""
+        user = User.objects.create_user(
+            username='avatar_user',
+            email='avatar@cargolink.tn',
+            password='TestPassword123!'
+        )
+        self.client.force_login(user)
+
+        # 1x1 valid GIF image
+        gif_bytes = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+        uploaded_avatar = SimpleUploadedFile('my_avatar.gif', gif_bytes, content_type='image/gif')
+
+        post_data = {
+            'first_name': 'Avatar',
+            'last_name': 'Tester',
+            'username': 'avatar_user',
+            'email': 'avatar@cargolink.tn',
+            'role': 'ENTREPOT',
+            'entreprise': '',
+            'telephone': '',
+            'avatar': uploaded_avatar,
+        }
+        response = self.client.post(reverse('profile'), data=post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user.refresh_from_db()
+        self.assertTrue(bool(user.profile.avatar))
+        self.assertIn('my_avatar', user.profile.avatar.name)
+        # Nettoyage
+        if user.profile.avatar:
+            user.profile.avatar.delete(save=False)
+
+    def test_profile_update_avatar_delete(self):
+        """Un utilisateur peut supprimer sa photo de profil existante."""
+        user = User.objects.create_user(
+            username='avatar_del_user',
+            email='avatardel@cargolink.tn',
+            password='TestPassword123!'
+        )
+        gif_bytes = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+        user.profile.avatar = SimpleUploadedFile('to_delete.gif', gif_bytes, content_type='image/gif')
+        user.profile.save()
+        self.assertTrue(bool(user.profile.avatar))
+
+        self.client.force_login(user)
+        post_data = {
+            'first_name': 'Avatar',
+            'last_name': 'Tester',
+            'username': 'avatar_del_user',
+            'email': 'avatardel@cargolink.tn',
+            'role': 'ENTREPOT',
+            'entreprise': '',
+            'telephone': '',
+            'delete_avatar': '1',
+        }
+        response = self.client.post(reverse('profile'), data=post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user.refresh_from_db()
+        self.assertFalse(bool(user.profile.avatar))
+
 
 
 

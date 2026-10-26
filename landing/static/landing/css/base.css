@@ -219,6 +219,15 @@ header.site-header {
     box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
 }
 
+.user-avatar-img,
+.dropdown-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
 .user-info {
     display: flex;
     flex-direction: column;
