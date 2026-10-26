@@ -306,6 +306,9 @@ class Livraison(models.Model):
         if self.statut in ('ANNULEE', 'BROUILLON'):
             return 0
         reference = self.date_livraison_reelle
+        if reference is None and self.statut == 'ARRIVEE' and self.date_arrivee_reelle:
+            # Arrivée : le retard se mesure à l'heure d'arrivée, pas à l'attente de la signature
+            reference = self.date_arrivee_reelle
         if reference is None:
             reference = max(timezone.now(), self.eta) if self.statut != 'ECHEC' else None
         if reference is None or not self.date_livraison_prevue:

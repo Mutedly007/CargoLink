@@ -14,13 +14,16 @@ Prompt engineering :
 
 Configuration : variables d'environnement DEEPSEEK_API_KEY, DEEPSEEK_MODEL, DEEPSEEK_BASE_URL (voir settings.py).
 """
+import hashlib
 import json
 import logging
 import re
+import time
 from datetime import date, timedelta
 
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from django.utils import timezone
 
 from . import geo, regles
@@ -49,10 +52,16 @@ LANGUES = {'fr': 'français', 'ar': 'arabe (standard moderne)', 'en': 'anglais'}
 
 class DeepSeekLivraisonAI:
 
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, cache_secondes=None):
         self.api_key = api_key or getattr(settings, 'DEEPSEEK_API_KEY', '') or ''
         self.model = getattr(settings, 'DEEPSEEK_MODEL', 'deepseek-chat') or 'deepseek-chat'
         self.base_url = (getattr(settings, 'DEEPSEEK_BASE_URL', '') or 'https://api.deepseek.com').rstrip('/')
+        # Cache des réponses identiques (même tâche, mêmes données) : évite de repayer et d'attendre
+        self.cache_secondes = (
+            getattr(settings, 'CARGOLINK_AI_CACHE_SECONDS', 600) if cache_secondes is None else cache_secondes
+        )
+        # Mesures du dernier appel (durée, jetons, cache, erreur) : utilisées par l'évaluation
+        self.dernier_appel = {}
 
     @property
     def disponible(self):
@@ -63,13 +72,23 @@ class DeepSeekLivraisonAI:
     # ------------------------------------------------------------------
     def _appeler(self, tache, donnees, max_tokens=700, temperature=0.2):
         """Appelle DeepSeek en mode JSON. Retourne le dict décodé, ou None en cas d'échec."""
+        self.dernier_appel = {'cache': False, 'duree': 0.0, 'jetons': 0, 'erreur': None}
         if not self.disponible:
+            self.dernier_appel['erreur'] = 'sans_cle'
             return None
         contenu = (
             f"TÂCHE :\n{tache}\n\n"
             f"<donnees>\n{json.dumps(donnees, ensure_ascii=False, default=str)}\n</donnees>\n\n"
             "Réponds uniquement avec l'objet JSON demandé."
         )
+        cle_cache = 'cargolink_ai:' + hashlib.sha256(f"{self.model}|{temperature}|{contenu}".encode()).hexdigest()
+        if self.cache_secondes:
+            debut = time.perf_counter()
+            en_cache = cache.get(cle_cache)
+            if en_cache is not None:
+                self.dernier_appel.update(cache=True, duree=time.perf_counter() - debut)
+                return en_cache
+        debut = time.perf_counter()
         try:
             reponse = requests.post(
                 f"{self.base_url}/chat/completions",
@@ -87,13 +106,26 @@ class DeepSeekLivraisonAI:
                 },
                 timeout=25,
             )
+            self.dernier_appel['duree'] = time.perf_counter() - debut
             if reponse.status_code != 200:
+                self.dernier_appel['erreur'] = f'http_{reponse.status_code}'
                 logger.warning("DeepSeek a répondu %s : %s", reponse.status_code, reponse.text[:200])
                 return None
-            texte = reponse.json()['choices'][0]['message']['content']
-            resultat = json.loads(texte)
-            return resultat if isinstance(resultat, dict) else None
-        except (requests.RequestException, KeyError, IndexError, ValueError, TypeError) as exc:
+            corps = reponse.json()
+            self.dernier_appel['jetons'] = (corps.get('usage') or {}).get('total_tokens', 0)
+            resultat = json.loads(corps['choices'][0]['message']['content'])
+            if not isinstance(resultat, dict):
+                self.dernier_appel['erreur'] = 'json_invalide'
+                return None
+            if self.cache_secondes:
+                cache.set(cle_cache, resultat, self.cache_secondes)
+            return resultat
+        except requests.Timeout:
+            self.dernier_appel.update(duree=time.perf_counter() - debut, erreur='timeout')
+            logger.warning("Appel DeepSeek : délai dépassé")
+            return None
+        except (requests.RequestException, KeyError, IndexError, ValueError, TypeError, AttributeError) as exc:
+            self.dernier_appel.update(duree=time.perf_counter() - debut, erreur='exception')
             logger.warning("Appel DeepSeek impossible : %s", exc)
             return None
 
@@ -102,6 +134,10 @@ class DeepSeekLivraisonAI:
     # ------------------------------------------------------------------
     def analyser_risque(self, livraison):
         local = risque_local(livraison)
+        if livraison.est_cloturee:
+            # Livraison livrée, annulée ou en échec : plus de risque opérationnel, inutile d'appeler le modèle
+            self.dernier_appel = {'cache': False, 'duree': 0.0, 'jetons': 0, 'erreur': None, 'non_requis': True}
+            return local
         tache = (
             "Évalue le risque opérationnel de cette livraison (retard, rupture de la chaîne logistique, non-conformité).\n"
             "Un pré-diagnostic calculé par le moteur de règles CargoLink est fourni dans « prediagnostic » : "
@@ -141,7 +177,7 @@ class DeepSeekLivraisonAI:
         aujourd_hui = timezone.localdate()
         tache = (
             "Convertis la demande de recherche de l'utilisateur en filtres structurés pour la liste des livraisons.\n"
-            f"Date du jour : {aujourd_hui.isoformat()} ({_jour_fr(aujourd_hui)}). La semaine commence le lundi.\n"
+            f"Calendrier de référence (utilise ces dates exactes, ne recalcule pas) : {_calendrier(aujourd_hui)}.\n"
             "N'utilise que les valeurs autorisées. Mets null (ou une liste vide) pour tout critère non mentionné.\n"
             "Schéma JSON attendu :\n"
             '{"statuts": [' + ', '.join(f'"{s}"' for s in STATUTS_VALIDES) + '], '
@@ -204,7 +240,8 @@ class DeepSeekLivraisonAI:
             f"Rédige un SMS / email court destiné au destinataire de la livraison, en {LANGUES[langue]} uniquement.\n"
             f"Objectif obligatoire : {consignes_objectif}\n"
             "Contraintes : ton professionnel et chaleureux, 450 caractères maximum, inclure la référence de livraison "
-            "et le code de suivi, n'utiliser que les heures présentes dans les données, signer « L'équipe CargoLink ».\n"
+            "et le code de suivi, n'utiliser que les heures présentes dans les données, signer « L'équipe CargoLink » "
+            "traduit dans la langue du message (ex. « The CargoLink team », « فريق CargoLink »).\n"
             'Schéma JSON attendu : {"objet": "objet de l\'email", "message": "texte du message"}'
         )
         donnees = contexte_livraison(livraison, pour_destinataire=True)
@@ -230,7 +267,8 @@ class DeepSeekLivraisonAI:
             "Le moteur d'affectation CargoLink a classé des couples camion + chauffeur pour une livraison. "
             "Explique au planificateur pourquoi le premier choix est recommandé et ce qu'il doit surveiller. "
             "Ne modifie pas le classement.\n"
-            "Règles : la capacité réelle d'un camion est donnée par capacite_tonnes et capacite_palettes "
+            "Règles : la synthèse nomme le chauffeur ET l'immatriculation du camion du premier choix. "
+            "La capacité réelle d'un camion est donnée par capacite_tonnes et capacite_palettes "
             "(le libellé du gabarit n'est pas sa capacité). « vigilance » ne contient que de vrais risques issus de "
             "points_attention ou des exclusions ; liste vide s'il n'y en a pas. N'évoque jamais l'absence de données.\n"
             'Schéma JSON attendu : {"synthese": "2 phrases maximum", '
@@ -300,7 +338,10 @@ def contexte_livraison(livraison, pour_destinataire=False):
         'signalee_en_retard': livraison.est_en_retard,
         'retard_projete_min': livraison.retard_minutes,
         'creneau_chargement': livraison.creneau_chargement.reference if livraison.creneau_chargement_id else None,
-        'creneau_dechargement': livraison.creneau_dechargement.reference if livraison.creneau_dechargement_id else None,
+        'creneau_dechargement': (
+            livraison.creneau_dechargement.reference if livraison.creneau_dechargement_id
+            else ("non applicable (livraison client, pas de quai à l'arrivée)" if livraison.type_livraison == 'CLIENT' else None)
+        ),
         'incidents_ouverts': [
             {'type': i.get_type_incident_display(), 'gravite': i.get_gravite_display(), 'description': i.description[:200]}
             for i in livraison.incidents.filter(resolu=False)
@@ -594,3 +635,16 @@ def _date_iso(valeur):
 
 def _jour_fr(jour):
     return ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'][jour.weekday()]
+
+
+def _calendrier(aujourd_hui):
+    """Dates de référence calculées côté serveur : le modèle n'a pas à compter les jours (source d'erreurs mesurée)."""
+    lundi = aujourd_hui - timedelta(days=aujourd_hui.weekday())
+    fin_mois = (aujourd_hui.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+    return (
+        f"aujourd'hui = {aujourd_hui.isoformat()} ({_jour_fr(aujourd_hui)}) ; "
+        f"hier = {(aujourd_hui - timedelta(days=1)).isoformat()} ; demain = {(aujourd_hui + timedelta(days=1)).isoformat()} ; "
+        f"cette semaine = du {lundi.isoformat()} au {(lundi + timedelta(days=6)).isoformat()} ; "
+        f"semaine prochaine = du {(lundi + timedelta(days=7)).isoformat()} au {(lundi + timedelta(days=13)).isoformat()} ; "
+        f"ce mois = du {aujourd_hui.replace(day=1).isoformat()} au {fin_mois.isoformat()} (semaine du lundi au dimanche)"
+    )

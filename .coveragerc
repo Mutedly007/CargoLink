@@ -14,6 +14,9 @@ omit =
     manage.py
     cargolink/wsgi.py
     cargolink/asgi.py
+    # Outillage d'évaluation de CargoLink AI : appelle l'API réelle, exécuté via « manage.py evaluer_ia »
+    livraisons/evaluation/referentiel.py
+    livraisons/management/commands/evaluer_ia.py
 
 [report]
 exclude_lines =

@@ -211,6 +211,16 @@ class LivraisonReglesTests(LivraisonsTestBase):
         for champ in ('destinataire_nom', 'adresse_livraison', 'ville_livraison'):
             self.assertIn(champ, ctx.exception.message_dict)
 
+    def test_retard_d_une_livraison_arrivee_mesure_a_l_arrivee(self):
+        maintenant = timezone.now()
+        livraison = self.nouvelle_livraison(
+            creneau_chargement=None, creneau_dechargement=None,
+            date_depart_prevue=maintenant - timedelta(hours=5), date_livraison_prevue=maintenant - timedelta(minutes=30),
+        )
+        livraison.statut = 'ARRIVEE'
+        livraison.date_arrivee_reelle = maintenant - timedelta(minutes=40)
+        self.assertEqual(livraison.retard_minutes, 0)
+
     def test_estimations_distance_eta_co2(self):
         livraison = self.nouvelle_livraison()
         self.assertTrue(200 < livraison.distance_km < 350)
@@ -467,6 +477,21 @@ class DeepSeekTests(LivraisonsTestBase):
         self.assertNotIn('+216', envoye['messages'][1]['content'])
 
     @mock.patch('livraisons.ai_service.requests.post')
+    def test_livraison_cloturee_n_appelle_pas_le_modele(self, post):
+        livraison = self.nouvelle_livraison()
+        livraison.statut = 'ANNULEE'
+        resultat = DeepSeekLivraisonAI(api_key='cle-test').analyser_risque(livraison)
+        post.assert_not_called()
+        self.assertEqual(resultat['niveau'], 'faible')
+
+    @mock.patch('livraisons.ai_service.requests.post')
+    def test_calendrier_transmis_pour_les_dates_relatives(self, post):
+        post.return_value = reponse_deepseek({'statuts': [], 'explication': ''})
+        DeepSeekLivraisonAI(api_key='cle-test').interpreter_recherche("livraisons de la semaine prochaine", [])
+        consigne = post.call_args.kwargs['json']['messages'][1]['content']
+        self.assertIn('semaine prochaine = du', consigne)
+
+    @mock.patch('livraisons.ai_service.requests.post')
     def test_recherche_ia_filtre_les_valeurs_non_autorisees(self, post):
         post.return_value = reponse_deepseek({
             'statuts': ['EN_TRANSIT', 'DROP TABLE'], 'entrepot_id': 99999, 'priorite': 'URGENTE',
@@ -646,6 +671,122 @@ class LivraisonVuesTests(LivraisonsTestBase):
         self.assertContains(self.client.get(reverse('livraisons:mes_missions')), 'Je suis à quai')
 
 
+class LivraisonVuesCompleteTests(LivraisonsTestBase):
+    """Parcours des vues restantes : modification, incidents, réservation, échec, réaffectation, API."""
+
+    def setUp(self):
+        super().setUp()
+        self.client.force_login(self.planificateur)
+
+    def test_modification_d_une_livraison_planifiee_resynchronise_les_creneaux(self):
+        livraison = self.nouvelle_livraison()
+        services.planifier(livraison, self.planificateur)
+        reponse = self.client.get(reverse('livraisons:livraison_update', args=[livraison.pk]))
+        self.assertEqual(reponse.status_code, 200)
+        donnees = {
+            'type_livraison': 'INTER_ENTREPOT', 'priorite': 'URGENTE', 'entrepot_origine': self.rades.id,
+            'entrepot_destination': self.sfax.id, 'type_marchandise': 'STANDARD', 'nb_palettes': 20, 'poids_kg': 15000,
+            'date_depart_prevue': self.depart_form, 'date_livraison_prevue': f"{self.depart.date():%Y-%m-%d}T14:30",
+            'camion': self.semi.id, 'chauffeur': self.khalil.id,
+            'creneau_chargement': self.cr_chargement.id, 'creneau_dechargement': self.cr_dechargement.id,
+        }
+        reponse = self.client.post(reverse('livraisons:livraison_update', args=[livraison.pk]), donnees)
+        self.assertRedirects(reponse, reverse('livraisons:livraison_detail', args=[livraison.pk]))
+        livraison.refresh_from_db()
+        self.assertEqual(livraison.priorite, 'URGENTE')
+        self.cr_chargement.refresh_from_db()
+        self.assertEqual(self.cr_chargement.nb_palettes, 20)
+
+    def test_formulaire_invalide_affiche_les_erreurs(self):
+        reponse = self.client.post(reverse('livraisons:livraison_create'), {
+            'type_livraison': 'INTER_ENTREPOT', 'priorite': 'NORMALE', 'entrepot_origine': self.rades.id,
+            'entrepot_destination': self.sfax.id, 'type_marchandise': 'STANDARD', 'nb_palettes': 24, 'poids_kg': 18000,
+            'date_depart_prevue': self.depart_form, 'camion': self.fourgon.id, 'chauffeur': self.nader.id,
+        })
+        self.assertEqual(reponse.status_code, 200)
+        self.assertContains(reponse, 'Charge utile dépassée')
+        self.assertFalse(Livraison.objects.exists())
+
+    def test_incident_puis_resolution(self):
+        livraison = self.nouvelle_livraison()
+        services.planifier(livraison, self.planificateur)
+        self.assertEqual(self.client.get(reverse('livraisons:incident_create', args=[livraison.pk])).status_code, 200)
+        self.client.post(reverse('livraisons:incident_create', args=[livraison.pk]), {
+            'type_incident': 'RETARD', 'gravite': 'FAIBLE', 'description': 'Bouchon sur l’autoroute A1',
+        })
+        incident = livraison.incidents.get()
+        self.client.post(reverse('livraisons:incident_resoudre', args=[incident.pk]), {'resolution': 'Itinéraire modifié'})
+        incident.refresh_from_db()
+        self.assertTrue(incident.resolu)
+        self.assertEqual(incident.resolution, 'Itinéraire modifié')
+
+    def test_reservation_automatique_depuis_la_page(self):
+        livraison = self.nouvelle_livraison(creneau_chargement=None, creneau_dechargement=None)
+        self.client.post(reverse('livraisons:livraison_action', args=[livraison.pk, 'reserver_creneau']), {'sens': 'chargement'})
+        livraison.refresh_from_db()
+        self.assertIsNotNone(livraison.creneau_chargement)
+        reponse = self.client.post(reverse('livraisons:livraison_action', args=[livraison.pk, 'reserver_creneau']), {'sens': 'inconnu'}, follow=True)
+        self.assertContains(reponse, 'Type de créneau inconnu')
+
+    def test_echec_et_reaffectation_depuis_la_page(self):
+        remplacant = Camion.objects.create(
+            immatriculation="198 TUN 1124", marque="Scania", modele="R450", type_camion='SEMI_REMORQUE',
+            capacite_tonnage=24, capacite_palettes=33,
+        )
+        livraison = self.nouvelle_livraison()
+        for etape in ('planifier', 'charger', 'partir'):
+            self.client.post(reverse('livraisons:livraison_action', args=[livraison.pk, etape]))
+        self.client.post(reverse('livraisons:livraison_action', args=[livraison.pk, 'reaffecter']),
+                         {'camion': remplacant.id, 'ancien_camion_en_panne': 'on', 'commentaire': 'Panne'})
+        livraison.refresh_from_db()
+        self.assertEqual(livraison.camion, remplacant)
+        self.client.post(reverse('livraisons:livraison_action', args=[livraison.pk, 'echouer']),
+                         {'type_incident': 'REFUS_CLIENT', 'motif': 'Refus à la réception'})
+        livraison.refresh_from_db()
+        self.assertEqual(livraison.statut, 'ECHEC')
+
+    def test_preuve_sans_signature_ni_photo_refusee(self):
+        livraison = self.nouvelle_livraison()
+        for etape in (services.planifier, services.charger, services.partir, services.arriver):
+            etape(livraison, self.planificateur)
+        reponse = self.client.post(reverse('livraisons:livraison_pod', args=[livraison.pk]), {'receptionnaire_nom': 'Sami'})
+        self.assertContains(reponse, 'signature ou une photo')
+        livraison.refresh_from_db()
+        self.assertEqual(livraison.statut, 'ARRIVEE')
+
+    def test_api_ia_sans_cle_utilise_le_moteur_local(self):
+        livraison = self.nouvelle_livraison()
+        risque = self.client.post(reverse('livraisons:api_analyse_risque', args=[livraison.pk])).json()
+        self.assertEqual(risque['source'], 'local')
+        message = self.client.post(reverse('livraisons:api_message_destinataire', args=[livraison.pk]),
+                                   {'langue': 'en', 'objectif': 'inconnu'}).json()
+        self.assertIn('on its way', message['objet'])
+        vide = self.client.post(reverse('livraisons:api_recherche_ia'), {'texte': ''})
+        self.assertEqual(vide.status_code, 400)
+
+    def test_api_estimation_et_creneaux(self):
+        estimation = self.client.get(reverse('livraisons:api_estimation'), {
+            'origine': self.rades.id, 'destination': self.sfax.id, 'camion': self.semi.id, 'depart': self.depart_form,
+        }).json()
+        self.assertTrue(estimation['success'])
+        self.assertGreater(estimation['distance_km'], 200)
+        inconnue = self.client.get(reverse('livraisons:api_estimation'), {'origine': self.rades.id, 'ville': 'Atlantide'}).json()
+        self.assertFalse(inconnue['success'])
+        creneaux = self.client.get(reverse('livraisons:api_creneaux'), {'entrepot': self.rades.id, 'type': 'CHARGEMENT'}).json()
+        self.assertEqual([c['id'] for c in creneaux['creneaux']], [self.cr_chargement.id])
+
+    def test_affectation_api_sans_dates(self):
+        reponse = self.client.post(reverse('livraisons:api_smart_assign'), {'entrepot_origine': self.rades.id}).json()
+        self.assertFalse(reponse['success'])
+
+    def test_recherche_publique_par_code(self):
+        livraison = self.nouvelle_livraison()
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse('livraisons:suivi_recherche')).status_code, 200)
+        reponse = self.client.get(reverse('livraisons:suivi_recherche'), {'code': livraison.code_suivi.lower()})
+        self.assertRedirects(reponse, reverse('livraisons:suivi_public', args=[livraison.code_suivi]))
+
+
 class SuiviPublicTests(LivraisonsTestBase):
 
     def test_suivi_public_sans_connexion_et_sans_donnees_personnelles(self):
@@ -658,6 +799,45 @@ class SuiviPublicTests(LivraisonsTestBase):
     def test_code_inconnu(self):
         reponse = self.client.get(reverse('livraisons:suivi_public', args=['XXXXXXXX']))
         self.assertEqual(reponse.status_code, 404)
+
+
+class MetriquesEvaluationTests(TestCase):
+    """Fonctions de calcul utilisées par la commande evaluer_ia."""
+
+    def test_precision_rappel_f1(self):
+        from .evaluation.metriques import prf
+        r = prf(8, 2, 2)
+        self.assertAlmostEqual(r['precision'], 0.8)
+        self.assertAlmostEqual(r['rappel'], 0.8)
+        self.assertAlmostEqual(r['f1'], 0.8)
+
+    def test_paires_entrepot_et_ville_equivalents_et_dates_relatives(self):
+        from .evaluation.metriques import paires_filtres
+        aujourd_hui = date(2026, 10, 27)
+        par_entrepot = paires_filtres({'entrepot': 3, 'date_du': 'WEEK_START'}, aujourd_hui, {3: 'Sfax'})
+        par_ville = paires_filtres({'ville': 'SFAX', 'date_du': '2026-10-26'}, aujourd_hui, {})
+        self.assertEqual(par_entrepot, par_ville)
+
+    def test_extraction_et_correspondance_exacte(self):
+        from .evaluation.metriques import evaluer_extraction
+        r = evaluer_extraction([({('a', 1)}, {('a', 1)}), ({('b', 1)}, {('c', 1)}), (set(), set())])
+        self.assertAlmostEqual(r['exact'], 2 / 3)
+        self.assertEqual((r['tp'], r['fp'], r['fn']), (1, 1, 1))
+
+    def test_matrice_confusion_et_macro_f1(self):
+        from .evaluation.metriques import metriques_classification
+        r = metriques_classification(['faible', 'moyen', 'eleve'], ['faible', 'eleve', 'eleve'], ['faible', 'moyen', 'eleve'])
+        self.assertEqual(r['matrice']['moyen']['eleve'], 1)
+        self.assertAlmostEqual(r['exactitude'], 2 / 3)
+
+    def test_controles_de_texte(self):
+        from .evaluation.metriques import detecter_langue, heures_fondees, nombres_fondes, percentile
+        self.assertEqual(detecter_langue("مرحبا، شحنتكم في الطريق"), 'ar')
+        self.assertEqual(detecter_langue("Your delivery is on the way, thank you"), 'en')
+        self.assertEqual(detecter_langue("Votre livraison est prévue demain, merci"), 'fr')
+        self.assertEqual(heures_fondees("Arrivée à 13:30 puis 14:00", '"eta": "13:30"'), 0.5)
+        self.assertEqual(nombres_fondes("Remplissage 73 %, 25 t", '{"remplissage": 73, "capacite": 25.0}')[0], 1.0)
+        self.assertEqual(percentile([1, 2, 3, 4], 50), 2.5)
 
 
 class CommandesTests(LivraisonsTestBase):
