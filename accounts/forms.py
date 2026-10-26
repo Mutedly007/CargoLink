@@ -157,6 +157,15 @@ class ProfileUpdateForm(forms.Form):
         label="Numéro de Téléphone",
         widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+216 -- --- ---'})
     )
+    avatar = forms.ImageField(
+        required=False,
+        label="Photo de Profil",
+        widget=forms.FileInput(attrs={'class': 'avatar-file-input', 'accept': 'image/png,image/jpeg,image/webp,image/gif'})
+    )
+    delete_avatar = forms.BooleanField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
 
     # Sécurité / Modification du mot de passe
     old_password = forms.CharField(
@@ -209,6 +218,13 @@ class ProfileUpdateForm(forms.Form):
         if qs.exists():
             raise forms.ValidationError("Cette adresse email est déjà associée à un autre compte.")
         return email
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if avatar:
+            if avatar.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("La taille de l'image ne doit pas dépasser 5 Mo.")
+        return avatar
 
     def clean(self):
         cleaned_data = super().clean()

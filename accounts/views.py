@@ -92,7 +92,7 @@ def profile_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=user)
 
     if request.method == 'POST':
-        form = ProfileUpdateForm(request.POST, user=user)
+        form = ProfileUpdateForm(request.POST, request.FILES, user=user)
         if form.is_valid():
             user.first_name = form.cleaned_data.get('first_name', '')
             user.last_name = form.cleaned_data.get('last_name', '')
@@ -102,6 +102,14 @@ def profile_view(request):
             profile.role = form.cleaned_data['role']
             profile.entreprise = form.cleaned_data.get('entreprise', '')
             profile.telephone = form.cleaned_data.get('telephone', '')
+
+            # Gestion de la photo de profil
+            if form.cleaned_data.get('delete_avatar'):
+                if profile.avatar:
+                    profile.avatar.delete(save=False)
+                    profile.avatar = None
+            elif 'avatar' in request.FILES:
+                profile.avatar = request.FILES['avatar']
 
             password_changed = False
             new_password = form.cleaned_data.get('new_password')

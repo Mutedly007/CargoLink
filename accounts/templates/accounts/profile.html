@@ -14,8 +14,12 @@
         <!-- 1. Hero Card Profil -->
         <div class="profile-hero-card">
             <div class="profile-hero-left">
-                <div class="profile-avatar-large">
-                    {{ profile.initials }}
+                <div class="profile-avatar-large" id="heroAvatarContainer">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ user.username }}" class="profile-avatar-img" id="heroAvatarImg">
+                    {% else %}
+                        <span id="heroAvatarInitials">{{ profile.initials }}</span>
+                    {% endif %}
                     <span class="profile-avatar-status" title="Compte Actif"></span>
                 </div>
                 <div class="profile-hero-info">
@@ -69,18 +73,58 @@
             </div>
             {% endif %}
 
-            <form method="post" action="{% url 'profile' %}">
+            <form method="post" action="{% url 'profile' %}" enctype="multipart/form-data" id="profileForm">
                 {% csrf_token %}
 
-                <!-- Section 1 : Informations Générales -->
+                <!-- Section 1 : Informations Générales & Photo -->
                 <div class="profile-section">
                     <div class="section-header-row">
                         <span class="section-header-icon">👤</span>
                         <h2 class="section-title">Coordonnées & Informations Personnelles</h2>
                     </div>
                     <p class="section-subtitle">
-                        Mettez à jour vos informations de contact et votre identité sur le réseau CargoLink.
+                        Mettez à jour votre photo de profil, vos informations de contact et votre identité sur le réseau CargoLink.
                     </p>
+
+                    <!-- Avatar Upload Card -->
+                    <div class="avatar-upload-card">
+                        <div class="avatar-preview-box" id="avatarPreviewBox" onclick="document.getElementById('{{ form.avatar.id_for_label }}').click()" title="Cliquer pour changer la photo">
+                            {% if profile.avatar %}
+                                <img src="{{ profile.avatar.url }}" alt="{{ user.username }}" class="avatar-preview-img" id="avatarPreviewImg">
+                            {% else %}
+                                <span id="avatarPreviewInitials">{{ profile.initials }}</span>
+                            {% endif %}
+                            <div class="avatar-preview-overlay">📷</div>
+                        </div>
+
+                        <div class="avatar-details-area">
+                            <span class="avatar-title">Photo de Profil</span>
+                            <span class="avatar-subtext">Formats acceptés : JPG, PNG, WEBP ou GIF (Max. 5 Mo). Un format carré est recommandé.</span>
+                            
+                            <div class="avatar-actions-group">
+                                <label for="{{ form.avatar.id_for_label }}" class="btn-choose-avatar">
+                                    <span>📷</span>
+                                    <span id="choosePhotoBtnText">{% if profile.avatar %}Changer la photo{% else %}Choisir une photo{% endif %}</span>
+                                </label>
+                                
+                                {% if profile.avatar %}
+                                <button type="button" class="btn-delete-avatar" id="btnDeleteAvatar" onclick="handleDeleteAvatar()">
+                                    <span>🗑️</span>
+                                    <span>Supprimer la photo</span>
+                                </button>
+                                {% endif %}
+
+                                <button type="button" class="btn-delete-avatar" id="btnCancelNewAvatar" style="display: none; background: rgba(148, 163, 184, 0.15); border-color: rgba(148, 163, 184, 0.35); color: var(--text-muted);" onclick="cancelNewAvatar()">
+                                    <span>✕</span>
+                                    <span>Annuler</span>
+                                </button>
+                            </div>
+                            
+                            {{ form.avatar }}
+                            <input type="hidden" name="delete_avatar" id="deleteAvatarInput" value="0">
+                            {% if form.avatar.errors %}<div class="field-error">{{ form.avatar.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
 
                     <div class="form-grid-2">
                         <div class="form-group">
@@ -134,7 +178,7 @@
                         <h2 class="section-title">Rôle Logistique & Habilitations</h2>
                     </div>
                     <p class="section-subtitle">
-                        Votre rôle détermine les accès fonctionnels dans CargoLink (gestion d'entrepôt, planification ou suivi de transport).
+                        Votre rôle détermine vos accès fonctionnels dans CargoLink (gestion d'entrepôt, planification ou suivi de transport).
                     </p>
 
                     <input type="hidden" name="role" id="selectedRoleInput" value="{{ form.role.value|default:profile.role }}">
@@ -236,6 +280,61 @@ function selectRole(roleKey, cardEl) {
     const allCards = document.querySelectorAll('.role-card-option');
     allCards.forEach(c => c.classList.remove('active'));
     cardEl.classList.add('active');
+}
+
+// Avatar upload & preview handling
+const avatarInput = document.getElementById('{{ form.avatar.id_for_label }}');
+const deleteInput = document.getElementById('deleteAvatarInput');
+const previewBox = document.getElementById('avatarPreviewBox');
+const btnCancelNew = document.getElementById('btnCancelNewAvatar');
+const chooseBtnText = document.getElementById('choosePhotoBtnText');
+const btnDelete = document.getElementById('btnDeleteAvatar');
+
+const initialAvatarUrl = "{% if profile.avatar %}{{ profile.avatar.url }}{% endif %}";
+const userInitials = "{{ profile.initials }}";
+
+if (avatarInput) {
+    avatarInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            deleteInput.value = "0";
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                previewBox.innerHTML = '<img src="' + evt.target.result + '" class="avatar-preview-img" id="avatarPreviewImg"><div class="avatar-preview-overlay">📷</div>';
+                chooseBtnText.textContent = "Changer la sélection";
+                btnCancelNew.style.display = "inline-flex";
+                if (btnDelete) btnDelete.style.display = "none";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function cancelNewAvatar() {
+    if (avatarInput) avatarInput.value = "";
+    btnCancelNew.style.display = "none";
+    chooseBtnText.textContent = initialAvatarUrl ? "Changer la photo" : "Choisir une photo";
+    deleteInput.value = "0";
+    if (initialAvatarUrl) {
+        previewBox.innerHTML = '<img src="' + initialAvatarUrl + '" class="avatar-preview-img"><div class="avatar-preview-overlay">📷</div>';
+        if (btnDelete) btnDelete.style.display = "inline-flex";
+    } else {
+        previewBox.innerHTML = '<span>' + userInitials + '</span><div class="avatar-preview-overlay">📷</div>';
+    }
+}
+
+function handleDeleteAvatar() {
+    deleteInput.value = "1";
+    if (avatarInput) avatarInput.value = "";
+    previewBox.innerHTML = '<span>' + userInitials + '</span><div class="avatar-preview-overlay">📷</div>';
+    if (btnDelete) btnDelete.style.display = "none";
+    btnCancelNew.style.display = "inline-flex";
+    btnCancelNew.innerHTML = '<span>↩️</span><span>Rétablir photo</span>';
+    btnCancelNew.onclick = function() {
+        cancelNewAvatar();
+        btnCancelNew.onclick = cancelNewAvatar;
+        btnCancelNew.innerHTML = '<span>✕</span><span>Annuler</span>';
+    };
 }
 </script>
 {% endblock %}
