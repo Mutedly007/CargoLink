@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, ProfileUpdateForm
 from .models import UserProfile
 
 
@@ -82,3 +83,58 @@ def logout_view(request):
         messages.info(request, "Vous avez été déconnecté avec succès. À bientôt sur CargoLink !")
         logout(request)
     return redirect('landing')
+
+
+@login_required
+def profile_view(request):
+    """Consultation et modification du profil utilisateur et paramètres de sécurité."""
+    user = request.user
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, user=user)
+        if form.is_valid():
+            user.first_name = form.cleaned_data.get('first_name', '')
+            user.last_name = form.cleaned_data.get('last_name', '')
+            user.username = form.cleaned_data['username']
+            user.email = form.cleaned_data['email']
+
+            profile.role = form.cleaned_data['role']
+            profile.entreprise = form.cleaned_data.get('entreprise', '')
+            profile.telephone = form.cleaned_data.get('telephone', '')
+
+            password_changed = False
+            new_password = form.cleaned_data.get('new_password')
+            if new_password:
+                user.set_password(new_password)
+                password_changed = True
+
+            user.save()
+            profile.save()
+
+            if password_changed:
+                update_session_auth_hash(request, user)
+                messages.success(request, "Votre profil et vos identifiants de sécurité ont été mis à jour avec succès !")
+            else:
+                messages.success(request, "Votre profil a été mis à jour avec succès !")
+
+            return redirect('profile')
+    else:
+        initial_data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'username': user.username,
+            'email': user.email,
+            'role': profile.role,
+            'entreprise': profile.entreprise,
+            'telephone': profile.telephone,
+        }
+        form = ProfileUpdateForm(initial=initial_data, user=user)
+
+    context = {
+        'form': form,
+        'profile': profile,
+        'page_title': 'Mon Profil & Paramètres - CargoLink',
+    }
+    return render(request, 'accounts/profile.html', context)
+
