@@ -26,10 +26,6 @@
                 <a href="{% url 'creneaux:creneau_cancel' creneau.pk %}" class="btn btn-outline" style="font-size: 0.85rem; border-color: rgba(239,68,68,0.4); color: #f87171;">
                     ❌ Annuler
                 </a>
-                {% else %}
-                <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; padding: 0.45rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;">
-                    👁️ Consultation Seule
-                </span>
                 {% endif %}
             {% endif %}
         </div>

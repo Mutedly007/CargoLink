@@ -1,0 +1,340 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Mon Profil & Paramètres &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+
+        <!-- 1. Hero Card Profil -->
+        <div class="profile-hero-card">
+            <div class="profile-hero-left">
+                <div class="profile-avatar-large" id="heroAvatarContainer">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ user.username }}" class="profile-avatar-img" id="heroAvatarImg">
+                    {% else %}
+                        <span id="heroAvatarInitials">{{ profile.initials }}</span>
+                    {% endif %}
+                    <span class="profile-avatar-status" title="Compte Actif"></span>
+                </div>
+                <div class="profile-hero-info">
+                    <h1 class="profile-hero-name">
+                        {{ user.get_full_name|default:user.username }}
+                        {% if user.profile.is_admin %}
+                            <span class="badge-admin-pill" style="font-size: 0.65rem;">ADMIN</span>
+                        {% endif %}
+                    </h1>
+                    <span class="profile-hero-username">@{{ user.username }} &bull; {{ user.email }}</span>
+                    
+                    <div class="profile-hero-badges">
+                        {% if profile.role == 'ENTREPOT' %}
+                            <span class="profile-role-pill role-pill-entrepot">🏢 Gestionnaire d'Entrepôt</span>
+                        {% elif profile.role == 'TRANSPORTEUR' %}
+                            <span class="profile-role-pill role-pill-transporteur">🚚 Transporteur / Chauffeur</span>
+                        {% elif profile.role == 'PLANIFICATEUR' %}
+                            <span class="profile-role-pill role-pill-planificateur">⏱️ Planificateur de Créneaux</span>
+                        {% elif profile.role == 'ADMIN' %}
+                            <span class="profile-role-pill role-pill-admin">🛡️ Administrateur Plateforme</span>
+                        {% endif %}
+
+                        {% if profile.entreprise %}
+                            <span class="profile-role-pill" style="background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: var(--text-sub);">
+                                🏢 {{ profile.entreprise }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-hero-meta">
+                <div class="profile-meta-item">
+                    <span>🗓️ Membre depuis :</span>
+                    <strong style="color: var(--text-main);">{{ user.date_joined|date:"d M Y" }}</strong>
+                </div>
+                <div class="profile-meta-item">
+                    <span>⚡ Dernière session :</span>
+                    <strong style="color: var(--text-main);">{{ user.last_login|date:"d/m/Y H:i"|default:"Session en cours" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Formulaire de modification -->
+        <div class="profile-form-wrapper">
+            {% if form.non_field_errors %}
+            <div class="form-errors-banner">
+                {% for error in form.non_field_errors %}
+                    <div>⚠️ {{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'profile' %}" enctype="multipart/form-data" id="profileForm">
+                {% csrf_token %}
+
+                <!-- Section 1 : Informations Générales & Photo -->
+                <div class="profile-section">
+                    <div class="section-header-row">
+                        <span class="section-header-icon">👤</span>
+                        <h2 class="section-title">Coordonnées & Informations Personnelles</h2>
+                    </div>
+                    <p class="section-subtitle">
+                        Mettez à jour votre photo de profil, vos informations de contact et votre identité sur le réseau CargoLink.
+                    </p>
+
+                    <!-- Avatar Upload Card -->
+                    <div class="avatar-upload-card">
+                        <div class="avatar-preview-box" id="avatarPreviewBox" onclick="document.getElementById('{{ form.avatar.id_for_label }}').click()" title="Cliquer pour changer la photo">
+                            {% if profile.avatar %}
+                                <img src="{{ profile.avatar.url }}" alt="{{ user.username }}" class="avatar-preview-img" id="avatarPreviewImg">
+                            {% else %}
+                                <span id="avatarPreviewInitials">{{ profile.initials }}</span>
+                            {% endif %}
+                            <div class="avatar-preview-overlay">📷</div>
+                        </div>
+
+                        <div class="avatar-details-area">
+                            <span class="avatar-title">Photo de Profil</span>
+                            <span class="avatar-subtext">Formats acceptés : JPG, PNG, WEBP ou GIF (Max. 5 Mo). Un format carré est recommandé.</span>
+                            
+                            <div class="avatar-actions-group">
+                                <label for="{{ form.avatar.id_for_label }}" class="btn-choose-avatar">
+                                    <span>📷</span>
+                                    <span id="choosePhotoBtnText">{% if profile.avatar %}Changer la photo{% else %}Choisir une photo{% endif %}</span>
+                                </label>
+                                
+                                {% if profile.avatar %}
+                                <button type="button" class="btn-delete-avatar" id="btnDeleteAvatar" onclick="handleDeleteAvatar()">
+                                    <span>🗑️</span>
+                                    <span>Supprimer la photo</span>
+                                </button>
+                                {% endif %}
+
+                                <button type="button" class="btn-delete-avatar" id="btnCancelNewAvatar" style="display: none; background: rgba(148, 163, 184, 0.15); border-color: rgba(148, 163, 184, 0.35); color: var(--text-muted);" onclick="cancelNewAvatar()">
+                                    <span>✕</span>
+                                    <span>Annuler</span>
+                                </button>
+                            </div>
+                            
+                            {{ form.avatar }}
+                            <input type="hidden" name="delete_avatar" id="deleteAvatarInput" value="0">
+                            {% if form.avatar.errors %}<div class="field-error">{{ form.avatar.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.first_name.id_for_label }}">Prénom</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.last_name.id_for_label }}">Nom</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}<div class="field-error">{{ form.username.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.email.id_for_label }}">Adresse Email Professionnelle</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.entreprise.id_for_label }}">Société / Organisation</label>
+                            {{ form.entreprise }}
+                            {% if form.entreprise.errors %}<div class="field-error">{{ form.entreprise.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.telephone.id_for_label }}">Numéro de Téléphone</label>
+                            {{ form.telephone }}
+                            {% if form.telephone.errors %}<div class="field-error">{{ form.telephone.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <!-- Section 2 : Rôle Plateforme -->
+                <div class="profile-section">
+                    <div class="section-header-row">
+                        <span class="section-header-icon">🎯</span>
+                        <h2 class="section-title">Rôle Logistique & Habilitations</h2>
+                    </div>
+                    <p class="section-subtitle">
+                        Votre rôle détermine vos accès fonctionnels dans CargoLink (gestion d'entrepôt, planification ou suivi de transport).
+                    </p>
+
+                    <input type="hidden" name="role" id="selectedRoleInput" value="{{ form.role.value|default:profile.role }}">
+
+                    <div class="role-cards-grid-profile {% if profile.is_admin or user.is_superuser %}has-admin{% endif %}">
+                        <div class="role-card-option {% if form.role.value == 'ENTREPOT' or not form.role.value and profile.role == 'ENTREPOT' %}active{% endif %}" onclick="selectRole('ENTREPOT', this)">
+                            <div class="role-check-indicator">✓</div>
+                            <div class="role-card-icon">🏢</div>
+                            <h3 class="role-card-title">Entrepôt</h3>
+                            <p class="role-card-desc">Supervision des quais, des entrepôts et consultation des flux.</p>
+                        </div>
+
+                        <div class="role-card-option {% if form.role.value == 'TRANSPORTEUR' or not form.role.value and profile.role == 'TRANSPORTEUR' %}active{% endif %}" onclick="selectRole('TRANSPORTEUR', this)">
+                            <div class="role-check-indicator">✓</div>
+                            <div class="role-card-icon">🚚</div>
+                            <h3 class="role-card-title">Transporteur</h3>
+                            <p class="role-card-desc">Gestion de la flotte de camions et exécution des transports.</p>
+                        </div>
+
+                        <div class="role-card-option {% if form.role.value == 'PLANIFICATEUR' or not form.role.value and profile.role == 'PLANIFICATEUR' %}active{% endif %}" onclick="selectRole('PLANIFICATEUR', this)">
+                            <div class="role-check-indicator">✓</div>
+                            <div class="role-card-icon">⏱️</div>
+                            <h3 class="role-card-title">Planificateur</h3>
+                            <p class="role-card-desc">Réservation, modification et gestion complète des créneaux horaires.</p>
+                        </div>
+
+                        {% if profile.is_admin or user.is_superuser %}
+                        <div class="role-card-option {% if form.role.value == 'ADMIN' or not form.role.value and profile.role == 'ADMIN' %}active{% endif %}" onclick="selectRole('ADMIN', this)">
+                            <div class="role-check-indicator">✓</div>
+                            <div class="role-card-icon">🛡️</div>
+                            <h3 class="role-card-title">Administrateur</h3>
+                            <p class="role-card-desc">Contrôle complet de la plateforme et droits système globaux.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if form.role.errors %}<div class="field-error" style="margin-top: 0.75rem;">{{ form.role.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <!-- Section 3 : Sécurité & Changement de mot de passe -->
+                <div class="profile-section">
+                    <div class="section-header-row">
+                        <span class="section-header-icon">🔒</span>
+                        <h2 class="section-title">Sécurité & Modification du Mot de Passe</h2>
+                    </div>
+                    <p class="section-subtitle">
+                        Pour changer votre mot de passe, renseignez votre mot de passe actuel puis choisissez un nouveau mot de passe sécurisé. Laissez vide si vous ne souhaitez rien changer.
+                    </p>
+
+                    <div class="security-card-box">
+                        <div class="security-tip-strip">
+                            <span>💡</span>
+                            <span>Optionnel : Renseignez ces champs uniquement si vous désirez modifier vos identifiants d'accès.</span>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label class="form-label" for="{{ form.old_password.id_for_label }}">Mot de passe actuel</label>
+                            {{ form.old_password }}
+                            {% if form.old_password.errors %}<div class="field-error">{{ form.old_password.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.new_password.id_for_label }}">Nouveau mot de passe</label>
+                                {{ form.new_password }}
+                                {% if form.new_password.errors %}<div class="field-error">{{ form.new_password.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.confirm_new_password.id_for_label }}">Confirmer le nouveau mot de passe</label>
+                                {{ form.confirm_new_password }}
+                                {% if form.confirm_new_password.errors %}<div class="field-error">{{ form.confirm_new_password.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions de soumission -->
+                <div class="profile-actions-bar">
+                    <a href="{% url 'landing' %}" class="btn-profile-cancel">Annuler</a>
+                    <button type="submit" class="btn-profile-submit">
+                        <span>💾</span>
+                        <span>Enregistrer les modifications</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function selectRole(roleKey, cardEl) {
+    const input = document.getElementById('selectedRoleInput');
+    if (input) {
+        input.value = roleKey;
+    }
+    const allCards = document.querySelectorAll('.role-card-option');
+    allCards.forEach(c => c.classList.remove('active'));
+    cardEl.classList.add('active');
+}
+
+// Avatar upload & preview handling
+const avatarInput = document.getElementById('{{ form.avatar.id_for_label }}');
+const deleteInput = document.getElementById('deleteAvatarInput');
+const previewBox = document.getElementById('avatarPreviewBox');
+const btnCancelNew = document.getElementById('btnCancelNewAvatar');
+const chooseBtnText = document.getElementById('choosePhotoBtnText');
+const btnDelete = document.getElementById('btnDeleteAvatar');
+
+const initialAvatarUrl = "{% if profile.avatar %}{{ profile.avatar.url }}{% endif %}";
+const userInitials = "{{ profile.initials }}";
+
+if (avatarInput) {
+    avatarInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            deleteInput.value = "0";
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                previewBox.innerHTML = '<img src="' + evt.target.result + '" class="avatar-preview-img" id="avatarPreviewImg"><div class="avatar-preview-overlay">📷</div>';
+                chooseBtnText.textContent = "Changer la sélection";
+                btnCancelNew.style.display = "inline-flex";
+                if (btnDelete) btnDelete.style.display = "none";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function cancelNewAvatar() {
+    if (avatarInput) avatarInput.value = "";
+    btnCancelNew.style.display = "none";
+    chooseBtnText.textContent = initialAvatarUrl ? "Changer la photo" : "Choisir une photo";
+    deleteInput.value = "0";
+    if (initialAvatarUrl) {
+        previewBox.innerHTML = '<img src="' + initialAvatarUrl + '" class="avatar-preview-img"><div class="avatar-preview-overlay">📷</div>';
+        if (btnDelete) btnDelete.style.display = "inline-flex";
+    } else {
+        previewBox.innerHTML = '<span>' + userInitials + '</span><div class="avatar-preview-overlay">📷</div>';
+    }
+}
+
+function handleDeleteAvatar() {
+    deleteInput.value = "1";
+    if (avatarInput) avatarInput.value = "";
+    previewBox.innerHTML = '<span>' + userInitials + '</span><div class="avatar-preview-overlay">📷</div>';
+    if (btnDelete) btnDelete.style.display = "none";
+    btnCancelNew.style.display = "inline-flex";
+    btnCancelNew.innerHTML = '<span>↩️</span><span>Rétablir photo</span>';
+    btnCancelNew.onclick = function() {
+        cancelNewAvatar();
+        btnCancelNew.onclick = cancelNewAvatar;
+        btnCancelNew.innerHTML = '<span>✕</span><span>Annuler</span>';
+    };
+}
+</script>
+{% endblock %}

@@ -50,10 +50,6 @@
                 </svg>
                 Planifier un Créneau
             </a>
-            {% else %}
-            <span style="display: inline-flex; align-items: center; gap: 0.45rem; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600;">
-                👁️ Mode Consultation Seule
-            </span>
             {% endif %}
         </div>
     </div>
@@ -215,7 +211,7 @@
                             </div>
                         </td>
                         <td>
-                            <strong style="color: #ffffff;">{{ c.quai.numero }}</strong>
+                            <strong class="cell-title-text">{{ c.quai.numero }}</strong>
                             <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
                                 🏭 {{ c.entrepot.nom }}
                             </div>
@@ -231,13 +227,13 @@
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight: 600; color: #ffffff;">{{ c.transporteur_nom }}</div>
-                            <div style="font-family: monospace; font-size: 0.8rem; color: #94a3b8; background: rgba(255,255,255,0.06); display: inline-block; padding: 1px 6px; border-radius: 4px; margin-top: 2px;">
+                            <div class="cell-primary-text">{{ c.transporteur_nom }}</div>
+                            <div class="truck-plate-badge">
                                 🚛 {{ c.immatriculation_camion }}
                             </div>
                         </td>
                         <td>
-                            <div style="color: #ffffff;">{{ c.chauffeur_nom }}</div>
+                            <div class="cell-primary-text">{{ c.chauffeur_nom }}</div>
                             {% if c.chauffeur_telephone %}
                             <div style="font-size: 0.78rem; color: var(--text-muted);">
                                 📞 {{ c.chauffeur_telephone }}
@@ -260,7 +256,7 @@
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 4rem 2rem;">
                             <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
-                            <h3 style="color: #ffffff; margin-bottom: 0.5rem;">Aucun créneau planifié</h3>
+                            <h3 class="cell-title-text" style="margin-bottom: 0.5rem;">Aucun créneau planifié</h3>
                             <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto;">
                                 Aucun créneau horaire ne correspond aux filtres actuels. Commencez par planifier un créneau ou effectuez une demande de livraison.
                             </p>

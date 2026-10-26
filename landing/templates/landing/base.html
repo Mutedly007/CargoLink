@@ -14,6 +14,15 @@
     <!-- Base Stylesheet -->
     <link rel="stylesheet" href="{% static 'landing/css/base.css' %}">
     {% block extra_css %}{% endblock %}
+
+    <!-- Prevent Theme Flash on Page Load -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cargolink_theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
 </head>
 <body>
     <header class="site-header">
@@ -35,11 +44,26 @@
             </ul>
 
             <div class="nav-auth">
+                <!-- Theme Switcher Button (Light / Dark Mode) -->
+                <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Basculer Mode Clair / Sombre" title="Basculer entre Mode Sombre et Mode Clair">
+                    <span class="theme-toggle-track">
+                        <span class="theme-icon icon-sun">☀️</span>
+                        <span class="theme-icon icon-moon">🌙</span>
+                        <span class="theme-toggle-thumb"></span>
+                    </span>
+                </button>
+
                 {% if user.is_authenticated %}
                     <div class="user-dropdown-wrapper" id="userDropdownWrapper">
                         <button type="button" class="user-pill-btn" id="userMenuTrigger" aria-expanded="false" aria-haspopup="true">
                             <div class="user-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
-                                {% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-avatar-img">
+                                {% elif user.profile.initials %}
+                                    {{ user.profile.initials }}
+                                {% else %}
+                                    {{ user.username|slice:":1"|upper }}
+                                {% endif %}
                             </div>
                             <div class="user-info">
                                 <div class="user-name-row">
@@ -66,7 +90,13 @@
                             <!-- Identity Card -->
                             <div class="dropdown-header">
                                 <div class="dropdown-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
-                                    {% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                                    {% if user.profile.avatar %}
+                                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="dropdown-avatar-img">
+                                    {% elif user.profile.initials %}
+                                        {{ user.profile.initials }}
+                                    {% else %}
+                                        {{ user.username|slice:":1"|upper }}
+                                    {% endif %}
                                 </div>
                                 <div class="dropdown-identity">
                                     <div class="dropdown-name-line">
@@ -114,6 +144,14 @@
 
                             <!-- Actions -->
                             <div class="dropdown-actions">
+                                <a href="{% url 'profile' %}" class="dropdown-item">
+                                    <span class="dropdown-item-icon">👤</span>
+                                    <div class="dropdown-item-content">
+                                        <span class="dropdown-item-title">Mon Profil</span>
+                                        <span class="dropdown-item-sub">Modifier mes coordonnées & sécurité</span>
+                                    </div>
+                                    <span style="margin-left: auto; color: var(--accent); font-size: 0.95rem; font-weight: 700;">&rarr;</span>
+                                </a>
                                 {% if user.profile.is_admin %}
                                 <a href="{% url 'admin:index' %}" class="dropdown-item admin-item">
                                     <span class="dropdown-item-icon">⚙️</span>
@@ -237,6 +275,17 @@
                         trigger.setAttribute('aria-expanded', 'false');
                         trigger.focus();
                     }
+                });
+            }
+
+            // Theme Switcher Persistence Logic
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('cargolink_theme', newTheme);
                 });
             }
         });

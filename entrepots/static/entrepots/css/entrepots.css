@@ -880,3 +880,194 @@
         align-items: stretch;
     }
 }
+
+
+/* ==============================================================================
+   LIGHT MODE DÉDIÉ POUR LE MODULE ENTREPÔTS & QUAIS ([data-theme="light"])
+   ============================================================================== */
+
+/* Page Header & Texts */
+[data-theme="light"] .page-title-box h1 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .page-title-box p {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .kpi-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .kpi-card:hover {
+    border-color: rgba(249, 115, 22, 0.45) !important;
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="light"] .kpi-value {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .kpi-label {
+    color: #64748b !important;
+}
+
+/* SEARCH & FILTER TOOLBAR */
+[data-theme="light"] .toolbar-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .search-input-box input {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .search-input-box input:focus {
+    background: #ffffff !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.16) !important;
+}
+
+[data-theme="light"] .search-icon {
+    color: #94a3b8 !important;
+}
+
+[data-theme="light"] .filter-select {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .filter-select:focus {
+    background: #ffffff !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.16) !important;
+}
+
+[data-theme="light"] .filter-select option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+/* WAREHOUSE CARDS */
+[data-theme="light"] .entrepot-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .entrepot-card:hover {
+    border-color: rgba(249, 115, 22, 0.5) !important;
+    box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="light"] .entrepot-name {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .entrepot-location {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .spec-item {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .spec-label {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .spec-value {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .quais-preview-list {
+    border-top: 1px solid #f1f5f9 !important;
+}
+
+[data-theme="light"] .quai-mini-tag {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #334155 !important;
+}
+
+/* QUAI CARDS & DETAILS */
+[data-theme="light"] .quai-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .quai-card:hover {
+    border-color: rgba(249, 115, 22, 0.5) !important;
+    box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="light"] .quai-number,
+[data-theme="light"] .detail-card-title,
+[data-theme="light"] .section-header h2 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .detail-main-card,
+[data-theme="light"] .detail-side-card,
+[data-theme="light"] .entrepot-detail-header,
+[data-theme="light"] .quai-detail-header,
+[data-theme="light"] .form-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06) !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .quai-stat-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .quai-stat-val {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .quai-stat-label {
+    color: #64748b !important;
+}
+
+/* STATUS PILLS & BADGES IN LIGHT MODE */
+[data-theme="light"] .status-actif,
+[data-theme="light"] .status-disponible {
+    background: #dcfce7 !important;
+    border: 1px solid #86efac !important;
+    color: #15803d !important;
+}
+
+[data-theme="light"] .status-occupe {
+    background: #ffedd5 !important;
+    border: 1px solid #fed7aa !important;
+    color: #c2410c !important;
+}
+
+[data-theme="light"] .status-reserve {
+    background: #dbeafe !important;
+    border: 1px solid #93c5fd !important;
+    color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .status-maintenance {
+    background: #fee2e2 !important;
+    border: 1px solid #fca5a5 !important;
+    color: #b91c1c !important;
+}
+
+[data-theme="light"] .status-ferme {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
