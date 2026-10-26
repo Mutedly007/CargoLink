@@ -94,6 +94,7 @@ header.site-header {
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, #ffffff 60%, #93c5fd);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -746,6 +747,7 @@ footer.site-footer {
 [data-theme="light"] .brand-name {
     background: linear-gradient(135deg, #0f172a 60%, #1e40af);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
