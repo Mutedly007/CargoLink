@@ -1,0 +1,54 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Annuler le Créneau {{ creneau.reference }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="creneaux-container" style="max-width: 680px;">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'creneaux:creneau_detail' creneau.pk %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+            ◀ Retour au créneau
+        </a>
+    </div>
+
+    <div class="form-card" style="border-top: 4px solid #ef4444;">
+        <div style="margin-bottom: 1.5rem;">
+            <span style="font-size: 2.5rem;">⚠️</span>
+            <h1 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-top: 0.5rem;">
+                Confirmer l'annulation du créneau
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 0.5rem;">
+                Vous êtes sur le point d'annuler le créneau <strong style="color: #ffffff;">{{ creneau.reference }}</strong> prévu le <strong>{{ creneau.date_creneau|date:"d/m/Y" }}</strong> de <strong>{{ creneau.heure_debut|time:"H:i" }} à {{ creneau.heure_fin|time:"H:i" }}</strong> sur le <strong>{{ creneau.quai.numero }}</strong> ({{ creneau.entrepot.nom }}).
+            </p>
+        </div>
+
+        <div style="background: rgba(30,41,59,0.5); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.88rem;">
+            <div>Transporteur : <strong style="color: #ffffff;">{{ creneau.transporteur_nom }}</strong> ({{ creneau.immatriculation_camion }})</div>
+            <div>Chauffeur : <strong style="color: #ffffff;">{{ creneau.chauffeur_nom }}</strong></div>
+            <div>Marchandise : <strong>{{ creneau.nb_palettes }} palettes ({{ creneau.get_type_marchandise_display }})</strong></div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="{{ form.motif_annulation.id_for_label }}">Motif d'annulation *</label>
+                {{ form.motif_annulation }}
+                {% if form.motif_annulation.errors %}
+                    <div style="color: #f87171; font-size: 0.8rem; margin-top: 4px;">{{ form.motif_annulation.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions-row">
+                <a href="{% url 'creneaux:creneau_detail' creneau.pk %}" class="btn btn-outline">Conserver le créneau</a>
+                <button type="submit" class="btn btn-accent" style="background: #ef4444; border-color: #ef4444;">
+                    Confirmer l'annulation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

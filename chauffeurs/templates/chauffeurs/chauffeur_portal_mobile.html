@@ -1,0 +1,178 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Portail Mobile Chauffeur &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+<style>
+    .mobile-touch-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        border: 1px solid var(--card-border);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        cursor: pointer;
+    }
+    .mobile-touch-btn:active {
+        transform: scale(0.97);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mobile-portal-container">
+    <!-- Top Bar for Mobile -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent); font-weight: 700; letter-spacing: 0.05em;">
+                Mode Conducteur Mobile
+            </span>
+            <h1 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif;">
+                Mon Espace Chauffeur
+            </h1>
+        </div>
+        <a href="{% url 'chauffeurs:chauffeur_list' %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+            Vue Standard
+        </a>
+    </div>
+
+    <!-- Chauffeur Selector (simulation multi-chauffeur) -->
+    <form method="get" style="margin-bottom: 1.25rem;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
+            Sélectionner le profil conducteur actif :
+        </label>
+        <select name="id" onchange="this.form.submit()" class="filter-select" style="width: 100%; padding: 0.8rem; font-size: 0.95rem;">
+            {% for c in chauffeurs %}
+                <option value="{{ c.pk }}" {% if chauffeur and chauffeur.pk == c.pk %}selected{% endif %}>
+                    {{ c.nom_complet }} — {{ c.entreprise_transport }} ({{ c.immatriculation_camion|default:"Sans camion" }})
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if chauffeur %}
+        <!-- Active Driver Card -->
+        <div class="mobile-card-surface" style="border-left: 4px solid var(--accent);">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div class="driver-avatar-box" style="width: 60px; height: 60px; font-size: 1.4rem;">
+                    {% if chauffeur.photo %}
+                        <img src="{{ chauffeur.photo.url }}" alt="{{ chauffeur.nom_complet }}" class="driver-avatar-img">
+                    {% else %}
+                        <span>{{ chauffeur.initiales }}</span>
+                    {% endif %}
+                </div>
+
+                <div style="flex: 1;">
+                    <div style="font-size: 1.3rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif;">
+                        {{ chauffeur.nom_complet }}
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">
+                        🏢 {{ chauffeur.entreprise_transport }}
+                    </div>
+                </div>
+
+                <span class="status-pill {{ chauffeur.badge_statut_css }}">
+                    <span class="status-dot-pulse"></span>
+                    {{ chauffeur.get_statut_display }}
+                </span>
+            </div>
+
+            <!-- Camion & Permis Fast Info -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; background: rgba(10, 19, 36, 0.6); padding: 0.85rem; border-radius: var(--radius-sm); font-size: 0.85rem;">
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem;">CAMION EN SERVICE</span>
+                    <strong style="color: #fb923c;">🚛 {{ chauffeur.immatriculation_camion|default:"Aucun" }}</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem;">PERMIS {{ chauffeur.categorie_permis }}</span>
+                    {% if chauffeur.est_permis_expire %}
+                        <strong style="color: #f87171;">🚨 Expiré</strong>
+                    {% else %}
+                        <strong style="color: #34d399;">✅ Valide ({{ chauffeur.jours_avant_expiration }}j)</strong>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 1-Click Status Selector (Big Touch Buttons) -->
+        <div class="mobile-card-surface">
+            <h2 style="font-size: 1.1rem; font-weight: 700; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.85rem;">
+                Mise à Jour Rapide de Mon Statut
+            </h2>
+
+            <form method="post" action="{% url 'chauffeurs:chauffeur_statut_update' chauffeur.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="chauffeurs:chauffeur_portal_mobile">
+
+                <div class="mobile-status-quick-grid">
+                    <button type="submit" name="nouveau_statut" value="DISPONIBLE" class="btn-status-quick {% if chauffeur.statut == 'DISPONIBLE' %}active{% endif %}">
+                        <span style="font-size: 1.5rem;">🟢</span>
+                        <span>Disponible</span>
+                    </button>
+
+                    <button type="submit" name="nouveau_statut" value="EN_MISSION" class="btn-status-quick {% if chauffeur.statut == 'EN_MISSION' %}active{% endif %}">
+                        <span style="font-size: 1.5rem;">🚚</span>
+                        <span>En Route / Mission</span>
+                    </button>
+
+                    <button type="submit" name="nouveau_statut" value="A_QUAI" class="btn-status-quick {% if chauffeur.statut == 'A_QUAI' %}active{% endif %}">
+                        <span style="font-size: 1.5rem;">⚓</span>
+                        <span>Arrivé à Quai</span>
+                    </button>
+
+                    <button type="submit" name="nouveau_statut" value="EN_REPOS" class="btn-status-quick {% if chauffeur.statut == 'EN_REPOS' %}active{% endif %}">
+                        <span style="font-size: 1.5rem;">☕</span>
+                        <span>Repos / Pause</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Next Scheduled Slot / Mission -->
+        <div class="mobile-card-surface">
+            <h2 style="font-size: 1.1rem; font-weight: 700; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>Prochain Créneau Quai</span>
+                {% if prochain_creneau %}
+                    <span class="status-pill status-badge-quai" style="font-size: 0.7rem;">{{ prochain_creneau.get_statut_display }}</span>
+                {% endif %}
+            </h2>
+
+            {% if prochain_creneau %}
+                <div style="background: rgba(10, 19, 36, 0.7); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 1rem;">
+                    <div style="font-size: 1.05rem; font-weight: 700; color: #60a5fa; margin-bottom: 0.35rem;">
+                        {{ prochain_creneau.quai.entrepot.nom }} &bull; {{ prochain_creneau.quai.numero }}
+                    </div>
+                    <div style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 0.75rem;">
+                        📅 <strong>{{ prochain_creneau.date_creneau|date:"d F Y" }}</strong> de {{ prochain_creneau.heure_debut|time:"H:i" }} à {{ prochain_creneau.heure_fin|time:"H:i" }}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 0.5rem;">
+                        <span>Opération : <strong style="color: #ffffff;">{{ prochain_creneau.get_type_operation_display }}</strong></span>
+                        <span>Palettes : <strong style="color: #ffffff;">{{ prochain_creneau.nb_palettes }}</strong></span>
+                    </div>
+                </div>
+            {% else %}
+                <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 1rem 0;">
+                    Aucun créneau immédiat programmé. Vous êtes en attente d'assignation.
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Quick Access Shortcuts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+            <a href="tel:{{ chauffeur.telephone_urgence|default:'+21671000000' }}" class="mobile-touch-btn" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);">
+                🚨 Urgence
+            </a>
+            <a href="{% url 'chauffeurs:visite_create' chauffeur.pk %}" class="mobile-touch-btn" style="background: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: rgba(59, 130, 246, 0.3);">
+                📋 Pointage Quai
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

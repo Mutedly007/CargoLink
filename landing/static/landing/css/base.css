@@ -94,6 +94,7 @@ header.site-header {
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, #ffffff 60%, #93c5fd);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -217,6 +218,15 @@ header.site-header {
 .user-avatar.admin-avatar {
     background: linear-gradient(135deg, #f59e0b, #ef4444);
     box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+}
+
+.user-avatar-img,
+.dropdown-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
 }
 
 .user-info {
@@ -598,3 +608,654 @@ footer.site-footer {
     .nav-menu { display: none; }
     .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
 }
+
+
+/* ==============================================================================
+   CARGOLINK - ACCESSIBILITY TEXT SIZE TOGGLE (GRAND TEXTE POUR MALVOYANTS)
+   ============================================================================== */
+
+.text-size-toggle-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.text-size-toggle-btn:hover {
+    transform: scale(1.06);
+}
+
+.text-size-track {
+    position: relative;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.text-size-icon {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: -0.02em;
+    transition: color 0.25s ease;
+}
+
+.text-size-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-sub);
+    letter-spacing: 0.02em;
+    transition: all 0.25s ease;
+}
+
+/* Active State (Mode Grand Texte Actif) */
+[data-text-size="large"] .text-size-track {
+    background: rgba(249, 115, 22, 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.4), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-text-size="large"] .text-size-icon {
+    color: var(--accent);
+}
+
+[data-text-size="large"] .text-size-badge {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.5);
+}
+
+/* ==============================================================================
+   ACCESSIBILITY: MODE GRAND TEXTE (POUR OUVRIERS & MALVOYANTS)
+   Élévation de l'échelle typographique, contraste renforcé et ergonomie tactile
+   ============================================================================== */
+
+[data-text-size="large"] {
+    font-size: 118%; /* Root scaling: 1rem becomes ~18.9px */
+}
+
+[data-text-size="large"] body {
+    line-height: 1.7;
+    letter-spacing: 0.015em;
+}
+
+/* Enhance text contrast in dark mode */
+[data-text-size="large"] {
+    --text-muted: #cbd5e1;
+    --text-sub: #f1f5f9;
+}
+
+/* Tables readability enhancement (quais, créneaux, entrepôts) */
+[data-text-size="large"] table th,
+[data-text-size="large"] table td {
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+    font-size: 1.02rem;
+}
+
+[data-text-size="large"] .creneaux-table th,
+[data-text-size="large"] .creneaux-table td {
+    padding: 1.15rem 1.25rem;
+}
+
+/* Form inputs & buttons for warehouse gloves & easy clicking */
+[data-text-size="large"] .form-input,
+[data-text-size="large"] select.form-input {
+    font-size: 1.05rem;
+    padding: 0.95rem 1.15rem;
+}
+
+[data-text-size="large"] .form-label {
+    font-size: 0.96rem;
+    font-weight: 700;
+}
+
+[data-text-size="large"] .btn {
+    font-size: 1.05rem;
+    padding: 0.85rem 1.6rem;
+    font-weight: 700;
+}
+
+/* Badges readability */
+[data-text-size="large"] .status-badge,
+[data-text-size="large"] .badge,
+[data-text-size="large"] .profile-role-pill,
+[data-text-size="large"] .kpi-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+/* Headings crispness */
+[data-text-size="large"] h1,
+[data-text-size="large"] h2,
+[data-text-size="large"] h3 {
+    letter-spacing: -0.01em;
+}
+
+/* Accessibility Toast */
+.a11y-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(15, 23, 42, 0.96);
+    border: 2px solid var(--accent);
+    color: #ffffff;
+    padding: 0.95rem 1.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(249, 115, 22, 0.35);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    font-size: 0.98rem;
+    font-weight: 700;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.a11y-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+[data-theme="light"] .a11y-toast {
+    background: #ffffff;
+    border-color: var(--accent);
+    color: #0f172a;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 0 20px rgba(249, 115, 22, 0.25);
+}
+
+
+/* ==============================================================================
+   CARGOLINK - INTERACTIVE THEME TOGGLE SWITCH COMPONENT
+   ============================================================================== */
+
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.06);
+}
+
+.theme-toggle-track {
+    position: relative;
+    width: 62px;
+    height: 32px;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 7px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.theme-icon {
+    font-size: 0.85rem;
+    line-height: 1;
+    z-index: 1;
+    user-select: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.icon-sun {
+    opacity: 0.45;
+    transform: scale(0.85);
+}
+
+.icon-moon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.theme-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.55);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+/* ==============================================================================
+   CARGOLINK - COMPLETE LIGHT THEME DESIGN SYSTEM ([data-theme="light"])
+   Palette moderne épurée, contrastée et élégante pour l'ensemble du projet
+   ============================================================================== */
+
+[data-theme="light"] {
+    --primary: #1e3a8a;
+    --primary-light: #2563eb;
+    --accent: #f97316;
+    --accent-hover: #ea580c;
+    --accent-glow: rgba(249, 115, 22, 0.2);
+    --blue-glow: rgba(37, 99, 235, 0.12);
+    --bg: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-border: rgba(203, 213, 225, 0.85);
+    --card-hover-border: rgba(249, 115, 22, 0.5);
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-sub: #334155;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+}
+
+/* Light Theme Switcher State */
+[data-theme="light"] .theme-toggle-track {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .icon-sun {
+    opacity: 1;
+    transform: scale(1);
+}
+
+[data-theme="light"] .icon-moon {
+    opacity: 0.4;
+    transform: scale(0.85);
+}
+
+/* Light Mode Text Size Switcher State */
+[data-theme="light"] .text-size-track {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .text-size-icon {
+    color: #475569;
+}
+
+[data-theme="light"] .text-size-badge {
+    background: #cbd5e1;
+    color: #0f172a;
+}
+
+[data-theme="light"][data-text-size="large"] .text-size-track {
+    background: #fff7ed;
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
+}
+
+[data-theme="light"][data-text-size="large"] .text-size-icon {
+    color: #c2410c;
+}
+
+[data-theme="light"][data-text-size="large"] .text-size-badge {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+[data-theme="light"][data-text-size="large"] {
+    --text-muted: #334155;
+    --text-sub: #0f172a;
+}
+
+[data-theme="light"] .theme-toggle-thumb {
+    right: calc(100% - 28px);
+    background: linear-gradient(135deg, #f59e0b, #eab308);
+    box-shadow: 0 2px 8px rgba(234, 179, 8, 0.45);
+}
+
+/* Light Mode Body & Background */
+[data-theme="light"] body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    background-image: 
+        radial-gradient(circle at 15% 10%, rgba(37, 99, 235, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(249, 115, 22, 0.05) 0%, transparent 45%);
+}
+
+/* Light Mode Header & Navigation */
+[data-theme="light"] header.site-header {
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .brand-logo {
+    color: #0f172a;
+}
+
+[data-theme="light"] .brand-name {
+    background: linear-gradient(135deg, #0f172a 60%, #1e40af);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .nav-item a {
+    color: #475569;
+}
+
+[data-theme="light"] .nav-item a:hover {
+    color: #0f172a;
+}
+
+/* Light Mode Buttons */
+[data-theme="light"] .btn-outline {
+    background: #ffffff;
+    color: #1e293b;
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .btn-outline:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+/* Light Mode User Menu & Dropdown */
+[data-theme="light"] .user-pill-btn {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .user-pill-btn:hover,
+[data-theme="light"] .user-pill-btn.active {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.09);
+}
+
+[data-theme="light"] .user-name {
+    color: #0f172a;
+}
+
+[data-theme="light"] .user-dropdown-menu {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 12px 36px -4px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .dropdown-fullname {
+    color: #0f172a;
+}
+
+[data-theme="light"] .dropdown-username {
+    color: #64748b;
+}
+
+[data-theme="light"] .dropdown-meta {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .dropdown-meta-item .meta-label {
+    color: #64748b;
+}
+
+[data-theme="light"] .dropdown-meta-item .meta-value {
+    color: #1e293b;
+}
+
+[data-theme="light"] .dropdown-item {
+    color: #334155;
+}
+
+[data-theme="light"] .dropdown-item:hover {
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .dropdown-item-title {
+    color: #0f172a;
+}
+
+[data-theme="light"] .dropdown-divider {
+    background: #e2e8f0;
+}
+
+/* Light Mode Cards, KPI and Containers (All Modules) */
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .filter-toolbar,
+[data-theme="light"] .toolbar-card,
+[data-theme="light"] .creneaux-table-card,
+[data-theme="light"] .slots-table-card,
+[data-theme="light"] .detail-main-card,
+[data-theme="light"] .detail-side-card,
+[data-theme="light"] .form-card,
+[data-theme="light"] .timeline-card,
+[data-theme="light"] .gemini-chat-card,
+[data-theme="light"] .ai-recommender-card,
+[data-theme="light"] .auth-form-side,
+[data-theme="light"] .signup-wrapper,
+[data-theme="light"] .entrepot-card,
+[data-theme="light"] .quai-card,
+[data-theme="light"] .card,
+[data-theme="light"] .feature-card,
+[data-theme="light"] .stat-card {
+    background: #ffffff !important;
+    border-color: rgba(203, 213, 225, 0.85) !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04) !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .kpi-card:hover,
+[data-theme="light"] .entrepot-card:hover,
+[data-theme="light"] .quai-card:hover {
+    border-color: rgba(249, 115, 22, 0.45) !important;
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Light Mode Headings & Text */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] .page-title-box h1,
+[data-theme="light"] .kpi-value,
+[data-theme="light"] .role-card-title,
+[data-theme="light"] .auth-form-side h2,
+[data-theme="light"] strong,
+[data-theme="light"] .detail-main-card h1,
+[data-theme="light"] .card-title {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] p,
+[data-theme="light"] .page-title-box p,
+[data-theme="light"] .kpi-label,
+[data-theme="light"] .text-muted,
+[data-theme="light"] .subtitle {
+    color: #64748b !important;
+}
+
+/* Light Mode Inputs, Selects & Forms */
+[data-theme="light"] .search-input-field,
+[data-theme="light"] .filter-select,
+[data-theme="light"] .form-input,
+[data-theme="light"] .form-select,
+[data-theme="light"] .form-textarea,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="time"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .search-input-field:focus,
+[data-theme="light"] .filter-select:focus,
+[data-theme="light"] .form-input:focus,
+[data-theme="light"] .form-select:focus,
+[data-theme="light"] .form-textarea:focus,
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+    background: #ffffff !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.16) !important;
+}
+
+[data-theme="light"] .form-label {
+    color: #334155 !important;
+}
+
+/* Light Mode Tables */
+[data-theme="light"] .creneaux-table-card,
+[data-theme="light"] .slots-table-card {
+    background: #ffffff !important;
+    border-color: rgba(203, 213, 225, 0.85) !important;
+    box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="light"] .creneaux-table th,
+[data-theme="light"] .slots-table th,
+[data-theme="light"] .data-table th,
+[data-theme="light"] .timeline-hours-header,
+[data-theme="light"] table th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .creneaux-table,
+[data-theme="light"] .creneaux-table td,
+[data-theme="light"] .slots-table td,
+[data-theme="light"] .data-table td,
+[data-theme="light"] .timeline-quai-row,
+[data-theme="light"] table td {
+    background: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #1e293b !important;
+}
+
+[data-theme="light"] .creneaux-table tr:hover td,
+[data-theme="light"] .slots-table tr:hover td,
+[data-theme="light"] .data-table tr:hover td,
+[data-theme="light"] table tr:hover td {
+    background: #f8fafc !important;
+}
+
+[data-theme="light"] .creneau-ref-link {
+    color: #2563eb !important;
+}
+
+/* Light Mode Planning Timeline */
+[data-theme="light"] .planning-header-bar {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="light"] .nav-day-btn {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+[data-theme="light"] .nav-day-btn:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .current-date-title {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .slot-time-badge {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+/* Light Mode Auth & Roles */
+[data-theme="light"] .auth-wrapper {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="light"] .role-card-option {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .role-card-option:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .role-card-option.active {
+    background: rgba(249, 115, 22, 0.06) !important;
+    border-color: #f97316 !important;
+}
+
+[data-theme="light"] .switch-auth {
+    color: #64748b !important;
+}
+
+/* Light Mode Footer */
+[data-theme="light"] footer.site-footer {
+    background: #f1f5f9;
+    border-top: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .footer-col h4 {
+    color: #0f172a;
+}
+
+[data-theme="light"] .footer-brand p,
+[data-theme="light"] .footer-links a,
+[data-theme="light"] .footer-bottom {
+    color: #64748b;
+}
+
+[data-theme="light"] .footer-links a:hover {
+    color: #ea580c;
+}
+
+[data-theme="light"] .footer-bottom {
+    border-top: 1px solid #e2e8f0;
+}
+

@@ -21,6 +21,7 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='ENTREPOT')
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, help_text="Photo de profil")
     telephone = models.CharField(max_length=30, blank=True, help_text="Numéro de téléphone")
     entreprise = models.CharField(max_length=150, blank=True, help_text="Société / Organisation")
     date_creation = models.DateTimeField(auto_now_add=True)

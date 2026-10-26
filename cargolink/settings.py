@@ -10,10 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Google Gemini AI API Configuration (Module Créneaux)
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AQ.Ab8RN6IAoXdkgOL1hPynevF34zzbIy92LRgAUM9HGVc1RySoHg')
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +29,12 @@ SECRET_KEY = 'django-insecure-r@0f8jjvywsiota8l6_55ml@70*o8(a8-(xh9z=5ovpzme*k5%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*']
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 
 # Application definition
@@ -40,6 +49,9 @@ INSTALLED_APPS = [
     'landing',
     'accounts',
     'entrepots',
+    'creneaux',
+    'camions',
+    'chauffeurs',
 ]
 
 MIDDLEWARE = [
@@ -126,6 +138,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Media files (User uploads, avatars)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

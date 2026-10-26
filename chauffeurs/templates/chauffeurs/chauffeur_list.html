@@ -1,0 +1,286 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Chauffeurs & Flotte &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chauffeurs-container">
+    <!-- Top Bar -->
+    <div class="page-top-bar">
+        <div class="page-title-box">
+            <h1>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Gestion des Chauffeurs
+            </h1>
+            <p>Supervisez les conducteurs de fret, contrôlez la conformité des permis (C, CE, ADR) et suivez l'historique de passage sur vos sites logistiques.</p>
+        </div>
+
+        <div class="top-actions-group">
+            <a href="{% url 'chauffeurs:chauffeur_portal_mobile' %}" class="btn btn-outline" style="font-size: 0.875rem;" title="Vue ergonomique smartphone pour les chauffeurs">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                </svg>
+                Portail Mobile
+            </a>
+
+            <a href="{% url 'chauffeurs:chauffeurs_export' %}" class="btn btn-outline" style="font-size: 0.875rem;" title="Exporter la liste au format CSV">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export CSV
+            </a>
+
+            <a href="{% url 'chauffeurs:chauffeur_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Ajouter un Chauffeur
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Metrics Dashboard Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-blue">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ total_chauffeurs }}</span>
+                <span class="kpi-label">Chauffeurs Enregistrés</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-green">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ chauffeurs_disponibles }}</span>
+                <span class="kpi-label">Disponibles de suite</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-orange">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ chauffeurs_en_mission|add:chauffeurs_a_quai }}</span>
+                <span class="kpi-label">En Mission / À Quai</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box {% if permis_alertes_total > 0 %}icon-red{% else %}icon-green{% endif %}">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ permis_alertes_total }}</span>
+                <span class="kpi-label">Alertes Permis (&le; 30j)</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-purple">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ total_visites }}</span>
+                <span class="kpi-label">Visites Effectuées</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Search Bar -->
+    <div class="filters-panel">
+        <form method="get" class="filters-form">
+            <div class="search-input-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" name="q" value="{{ query }}" placeholder="Rechercher par nom, permis, matricule, société, ville...">
+            </div>
+
+            <select name="statut" class="filter-select">
+                <option value="">Tous les statuts</option>
+                {% for code, label in statuts %}
+                    <option value="{{ code }}" {% if statut_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="categorie" class="filter-select">
+                <option value="">Toutes catégories de permis</option>
+                {% for code, label in categories %}
+                    <option value="{{ code }}" {% if categorie_filter == code %}selected{% endif %}>{{ code }} ({{ label|truncatechars:28 }})</option>
+                {% endfor %}
+            </select>
+
+            <select name="permis" class="filter-select">
+                <option value="">Conformité Permis</option>
+                <option value="expire" {% if permis_alert_filter == 'expire' %}selected{% endif %}>🚨 Permis Expiré</option>
+                <option value="bientot" {% if permis_alert_filter == 'bientot' %}selected{% endif %}>⚠️ Expire sous 30 jours</option>
+                <option value="valide" {% if permis_alert_filter == 'valide' %}selected{% endif %}>✅ Permis Valide</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary" style="padding: 0.7rem 1.25rem;">
+                Filtrer
+            </button>
+
+            {% if query or statut_filter or categorie_filter or permis_alert_filter %}
+                <a href="{% url 'chauffeurs:chauffeur_list' %}" class="btn btn-outline" style="padding: 0.7rem 1rem;">
+                    Réinitialiser
+                </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Driver Cards Grid -->
+    {% if chauffeurs %}
+        <div class="chauffeurs-grid">
+            {% for c in chauffeurs %}
+                <div class="chauffeur-card">
+                    <div class="chauffeur-card-header">
+                        <div class="driver-avatar-box">
+                            {% if c.photo %}
+                                <img src="{{ c.photo.url }}" alt="{{ c.nom_complet }}" class="driver-avatar-img">
+                            {% else %}
+                                <span>{{ c.initiales }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="driver-info-main">
+                            <h3 class="driver-name" title="{{ c.nom_complet }}">
+                                <a href="{% url 'chauffeurs:chauffeur_detail' c.pk %}" style="color: inherit; text-decoration: none;">
+                                    {{ c.nom_complet }}
+                                </a>
+                            </h3>
+                            <div class="driver-company">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                </svg>
+                                {{ c.entreprise_transport|truncatechars:26 }}
+                            </div>
+                        </div>
+
+                        <span class="status-pill {{ c.badge_statut_css }}">
+                            <span class="status-dot-pulse"></span>
+                            {{ c.get_statut_display|truncatechars:18 }}
+                        </span>
+                    </div>
+
+                    <!-- Specs: License & Truck -->
+                    <div class="chauffeur-card-specs">
+                        <div class="spec-item">
+                            <span class="spec-title">Permis</span>
+                            <span class="spec-content">
+                                <span style="color: #60a5fa; font-weight: 700;">{{ c.categorie_permis }}</span>
+                                <small style="color: var(--text-muted); font-size: 0.75rem;">({{ c.numero_permis }})</small>
+                            </span>
+                        </div>
+
+                        <div class="spec-item">
+                            <span class="spec-title">Validité Permis</span>
+                            <span class="spec-content">
+                                {% if c.est_permis_expire %}
+                                    <span class="badge-permis-expire">🚨 Expiré</span>
+                                {% elif c.expire_bientot %}
+                                    <span class="badge-permis-bientot">⚠️ Dans {{ c.jours_avant_expiration }}j</span>
+                                {% else %}
+                                    <span class="badge-permis-valide">✅ Valide</span>
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="spec-item">
+                            <span class="spec-title">Camion Associé</span>
+                            <span class="spec-content" title="{{ c.immatriculation_camion|default:'Non assigné' }}">
+                                🚛 {{ c.immatriculation_camion|default:"Aucun" }}
+                            </span>
+                        </div>
+
+                        <div class="spec-item">
+                            <span class="spec-title">Passages / Visites</span>
+                            <span class="spec-content">
+                                📋 {{ c.total_visites_count }} visite{{ c.total_visites_count|pluralize }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Contact row -->
+                    <div class="chauffeur-contact-row">
+                        <a href="tel:{{ c.telephone }}">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            {{ c.telephone }}
+                        </a>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">
+                            📍 {{ c.ville_residence }}
+                        </span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="chauffeur-card-actions">
+                        <a href="{% url 'chauffeurs:chauffeur_detail' c.pk %}" class="btn btn-outline" style="flex: 1; justify-content: center; font-size: 0.82rem; padding: 0.55rem;">
+                            Fiche Complète
+                        </a>
+                        <a href="{% url 'chauffeurs:chauffeur_update' c.pk %}" class="btn btn-outline" style="padding: 0.55rem 0.75rem;" title="Modifier le chauffeur">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 1.5rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-lg);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🚛</div>
+            <h3 style="color: #ffffff; font-size: 1.3rem; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Aucun chauffeur trouvé</h3>
+            <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem;">
+                Aucun profil de chauffeur ne correspond à vos critères de recherche ou de filtre.
+            </p>
+            <a href="{% url 'chauffeurs:chauffeur_create' %}" class="btn btn-accent">
+                Enregistrer un premier Chauffeur
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
