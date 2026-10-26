@@ -136,5 +136,20 @@
         allCards.forEach(card => card.classList.remove('active'));
         cardElement.classList.add('active');
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const signupForm = document.querySelector('form');
+        if (signupForm) {
+            signupForm.addEventListener('submit', function() {
+                const submitBtn = signupForm.querySelector('.btn-submit-signup');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.75';
+                    submitBtn.style.cursor = 'wait';
+                    submitBtn.innerHTML = 'Création du compte en cours... ⏳';
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}
