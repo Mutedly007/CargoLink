@@ -20,6 +20,13 @@ class UserAdmin(BaseUserAdmin):
         return "-"
     get_role.short_description = 'Rôle CargoLink'
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        user = form.instance
+        if hasattr(user, 'profile'):
+            user.profile.save()
+
+
 
 # Réenregistre User avec le profil inline
 admin.site.unregister(User)

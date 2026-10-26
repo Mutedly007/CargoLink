@@ -51,3 +51,55 @@ class AccountsAuthTests(TestCase):
         logout_response = self.client.get(reverse('logout'), follow=True)
         self.assertEqual(logout_response.status_code, 200)
         self.assertFalse(logout_response.context['user'].is_authenticated)
+
+    def test_admin_login_shows_admin_badge(self):
+        admin_user = User.objects.create_user(
+            username='admin_boss',
+            email='admin@boss.com',
+            password='AdminPassword123!',
+            first_name='Admin',
+            last_name='User'
+        )
+        admin_user.profile.role = 'ADMIN'
+        admin_user.profile.save()
+
+        response = self.client.post(reverse('login'), data={
+            'username': 'admin_boss',
+            'password': 'AdminPassword123!'
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Admin User")
+        self.assertContains(response, "badge-admin")
+        self.assertContains(response, "@admin_boss")
+        self.assertContains(response, "Administrateur Système")
+        self.assertContains(response, "Dashboard Admin")
+
+    def test_removing_admin_role_revokes_admin_badge(self):
+        user = User.objects.create_user(
+            username='demoted_user',
+            email='demoted@test.com',
+            password='TestPassword123!',
+            first_name='Demoted',
+            last_name='User'
+        )
+        user.profile.role = 'ADMIN'
+        user.profile.save()
+        self.assertTrue(user.profile.is_admin)
+        self.assertTrue(user.is_staff)
+
+        # Demote user to ENTREPOT
+        user.profile.role = 'ENTREPOT'
+        user.profile.save()
+        user.refresh_from_db()
+        self.assertFalse(user.profile.is_admin)
+        self.assertFalse(user.is_staff)
+
+        # Verify page does not contain admin badge or dashboard admin
+        self.client.force_login(user)
+        response = self.client.get(reverse('landing'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "badge-admin")
+        self.assertNotContains(response, "Dashboard Admin")
+        self.assertContains(response, "Gestionnaire d'Entrepôt")
+
+

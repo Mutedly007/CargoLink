@@ -36,16 +36,107 @@
 
             <div class="nav-auth">
                 {% if user.is_authenticated %}
-                    <div class="user-pill">
-                        <div class="user-avatar">
-                            {% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
-                        </div>
-                        <div class="user-info">
-                            <span class="user-name">{{ user.first_name|default:user.username }}</span>
-                            <span class="user-role-badge">{{ user.profile.get_role_display|default:"Connecté" }}</span>
+                    <div class="user-dropdown-wrapper" id="userDropdownWrapper">
+                        <button type="button" class="user-pill-btn" id="userMenuTrigger" aria-expanded="false" aria-haspopup="true">
+                            <div class="user-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
+                                {% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name-row">
+                                    <span class="user-name">{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</span>
+                                    {% if user.profile.is_admin %}
+                                        <span class="badge-admin">Admin</span>
+                                    {% endif %}
+                                </div>
+                                <span class="user-role-badge">
+                                    {% if user.profile.is_admin %}
+                                        Administrateur
+                                    {% else %}
+                                        {{ user.profile.get_role_display|default:"Connecté" }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div class="user-dropdown-menu" id="userDropdownMenu" role="menu">
+                            <!-- Identity Card -->
+                            <div class="dropdown-header">
+                                <div class="dropdown-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
+                                    {% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                                </div>
+                                <div class="dropdown-identity">
+                                    <div class="dropdown-name-line">
+                                        <span class="dropdown-fullname">{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</span>
+                                        {% if user.profile.is_admin %}
+                                            <span class="badge-admin-pill">Admin</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="dropdown-username">@{{ user.username }}</span>
+                                    {% if user.email %}
+                                        <span class="dropdown-email">{{ user.email }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <!-- User details / Role -->
+                            <div class="dropdown-meta">
+                                <div class="dropdown-meta-item">
+                                    <span class="meta-label">Rôle Plateforme</span>
+                                    <span class="meta-value">
+                                        {% if user.profile.is_admin %}
+                                            🛡️ Administrateur Système
+                                        {% else %}
+                                            {{ user.profile.get_role_display|default:"Membre actif" }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% if user.profile.entreprise %}
+                                <div class="dropdown-meta-item">
+                                    <span class="meta-label">Entreprise</span>
+                                    <span class="meta-value">🏢 {{ user.profile.entreprise }}</span>
+                                </div>
+                                {% endif %}
+                                {% if user.profile.telephone %}
+                                <div class="dropdown-meta-item">
+                                    <span class="meta-label">Téléphone</span>
+                                    <span class="meta-value">📞 {{ user.profile.telephone }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <!-- Actions -->
+                            <div class="dropdown-actions">
+                                {% if user.profile.is_admin %}
+                                <a href="{% url 'admin:index' %}" class="dropdown-item admin-item">
+                                    <span class="dropdown-item-icon">⚙️</span>
+                                    <div class="dropdown-item-content">
+                                        <div style="display: flex; align-items: center; gap: 0.45rem;">
+                                            <span class="dropdown-item-title">Dashboard Admin</span>
+                                            <span class="badge-admin-pill" style="font-size: 0.55rem; padding: 0.08rem 0.35rem;">DJANGO</span>
+                                        </div>
+                                        <span class="dropdown-item-sub">Accéder au panneau d'administration</span>
+                                    </div>
+                                    <span style="margin-left: auto; color: #fde047; font-size: 0.95rem; font-weight: 700;">&rarr;</span>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'logout' %}" class="dropdown-item logout-item">
+                                    <span class="dropdown-item-icon">🚪</span>
+                                    <div class="dropdown-item-content">
+                                        <span class="dropdown-item-title">Se Déconnecter</span>
+                                        <span class="dropdown-item-sub">Fermer la session en cours</span>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <a href="{% url 'logout' %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.45rem 0.95rem;">Déconnexion</a>
                 {% else %}
                     <a href="{% url 'login' %}" class="btn btn-outline">Connexion</a>
                     <a href="{% url 'signup' %}" class="btn btn-accent">Créer un compte &rarr;</a>
@@ -108,6 +199,48 @@
             </div>
         </div>
     </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const trigger = document.getElementById('userMenuTrigger');
+            const menu = document.getElementById('userDropdownMenu');
+            const wrapper = document.getElementById('userDropdownWrapper');
+
+            if (trigger && menu) {
+                trigger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isOpen = menu.classList.contains('show');
+                    if (isOpen) {
+                        menu.classList.remove('show');
+                        trigger.classList.remove('active');
+                        trigger.setAttribute('aria-expanded', 'false');
+                    } else {
+                        menu.classList.add('show');
+                        trigger.classList.add('active');
+                        trigger.setAttribute('aria-expanded', 'true');
+                    }
+                });
+
+                // Close on click outside
+                document.addEventListener('click', function(e) {
+                    if (wrapper && !wrapper.contains(e.target)) {
+                        menu.classList.remove('show');
+                        trigger.classList.remove('active');
+                        trigger.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && menu.classList.contains('show')) {
+                        menu.classList.remove('show');
+                        trigger.classList.remove('active');
+                        trigger.setAttribute('aria-expanded', 'false');
+                        trigger.focus();
+                    }
+                });
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

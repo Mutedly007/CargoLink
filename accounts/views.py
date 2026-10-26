@@ -57,10 +57,16 @@ def login_view(request):
         if form.is_valid():
             user = form.user
             login(request, user)
-            role_label = user.profile.get_role_display() if hasattr(user, 'profile') else 'Membre'
+            if user.is_superuser or user.is_staff:
+                role_label = 'Administrateur'
+            elif hasattr(user, 'profile'):
+                role_label = user.profile.get_role_display()
+            else:
+                role_label = 'Membre'
+            display_name = user.get_full_name() or user.username
             messages.success(
                 request,
-                f"Ravi de vous revoir, {user.first_name or user.username} ! Connecté en tant que {role_label}."
+                f"Ravi de vous revoir, {display_name} ! Connecté en tant que {role_label}."
             )
             next_url = request.GET.get('next', 'landing')
             return redirect(next_url)

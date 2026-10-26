@@ -170,8 +170,13 @@ header.site-header {
     transform: translateY(-2px);
 }
 
-/* User Profile Pill in Navbar */
-.user-pill {
+/* User Profile Pill & Dropdown in Navbar */
+.user-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.user-pill-btn {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -179,37 +184,304 @@ header.site-header {
     border: 1px solid var(--card-border);
     padding: 0.35rem 0.85rem 0.35rem 0.45rem;
     border-radius: 9999px;
+    cursor: pointer;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.user-pill-btn:hover,
+.user-pill-btn.active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
 }
 
 .user-avatar {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: linear-gradient(135deg, #f97316, #2563eb);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.825rem;
     font-weight: 800;
     color: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.user-avatar.admin-avatar {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
 }
 
 .user-info {
     display: flex;
     flex-direction: column;
-    line-height: 1.2;
+    line-height: 1.25;
+}
+
+.user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
 }
 
 .user-name {
     font-size: 0.85rem;
     font-weight: 700;
     color: white;
+    white-space: nowrap;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-admin {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #ffffff;
+    font-size: 0.625rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.12rem 0.45rem;
+    border-radius: 9999px;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    line-height: 1;
 }
 
 .user-role-badge {
     font-size: 0.7rem;
     color: var(--accent);
     font-weight: 600;
+}
+
+.dropdown-chevron {
+    color: var(--text-muted);
+    transition: transform 0.25s ease, color 0.2s ease;
+    margin-left: 0.15rem;
+    flex-shrink: 0;
+}
+
+.user-pill-btn.active .dropdown-chevron {
+    transform: rotate(180deg);
+    color: #ffffff;
+}
+
+/* Floating User Dropdown Menu */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.65rem);
+    right: 0;
+    width: 295px;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    padding: 1.1rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.user-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.dropdown-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f97316, #2563eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-avatar.admin-avatar {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+}
+
+.dropdown-identity {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.dropdown-name-line {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.dropdown-fullname {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 155px;
+}
+
+.badge-admin-pill {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #ffffff;
+    font-size: 0.625rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    line-height: 1;
+}
+
+.dropdown-username {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-family: monospace;
+    margin-top: 1px;
+}
+
+.dropdown-email {
+    font-size: 0.75rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 0.85rem 0;
+}
+
+.dropdown-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.75rem;
+}
+
+.dropdown-meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    gap: 0.5rem;
+}
+
+.meta-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.meta-value {
+    color: #cbd5e1;
+    font-weight: 600;
+    text-align: right;
+}
+
+.dropdown-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.admin-item {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.admin-item:hover {
+    background: rgba(245, 158, 11, 0.16);
+    border-color: rgba(245, 158, 11, 0.45);
+    transform: translateX(2px);
+}
+
+.admin-item .dropdown-item-title {
+    color: #fde047;
+}
+
+.logout-item {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.logout-item:hover {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.45);
+    transform: translateX(2px);
+}
+
+.logout-item .dropdown-item-title {
+    color: #fca5a5;
+}
+
+.dropdown-item-icon {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.dropdown-item-content {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.dropdown-item-title {
+    font-size: 0.825rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.dropdown-item-sub {
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 1px;
 }
 
 /* Toast Notifications */

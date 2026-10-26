@@ -43,6 +43,31 @@ class UserProfile(models.Model):
         last = self.user.last_name[:1] if self.user.last_name else ""
         return (first + last).upper()
 
+    @property
+    def is_admin(self):
+        """Détermine si l'utilisateur a les prérogatives d'administrateur CargoLink."""
+        if self.role == 'ADMIN':
+            return True
+        if self.user.is_superuser and self.user.username == 'admin':
+            return True
+        return False
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Synchronisation automatique des permissions Django avec le rôle CargoLink
+        if self.role == 'ADMIN':
+            if not self.user.is_staff or not self.user.is_superuser:
+                self.user.is_staff = True
+                self.user.is_superuser = True
+                self.user.save(update_fields=['is_staff', 'is_superuser'])
+        else:
+            # Si le rôle n'est plus ADMIN, révoquer les privilèges (sauf pour le compte root 'admin')
+            if self.user.username != 'admin' and (self.user.is_staff or self.user.is_superuser):
+                self.user.is_staff = False
+                self.user.is_superuser = False
+                self.user.save(update_fields=['is_staff', 'is_superuser'])
+
+
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
