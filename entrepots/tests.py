@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Entrepot, Quai
+from .forms import EntrepotForm, QuaiForm
 
 
 class EntrepotCRUDTests(TestCase):
@@ -615,4 +616,225 @@ class EntrepotRolePermissionTests(TestCase):
         self.assertEqual(res_toggle.status_code, 302)
         self.quai.refresh_from_db()
         self.assertEqual(self.quai.statut, 'OCCUPE')
+
+
+class EntrepotEntityControlTests(TestCase):
+    """
+    Tests unitaires des contrôles d'entité sur EntrepotForm (Création & Modification).
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='ctrl_user',
+            password='TestPassword123!'
+        )
+        self.existing_ent = Entrepot.objects.create(
+            nom="Hub Existant",
+            code="ENT-EXIST-01",
+            adresse="Avenue Habib Bourguiba",
+            ville="Tunis",
+            code_postal="1000",
+            capacite_palettes=1500
+        )
+
+    def test_valid_entrepot_form(self):
+        form_data = {
+            'nom': "Plateforme Nord Bizerte",
+            'code': "ENT-BIZ-01",
+            'adresse': "Zone Franche Menzel Bourguiba",
+            'ville': "Bizerte",
+            'code_postal': "7050",
+            'telephone': "+216 72 333 444",
+            'email_contact': "bizerte@cargolink.tn",
+            'statut': "ACTIF",
+            'gestionnaire': self.user.pk,
+            'horaire_ouverture': "06:00",
+            'horaire_fermeture': "22:00",
+            'jours_ouverture': "Lundi - Samedi",
+            'capacite_palettes': 2200,
+            'superficie_m2': 8000,
+        }
+        form = EntrepotForm(data=form_data)
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_nom_too_short_or_numeric_rejected(self):
+        # Nom < 3 caractères
+        form1 = EntrepotForm(data={'nom': "AB", 'code': "ENT-01", 'adresse': "Adresse", 'ville': "Tunis", 'code_postal': "1000", 'capacite_palettes': 100})
+        self.assertFalse(form1.is_valid())
+        self.assertIn('nom', form1.errors)
+
+        # Nom purement numérique
+        form2 = EntrepotForm(data={'nom': "12345", 'code': "ENT-02", 'adresse': "Adresse", 'ville': "Tunis", 'code_postal': "1000", 'capacite_palettes': 100})
+        self.assertFalse(form2.is_valid())
+        self.assertIn('nom', form2.errors)
+
+    def test_duplicate_code_rejected_on_create(self):
+        form = EntrepotForm(data={
+            'nom': "Nouveau Hub",
+            'code': "ENT-EXIST-01",  # Déjà pris
+            'adresse': "Rue de Rome",
+            'ville': "Tunis",
+            'code_postal': "1000",
+            'capacite_palettes': 500,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('code', form.errors)
+
+    def test_same_code_allowed_when_editing_same_instance(self):
+        form = EntrepotForm(
+            instance=self.existing_ent,
+            data={
+                'nom': "Hub Existant Modifié",
+                'code': "ENT-EXIST-01",  # Même code mais sur la même instance
+                'adresse': "Avenue Habib Bourguiba Modifiée",
+                'ville': "Tunis",
+                'code_postal': "1000",
+                'capacite_palettes': 1800,
+                'statut': "ACTIF",
+                'horaire_ouverture': "06:00",
+                'horaire_fermeture': "22:00",
+                'jours_ouverture': "Lundi - Samedi",
+            }
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_city_with_digits_rejected(self):
+        form = EntrepotForm(data={
+            'nom': "Hub Test",
+            'code': "ENT-TEST-99",
+            'adresse': "Route Principale",
+            'ville': "Tunis123",  # Contient des chiffres
+            'code_postal': "1000",
+            'capacite_palettes': 500,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('ville', form.errors)
+
+    def test_invalid_telephone_and_capacite(self):
+        form = EntrepotForm(data={
+            'nom': "Hub Test",
+            'code': "ENT-TEST-99",
+            'adresse': "Route Principale",
+            'ville': "Tunis",
+            'code_postal': "1000",
+            'telephone': "123",  # Moins de 8 chiffres
+            'capacite_palettes': -50,  # Négatif
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('telephone', form.errors)
+        self.assertIn('capacite_palettes', form.errors)
+
+    def test_identical_horaires_rejected(self):
+        form = EntrepotForm(data={
+            'nom': "Hub Test",
+            'code': "ENT-TEST-99",
+            'adresse': "Route Principale",
+            'ville': "Tunis",
+            'code_postal': "1000",
+            'capacite_palettes': 500,
+            'horaire_ouverture': "08:00",
+            'horaire_fermeture': "08:00",  # Identiques
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('horaire_fermeture', form.errors)
+
+    def test_is_invalid_class_applied_to_widget_on_error(self):
+        form = EntrepotForm(data={'nom': ""})
+        self.assertFalse(form.is_valid())
+        self.assertIn('is-invalid', form.fields['nom'].widget.attrs.get('class', ''))
+
+
+class QuaiEntityControlTests(TestCase):
+    """
+    Tests unitaires des contrôles d'entité sur QuaiForm (Création & Modification).
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(username='quai_ctrl_user', password='TestPassword123!')
+        self.entrepot = Entrepot.objects.create(
+            nom="Hub Gabes",
+            code="ENT-GAB-01",
+            adresse="Port Commercial de Gabès",
+            ville="Gabès",
+            code_postal="6000",
+            capacite_palettes=1200
+        )
+        self.existing_quai = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai G-01",
+            type_quai="STANDARD",
+            statut="DISPONIBLE",
+            capacite_palettes_heure=30
+        )
+
+    def test_valid_quai_form(self):
+        form_data = {
+            'entrepot': self.entrepot.pk,
+            'numero': "Quai G-02",
+            'type_quai': "FRIGORIFIQUE",
+            'statut': "DISPONIBLE",
+            'capacite_camions_simultanes': 2,
+            'capacite_palettes_heure': 35,
+            'type_camion_accepte': "SEMI_REMORQUE",
+            'a_niveleur': True,
+            'a_sas_isotherme': True,
+        }
+        form = QuaiForm(data=form_data)
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_numero_too_short_rejected(self):
+        form = QuaiForm(data={
+            'entrepot': self.entrepot.pk,
+            'numero': "Q",  # < 2 chars
+            'type_quai': "STANDARD",
+            'statut': "DISPONIBLE",
+            'capacite_palettes_heure': 25
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('numero', form.errors)
+
+    def test_duplicate_quai_numero_in_same_entrepot_rejected(self):
+        form = QuaiForm(data={
+            'entrepot': self.entrepot.pk,
+            'numero': "Quai G-01",  # Déjà existant sur cet entrepôt
+            'type_quai': "STANDARD",
+            'statut': "DISPONIBLE",
+            'capacite_palettes_heure': 25
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('numero', form.errors)
+
+    def test_same_quai_numero_allowed_when_editing_own_instance(self):
+        form = QuaiForm(
+            instance=self.existing_quai,
+            data={
+                'entrepot': self.entrepot.pk,
+                'numero': "Quai G-01",  # Même numéro sur la même instance
+                'type_quai': "GROS_VOLUME",
+                'statut': "OCCUPE",
+                'capacite_camions_simultanes': 2,
+                'capacite_palettes_heure': 40,
+                'type_camion_accepte': "TOUS",
+                'a_niveleur': True,
+                'a_sas_isotherme': False,
+            }
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_invalid_camions_and_debit(self):
+        form = QuaiForm(data={
+            'entrepot': self.entrepot.pk,
+            'numero': "Quai G-03",
+            'type_quai': "STANDARD",
+            'statut': "DISPONIBLE",
+            'capacite_camions_simultanes': 10,  # Max 5
+            'capacite_palettes_heure': 0,  # Doit être > 0
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('capacite_camions_simultanes', form.errors)
+        self.assertIn('capacite_palettes_heure', form.errors)
+
+    def test_is_invalid_class_applied_to_widget_on_error(self):
+        form = QuaiForm(data={'numero': ""})
+        self.assertFalse(form.is_valid())
+        self.assertIn('is-invalid', form.fields['numero'].widget.attrs.get('class', ''))
+
 

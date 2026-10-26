@@ -23,7 +23,7 @@
             <p>Renseignez les caractéristiques techniques, la localisation et les capacités de stockage de l'entrepôt.</p>
         </div>
 
-        {% if form.errors %}
+        {% if form.non_field_errors %}
         <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; color: #fca5a5;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f87171;">
@@ -31,52 +31,75 @@
                     <line x1="12" y1="9" x2="12" y2="13"/>
                     <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
-                <strong style="color: #ffffff;">Erreur de validation :</strong>
+                <strong style="color: #ffffff;">Erreur de validation globale :</strong>
             </div>
             <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
-                {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                        <li>{% if field != '__all__' %}<strong>{{ field|title }}</strong> : {% endif %}{{ error }}</li>
-                    {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
                 {% endfor %}
             </ul>
         </div>
         {% endif %}
 
-        <form method="post" novalidate>
+        <form method="post" novalidate id="entrepotForm">
             {% csrf_token %}
 
             <div class="form-grid-2col">
                 <div class="form-group">
                     <label class="form-label" for="{{ form.nom.id_for_label }}">Nom de l'Entrepôt *</label>
                     {{ form.nom }}
-                    {% if form.nom.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.nom.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.nom.id_for_label }}">
+                        {% if form.nom.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.nom.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.code.id_for_label }}">Code d'Identification Unique *</label>
                     {{ form.code }}
-                    {% if form.code.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.code.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.code.id_for_label }}">
+                        {% if form.code.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.code.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="{{ form.adresse.id_for_label }}">Adresse Postale Complète *</label>
                 {{ form.adresse }}
-                {% if form.adresse.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.adresse.errors.0 }}</div>{% endif %}
+                <div class="field-error-msg" id="error_{{ form.adresse.id_for_label }}">
+                    {% if form.adresse.errors %}
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{{ form.adresse.errors.0 }}</span>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
                     <label class="form-label" for="{{ form.ville.id_for_label }}">Ville *</label>
                     {{ form.ville }}
-                    {% if form.ville.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.ville.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.ville.id_for_label }}">
+                        {% if form.ville.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.ville.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.code_postal.id_for_label }}">Code Postal *</label>
                     {{ form.code_postal }}
-                    {% if form.code_postal.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.code_postal.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.code_postal.id_for_label }}">
+                        {% if form.code_postal.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.code_postal.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -84,13 +107,23 @@
                 <div class="form-group">
                     <label class="form-label" for="{{ form.telephone.id_for_label }}">Téléphone de Contact</label>
                     {{ form.telephone }}
-                    {% if form.telephone.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.telephone.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.telephone.id_for_label }}">
+                        {% if form.telephone.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.telephone.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.email_contact.id_for_label }}">Email de Contact</label>
                     {{ form.email_contact }}
-                    {% if form.email_contact.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.email_contact.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.email_contact.id_for_label }}">
+                        {% if form.email_contact.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.email_contact.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -98,13 +131,23 @@
                 <div class="form-group">
                     <label class="form-label" for="{{ form.statut.id_for_label }}">Statut d'Exploitation</label>
                     {{ form.statut }}
-                    {% if form.statut.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.statut.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.statut.id_for_label }}">
+                        {% if form.statut.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.statut.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.gestionnaire.id_for_label }}">Responsable / Gestionnaire</label>
                     {{ form.gestionnaire }}
-                    {% if form.gestionnaire.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.gestionnaire.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.gestionnaire.id_for_label }}">
+                        {% if form.gestionnaire.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.gestionnaire.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -112,13 +155,23 @@
                 <div class="form-group">
                     <label class="form-label" for="{{ form.capacite_palettes.id_for_label }}">Capacité de Stockage (Palettes) *</label>
                     {{ form.capacite_palettes }}
-                    {% if form.capacite_palettes.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.capacite_palettes.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.capacite_palettes.id_for_label }}">
+                        {% if form.capacite_palettes.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.capacite_palettes.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.superficie_m2.id_for_label }}">Superficie en m²</label>
                     {{ form.superficie_m2 }}
-                    {% if form.superficie_m2.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.superficie_m2.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.superficie_m2.id_for_label }}">
+                        {% if form.superficie_m2.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.superficie_m2.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -126,20 +179,35 @@
                 <div class="form-group">
                     <label class="form-label" for="{{ form.horaire_ouverture.id_for_label }}">Heure d'Ouverture (Format HH:MM) *</label>
                     {{ form.horaire_ouverture }}
-                    {% if form.horaire_ouverture.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.horaire_ouverture.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.horaire_ouverture.id_for_label }}">
+                        {% if form.horaire_ouverture.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.horaire_ouverture.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.horaire_fermeture.id_for_label }}">Heure de Fermeture (Format HH:MM) *</label>
                     {{ form.horaire_fermeture }}
-                    {% if form.horaire_fermeture.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.horaire_fermeture.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.horaire_fermeture.id_for_label }}">
+                        {% if form.horaire_fermeture.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.horaire_fermeture.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="{{ form.jours_ouverture.id_for_label }}">Jours d'Ouverture</label>
                 {{ form.jours_ouverture }}
-                {% if form.jours_ouverture.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.jours_ouverture.errors.0 }}</div>{% endif %}
+                <div class="field-error-msg" id="error_{{ form.jours_ouverture.id_for_label }}">
+                    {% if form.jours_ouverture.errors %}
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{{ form.jours_ouverture.errors.0 }}</span>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-actions-footer">
@@ -159,3 +227,176 @@
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('entrepotForm');
+    if (!form) return;
+
+    const rules = {
+        '{{ form.nom.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Le nom de l'entrepôt est obligatoire.";
+            if (val.length < 3) return "Le nom de l'entrepôt doit comporter au moins 3 caractères.";
+            if (/^\d+$/.test(val)) return "Le nom de l'entrepôt ne peut pas être composé uniquement de chiffres.";
+            return null;
+        },
+        '{{ form.code.id_for_label }}': function (val) {
+            val = (val || '').trim().toUpperCase();
+            if (!val) return "Le code d'identification est obligatoire.";
+            if (val.length < 3) return "Le code d'identification doit comporter au moins 3 caractères.";
+            if (!/^[A-Z0-9_\-]+$/.test(val)) return "Le code ne doit contenir que des lettres majuscules, chiffres ou tirets (ex: ENT-RADES-01).";
+            return null;
+        },
+        '{{ form.adresse.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "L'adresse postale complète est obligatoire.";
+            if (val.length < 5) return "L'adresse doit comporter au moins 5 caractères.";
+            return null;
+        },
+        '{{ form.ville.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Le nom de la ville est obligatoire.";
+            if (val.length < 2) return "Le nom de la ville doit comporter au moins 2 caractères.";
+            if (/\d/.test(val)) return "Le nom de la ville ne peut pas contenir de chiffres.";
+            return null;
+        },
+        '{{ form.code_postal.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Le code postal est obligatoire.";
+            if (val.length < 4) return "Le code postal doit comporter au moins 4 caractères.";
+            return null;
+        },
+        '{{ form.telephone.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (val) {
+                const digits = val.replace(/\D/g, '');
+                if (digits.length < 8) return "Le numéro de téléphone doit contenir au moins 8 chiffres valides.";
+            }
+            return null;
+        },
+        '{{ form.email_contact.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                return "Veuillez saisir une adresse email valide.";
+            }
+            return null;
+        },
+        '{{ form.capacite_palettes.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "La capacité de stockage est obligatoire.";
+            const num = parseInt(val, 10);
+            if (isNaN(num) || num <= 0) return "La capacité de stockage doit être strictement supérieure à zéro.";
+            if (num > 500000) return "La capacité ne peut pas dépasser 500 000 palettes.";
+            return null;
+        },
+        '{{ form.superficie_m2.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (val) {
+                const num = parseFloat(val);
+                if (isNaN(num) || num <= 0) return "La superficie doit être un nombre strictement positif.";
+                if (num < 20) return "La superficie d'un entrepôt doit être d'au moins 20 m².";
+            }
+            return null;
+        },
+        '{{ form.horaire_ouverture.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "L'heure d'ouverture est obligatoire.";
+            return null;
+        },
+        '{{ form.horaire_fermeture.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "L'heure de fermeture est obligatoire.";
+            const openField = document.getElementById('{{ form.horaire_ouverture.id_for_label }}');
+            if (openField && openField.value && openField.value.trim() === val) {
+                return "L'heure de fermeture et d'ouverture ne peuvent pas être identiques.";
+            }
+            return null;
+        }
+    };
+
+    function validateField(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (!input) return true;
+        const errorContainer = document.getElementById('error_' + fieldId);
+        const ruleFn = rules[fieldId];
+        if (!ruleFn) return true;
+
+        const errorMsg = ruleFn(input.value);
+        if (errorMsg) {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            if (errorContainer) {
+                errorContainer.innerHTML = `
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>${errorMsg}</span>
+                `;
+            }
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            if ((input.value || '').trim() !== '') {
+                input.classList.add('is-valid');
+            } else {
+                input.classList.remove('is-valid');
+            }
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
+            return true;
+        }
+    }
+
+    Object.keys(rules).forEach(function (fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            input.addEventListener('input', function () {
+                validateField(fieldId);
+                // Si l'heure d'ouverture change, revalider l'heure de fermeture
+                if (fieldId === '{{ form.horaire_ouverture.id_for_label }}') {
+                    const fermField = document.getElementById('{{ form.horaire_fermeture.id_for_label }}');
+                    if (fermField && fermField.value) {
+                        validateField('{{ form.horaire_fermeture.id_for_label }}');
+                    }
+                }
+            });
+            input.addEventListener('blur', function () {
+                validateField(fieldId);
+            });
+            // Initial server-side error check
+            const errorContainer = document.getElementById('error_' + fieldId);
+            if (errorContainer && errorContainer.textContent.trim().length > 0) {
+                input.classList.add('is-invalid');
+            }
+        }
+    });
+
+    form.addEventListener('submit', function (e) {
+        let isFormValid = true;
+        let firstInvalidField = null;
+
+        Object.keys(rules).forEach(function (fieldId) {
+            const valid = validateField(fieldId);
+            if (!valid) {
+                isFormValid = false;
+                if (!firstInvalidField) {
+                    firstInvalidField = document.getElementById(fieldId);
+                }
+            }
+        });
+
+        if (!isFormValid) {
+            e.preventDefault();
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

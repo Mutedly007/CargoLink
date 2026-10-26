@@ -23,7 +23,7 @@
             <p>Définissez les spécifications techniques du quai, sa capacité horaire et ses équipements.</p>
         </div>
 
-        {% if form.errors %}
+        {% if form.non_field_errors %}
         <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; color: #fca5a5;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f87171;">
@@ -31,32 +31,40 @@
                     <line x1="12" y1="9" x2="12" y2="13"/>
                     <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
-                <strong style="color: #ffffff;">Erreur de validation :</strong>
+                <strong style="color: #ffffff;">Erreur de validation globale :</strong>
             </div>
             <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
-                {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                        <li>{% if field != '__all__' %}<strong>{{ field|title }}</strong> : {% endif %}{{ error }}</li>
-                    {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
                 {% endfor %}
             </ul>
         </div>
         {% endif %}
 
-        <form method="post" novalidate>
+        <form method="post" novalidate id="quaiForm">
             {% csrf_token %}
 
             <div class="form-grid-2col">
                 <div class="form-group">
                     <label class="form-label" for="{{ form.entrepot.id_for_label }}">Entrepôt Rattaché *</label>
                     {{ form.entrepot }}
-                    {% if form.entrepot.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.entrepot.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.entrepot.id_for_label }}">
+                        {% if form.entrepot.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.entrepot.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.numero.id_for_label }}">Numéro / Identifiant du Quai *</label>
                     {{ form.numero }}
-                    {% if form.numero.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.numero.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.numero.id_for_label }}">
+                        {% if form.numero.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.numero.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -64,13 +72,23 @@
                 <div class="form-group">
                     <label class="form-label" for="{{ form.type_quai.id_for_label }}">Type de Quai *</label>
                     {{ form.type_quai }}
-                    {% if form.type_quai.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.type_quai.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.type_quai.id_for_label }}">
+                        {% if form.type_quai.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.type_quai.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.statut.id_for_label }}">Statut Initial *</label>
                     {{ form.statut }}
-                    {% if form.statut.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.statut.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.statut.id_for_label }}">
+                        {% if form.statut.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.statut.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -78,20 +96,35 @@
                 <div class="form-group">
                     <label class="form-label" for="{{ form.type_camion_accepte.id_for_label }}">Gabarit Camion Admis</label>
                     {{ form.type_camion_accepte }}
-                    {% if form.type_camion_accepte.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.type_camion_accepte.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.type_camion_accepte.id_for_label }}">
+                        {% if form.type_camion_accepte.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.type_camion_accepte.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.capacite_camions_simultanes.id_for_label }}">Camions Simultanés</label>
+                    <label class="form-label" for="{{ form.capacite_camions_simultanes.id_for_label }}">Camions Simultanés (1 à 5)</label>
                     {{ form.capacite_camions_simultanes }}
-                    {% if form.capacite_camions_simultanes.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.capacite_camions_simultanes.errors.0 }}</div>{% endif %}
+                    <div class="field-error-msg" id="error_{{ form.capacite_camions_simultanes.id_for_label }}">
+                        {% if form.capacite_camions_simultanes.errors %}
+                        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ form.capacite_camions_simultanes.errors.0 }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="{{ form.capacite_palettes_heure.id_for_label }}">Débit Moyen (Palettes / Heure) *</label>
                 {{ form.capacite_palettes_heure }}
-                {% if form.capacite_palettes_heure.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.capacite_palettes_heure.errors.0 }}</div>{% endif %}
+                <div class="field-error-msg" id="error_{{ form.capacite_palettes_heure.id_for_label }}">
+                    {% if form.capacite_palettes_heure.errors %}
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{{ form.capacite_palettes_heure.errors.0 }}</span>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-group">
@@ -112,7 +145,12 @@
             <div class="form-group">
                 <label class="form-label" for="{{ form.remarques.id_for_label }}">Consignes Particulières / Remarques</label>
                 {{ form.remarques }}
-                {% if form.remarques.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.remarques.errors.0 }}</div>{% endif %}
+                <div class="field-error-msg" id="error_{{ form.remarques.id_for_label }}">
+                    {% if form.remarques.errors %}
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{{ form.remarques.errors.0 }}</span>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-actions-footer">
@@ -132,3 +170,132 @@
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('quaiForm');
+    if (!form) return;
+
+    const rules = {
+        '{{ form.entrepot.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Veuillez sélectionner un entrepôt de rattachement.";
+            return null;
+        },
+        '{{ form.numero.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Le numéro ou identifiant du quai est obligatoire.";
+            if (val.length < 2) return "Le numéro de quai doit comporter au moins 2 caractères (ex: Quai A-01).";
+            return null;
+        },
+        '{{ form.type_quai.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Veuillez sélectionner un type de quai.";
+            return null;
+        },
+        '{{ form.statut.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Veuillez sélectionner un statut initial.";
+            return null;
+        },
+        '{{ form.capacite_camions_simultanes.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (val) {
+                const num = parseInt(val, 10);
+                if (isNaN(num) || num < 1 || num > 5) {
+                    return "Le nombre de camions simultanés doit être compris entre 1 et 5.";
+                }
+            }
+            return null;
+        },
+        '{{ form.capacite_palettes_heure.id_for_label }}': function (val) {
+            val = (val || '').trim();
+            if (!val) return "Le débit horaire est obligatoire.";
+            const num = parseInt(val, 10);
+            if (isNaN(num) || num <= 0) return "Le débit horaire doit être strictement supérieur à zéro.";
+            if (num > 300) return "Le débit horaire ne peut pas dépasser 300 palettes / heure.";
+            return null;
+        }
+    };
+
+    function validateField(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (!input) return true;
+        const errorContainer = document.getElementById('error_' + fieldId);
+        const ruleFn = rules[fieldId];
+        if (!ruleFn) return true;
+
+        const errorMsg = ruleFn(input.value);
+        if (errorMsg) {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            if (errorContainer) {
+                errorContainer.innerHTML = `
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>${errorMsg}</span>
+                `;
+            }
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            if ((input.value || '').trim() !== '') {
+                input.classList.add('is-valid');
+            } else {
+                input.classList.remove('is-valid');
+            }
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
+            return true;
+        }
+    }
+
+    Object.keys(rules).forEach(function (fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            input.addEventListener('input', function () {
+                validateField(fieldId);
+            });
+            input.addEventListener('change', function () {
+                validateField(fieldId);
+            });
+            input.addEventListener('blur', function () {
+                validateField(fieldId);
+            });
+            // Initial server-side error check
+            const errorContainer = document.getElementById('error_' + fieldId);
+            if (errorContainer && errorContainer.textContent.trim().length > 0) {
+                input.classList.add('is-invalid');
+            }
+        }
+    });
+
+    form.addEventListener('submit', function (e) {
+        let isFormValid = true;
+        let firstInvalidField = null;
+
+        Object.keys(rules).forEach(function (fieldId) {
+            const valid = validateField(fieldId);
+            if (!valid) {
+                isFormValid = false;
+                if (!firstInvalidField) {
+                    firstInvalidField = document.getElementById(fieldId);
+                }
+            }
+        });
+
+        if (!isFormValid) {
+            e.preventDefault();
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
