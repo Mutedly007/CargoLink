@@ -15,12 +15,17 @@
     <link rel="stylesheet" href="{% static 'landing/css/base.css' %}">
     {% block extra_css %}{% endblock %}
 
-    <!-- Prevent Theme Flash on Page Load -->
+    <!-- Prevent Theme and Accessibility Text Size Flash on Page Load -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem('cargolink_theme') || 
                 (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
             document.documentElement.setAttribute('data-theme', savedTheme);
+
+            const savedTextSize = localStorage.getItem('cargolink_text_size') || 'normal';
+            if (savedTextSize === 'large') {
+                document.documentElement.setAttribute('data-text-size', 'large');
+            }
         })();
     </script>
 </head>
@@ -44,6 +49,14 @@
             </ul>
 
             <div class="nav-auth">
+                <!-- Accessibility Text Size Toggle (Grand Texte pour Malvoyants) -->
+                <button type="button" class="text-size-toggle-btn" id="textSizeToggleBtn" aria-label="Basculer le Mode Grand Texte pour Malvoyants" aria-pressed="false" title="Mode Grand Texte (Accessibilité Ouvriers / Malvoyants)">
+                    <span class="text-size-track">
+                        <span class="text-size-icon">Aa</span>
+                        <span class="text-size-badge" id="textSizeBadge">100%</span>
+                    </span>
+                </button>
+
                 <!-- Theme Switcher Button (Light / Dark Mode) -->
                 <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Basculer Mode Clair / Sombre" title="Basculer entre Mode Sombre et Mode Clair">
                     <span class="theme-toggle-track">
@@ -288,8 +301,66 @@
                     localStorage.setItem('cargolink_theme', newTheme);
                 });
             }
+
+            // Accessibility: Mode Grand Texte pour Malvoyants
+            const textSizeBtn = document.getElementById('textSizeToggleBtn');
+            const textSizeBadge = document.getElementById('textSizeBadge');
+            const a11yToast = document.getElementById('a11yToast');
+            const a11yToastMsg = document.getElementById('a11yToastMessage');
+
+            function showA11yToast(message) {
+                if (!a11yToast || !a11yToastMsg) return;
+                a11yToastMsg.textContent = message;
+                a11yToast.classList.add('show');
+                clearTimeout(window.__a11yToastTimer);
+                window.__a11yToastTimer = setTimeout(function() {
+                    a11yToast.classList.remove('show');
+                }, 2500);
+            }
+
+            function updateTextSizeUI(isLarge) {
+                if (textSizeBadge) {
+                    textSizeBadge.textContent = isLarge ? "120%" : "100%";
+                }
+                if (textSizeBtn) {
+                    textSizeBtn.setAttribute('aria-pressed', isLarge ? "true" : "false");
+                }
+                const profileBtn = document.getElementById('profileA11yBtnText');
+                if (profileBtn) {
+                    profileBtn.textContent = isLarge ? "Désactiver le Grand Texte" : "Activer le Grand Texte";
+                }
+            }
+
+            window.toggleTextSize = function() {
+                const currentSize = document.documentElement.getAttribute('data-text-size');
+                const isLarge = currentSize === 'large';
+                if (isLarge) {
+                    document.documentElement.removeAttribute('data-text-size');
+                    localStorage.setItem('cargolink_text_size', 'normal');
+                    updateTextSizeUI(false);
+                    showA11yToast("👁️ Mode Grand Texte désactivé (Taille standard)");
+                } else {
+                    document.documentElement.setAttribute('data-text-size', 'large');
+                    localStorage.setItem('cargolink_text_size', 'large');
+                    updateTextSizeUI(true);
+                    showA11yToast("👁️ Mode Grand Texte activé (+20% & contrastes renforcés)");
+                }
+            };
+
+            if (textSizeBtn) {
+                textSizeBtn.addEventListener('click', window.toggleTextSize);
+                const isCurrentlyLarge = document.documentElement.getAttribute('data-text-size') === 'large';
+                updateTextSizeUI(isCurrentlyLarge);
+            }
         });
     </script>
+
+    <!-- Accessibility Toast Notification -->
+    <div id="a11yToast" class="a11y-toast" role="status" aria-live="polite">
+        <span style="font-size: 1.25rem;">👁️</span>
+        <span id="a11yToastMessage">Mode Grand Texte Activé</span>
+    </div>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

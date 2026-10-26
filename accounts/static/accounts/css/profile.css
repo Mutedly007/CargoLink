@@ -749,6 +749,115 @@
 }
 
 /* ---------------------------------------------------
+   7.1 ACCESSIBILITY PROFILE CARD
+   --------------------------------------------------- */
+.a11y-profile-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    flex-wrap: wrap;
+    transition: all 0.25s ease;
+}
+
+.a11y-profile-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: 1;
+    min-width: 250px;
+}
+
+.a11y-profile-icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(249, 115, 22, 0.12);
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.45rem;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.a11y-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.a11y-profile-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.a11y-profile-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+.btn-a11y-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    color: #fdba74;
+    padding: 0.7rem 1.4rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-a11y-toggle:hover {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+}
+
+[data-text-size="large"] .btn-a11y-toggle {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+}
+
+[data-theme="light"] .a11y-profile-card {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .a11y-profile-title {
+    color: #0f172a;
+}
+
+[data-theme="light"] .btn-a11y-toggle {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #c2410c;
+}
+
+[data-theme="light"] .btn-a11y-toggle:hover {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+/* ---------------------------------------------------
    8. RESPONSIVE DESIGN
    --------------------------------------------------- */
 @media (max-width: 850px) {
