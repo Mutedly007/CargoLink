@@ -7,10 +7,11 @@ import os
 import json
 import logging
 from typing import Dict, List, Any, Optional
-from dotenv import load_dotenv
-
-# Charger les variables d'environnement (.env)
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 logger = logging.getLogger(__name__)
 

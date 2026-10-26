@@ -41,57 +41,80 @@ body {
     background-attachment: fixed;
 }
 
-/* Glassmorphic Header */
+/* ==============================================================================
+   CARGOLINK - EXECUTIVE HEADER & NAVIGATION BAR (Ultra Pro & Fine)
+   Design épuré inspiré des meilleurs SaaS (Linear / Stripe / Vercel)
+   ============================================================================== */
+
 header.site-header {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+    height: 64px;
     background: rgba(7, 13, 24, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--card-border);
-    transition: all 0.3s ease;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nav-container {
-    max-width: 1280px;
+    max-width: 1440px;
+    width: 100%;
+    height: 100%;
     margin: 0 auto;
-    padding: 1rem 1.5rem;
+    padding: 0 1.75rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1.5rem;
 }
 
+/* Brand Identity */
 .brand-logo {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+    gap: 0.75rem;
     text-decoration: none;
     color: #ffffff;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease;
+}
+
+.brand-logo:hover {
+    opacity: 0.95;
 }
 
 .brand-icon-box {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     background: linear-gradient(135deg, #2563eb, #f97316);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+    font-size: 1.15rem;
+    box-shadow: 0 2px 10px rgba(249, 115, 22, 0.32);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.brand-logo:hover .brand-icon-box {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.45);
 }
 
 .brand-text {
     display: flex;
     flex-direction: column;
+    line-height: 1.15;
 }
 
 .brand-name {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.45rem;
+    font-size: 1.25rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     background: linear-gradient(135deg, #ffffff 60%, #93c5fd);
     -webkit-background-clip: text;
     background-clip: text;
@@ -99,38 +122,70 @@ header.site-header {
 }
 
 .brand-tagline {
-    font-size: 0.65rem;
+    font-size: 0.58rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--accent);
     font-weight: 700;
-    margin-top: -3px;
+    margin-top: 1px;
+}
+
+/* Functional Navigation Links */
+.nav-menu-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    margin-left: 1.25rem;
 }
 
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 1.75rem;
+    gap: 0.4rem;
     list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-.nav-item a {
+.nav-item {
+    display: flex;
+    align-items: center;
+}
+
+.nav-item .nav-link {
     text-decoration: none;
     color: var(--text-sub);
     font-weight: 600;
-    font-size: 0.925rem;
-    transition: color 0.2s ease;
+    font-size: 0.86rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    white-space: nowrap !important;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
+    border: 1px solid transparent;
 }
 
-.nav-item a:hover {
+.nav-item .nav-link:hover {
     color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
 }
 
+.nav-item .nav-link.active {
+    color: #ffffff;
+    background: rgba(249, 115, 22, 0.12);
+    border-color: rgba(249, 115, 22, 0.3);
+    box-shadow: 0 0 12px rgba(249, 115, 22, 0.15);
+    font-weight: 700;
+}
+
+/* Right Navigation Section */
 .nav-auth {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+    gap: 0.75rem;
+    flex-shrink: 0;
 }
 
 .btn {
@@ -138,14 +193,15 @@ header.site-header {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.65rem 1.35rem;
+    padding: 0.55rem 1.15rem;
     font-weight: 600;
-    font-size: 0.925rem;
+    font-size: 0.86rem;
     border-radius: var(--radius-sm);
     text-decoration: none;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     border: none;
+    white-space: nowrap;
 }
 
 .btn-outline {
@@ -163,15 +219,58 @@ header.site-header {
 .btn-accent {
     background: linear-gradient(135deg, #f97316, #ea580c);
     color: #ffffff;
-    box-shadow: 0 4px 14px var(--accent-glow);
+    box-shadow: 0 3px 12px var(--accent-glow);
 }
 
 .btn-accent:hover {
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45);
-    transform: translateY(-2px);
+    box-shadow: 0 5px 18px rgba(249, 115, 22, 0.45);
+    transform: translateY(-1px);
 }
 
-/* User Profile Pill & Dropdown in Navbar */
+/* ==============================================================================
+   CARGOLINK - INTEGRATED UTILITY TOOLS DOCK (Capsule Verre Glassmorphism)
+   Unification harmonieuse: Drapeaux i18n, Accessibilité texte, Mode Sombre/Clair
+   ============================================================================== */
+.nav-tools-group {
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 4px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.25s ease;
+}
+
+.nav-tools-group:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-tool-separator {
+    display: block;
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    margin: 0 2px;
+    flex-shrink: 0;
+}
+
+.nav-section-divider {
+    display: block;
+    width: 1px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.14);
+    margin: 0 0.15rem;
+    flex-shrink: 0;
+}
+
+/* ==============================================================================
+   CARGOLINK - USER PROFILE PILL (Executive Compact Button)
+   ============================================================================== */
 .user-dropdown-wrapper {
     position: relative;
     display: inline-block;
@@ -180,39 +279,40 @@ header.site-header {
 .user-pill-btn {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--card-border);
-    padding: 0.35rem 0.85rem 0.35rem 0.45rem;
+    gap: 0.65rem;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0 0.75rem 0 0.3rem;
     border-radius: 9999px;
     cursor: pointer;
     color: inherit;
     font-family: inherit;
     text-align: left;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .user-pill-btn:hover,
 .user-pill-btn.active {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(249, 115, 22, 0.4);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     transform: translateY(-1px);
 }
 
 .user-avatar {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: linear-gradient(135deg, #f97316, #2563eb);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.825rem;
+    font-size: 0.76rem;
     font-weight: 800;
     color: white;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .user-avatar.admin-avatar {
@@ -232,21 +332,21 @@ header.site-header {
 .user-info {
     display: flex;
     flex-direction: column;
-    line-height: 1.25;
+    line-height: 1.15;
 }
 
 .user-name-row {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.35rem;
 }
 
 .user-name {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    color: white;
+    color: #ffffff;
     white-space: nowrap;
-    max-width: 140px;
+    max-width: 135px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -254,26 +354,27 @@ header.site-header {
 .badge-admin {
     background: linear-gradient(135deg, #f59e0b, #ef4444);
     color: #ffffff;
-    font-size: 0.625rem;
+    font-size: 0.55rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    padding: 0.12rem 0.45rem;
+    padding: 0.08rem 0.38rem;
     border-radius: 9999px;
     box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
     line-height: 1;
 }
 
 .user-role-badge {
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     color: var(--accent);
     font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 .dropdown-chevron {
     color: var(--text-muted);
-    transition: transform 0.25s ease, color 0.2s ease;
-    margin-left: 0.15rem;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+    margin-left: 0.1rem;
     flex-shrink: 0;
 }
 
@@ -615,7 +716,7 @@ footer.site-footer {
    ============================================================================== */
 
 .text-size-toggle-btn {
-    background: none;
+    background: transparent;
     border: none;
     padding: 0;
     cursor: pointer;
@@ -624,53 +725,55 @@ footer.site-footer {
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .text-size-toggle-btn:hover {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
 .text-size-track {
     position: relative;
-    height: 32px;
-    padding: 0 10px;
+    height: 28px;
+    padding: 0 7px;
     border-radius: 9999px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: transparent;
+    border: none;
     display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    gap: 5px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     user-select: none;
+}
+
+.text-size-toggle-btn:hover .text-size-track {
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .text-size-icon {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.82rem;
     font-weight: 800;
     color: var(--text-muted);
     letter-spacing: -0.02em;
-    transition: color 0.25s ease;
+    transition: color 0.2s ease;
 }
 
 .text-size-badge {
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     font-weight: 700;
-    padding: 0.15rem 0.45rem;
+    padding: 0.08rem 0.35rem;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.09);
     color: var(--text-sub);
-    letter-spacing: 0.02em;
-    transition: all 0.25s ease;
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+    line-height: 1.1;
 }
 
 /* Active State (Mode Grand Texte Actif) */
 [data-text-size="large"] .text-size-track {
-    background: rgba(249, 115, 22, 0.2);
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.4), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: rgba(249, 115, 22, 0.16) !important;
 }
 
 [data-text-size="large"] .text-size-icon {
@@ -680,7 +783,7 @@ footer.site-footer {
 [data-text-size="large"] .text-size-badge {
     background: var(--accent);
     color: #ffffff;
-    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.5);
+    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.4);
 }
 
 /* ==============================================================================
@@ -793,7 +896,7 @@ footer.site-footer {
    ============================================================================== */
 
 .theme-toggle-btn {
-    background: none;
+    background: transparent;
     border: none;
     padding: 0;
     cursor: pointer;
@@ -802,38 +905,38 @@ footer.site-footer {
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .theme-toggle-btn:hover {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
 .theme-toggle-track {
     position: relative;
-    width: 62px;
-    height: 32px;
+    width: 48px;
+    height: 24px;
     border-radius: 9999px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(2, 6, 23, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 7px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
-    transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    padding: 0 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .theme-icon {
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     line-height: 1;
     z-index: 1;
     user-select: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .icon-sun {
-    opacity: 0.45;
+    opacity: 0.4;
     transform: scale(0.85);
 }
 
@@ -844,14 +947,14 @@ footer.site-footer {
 
 .theme-toggle-thumb {
     position: absolute;
-    top: 3px;
-    right: 4px;
-    width: 24px;
-    height: 24px;
+    top: 2px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: linear-gradient(135deg, #f97316, #ea580c);
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.55);
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 1px 6px rgba(249, 115, 22, 0.55);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 
@@ -883,7 +986,7 @@ footer.site-footer {
 [data-theme="light"] .theme-toggle-track {
     background: #e2e8f0;
     border-color: #cbd5e1;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(15, 23, 42, 0.05);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .icon-sun {
@@ -892,15 +995,25 @@ footer.site-footer {
 }
 
 [data-theme="light"] .icon-moon {
-    opacity: 0.4;
+    opacity: 0.35;
     transform: scale(0.85);
+}
+
+[data-theme="light"] .theme-toggle-thumb {
+    right: calc(100% - 21px);
+    background: linear-gradient(135deg, #f59e0b, #eab308);
+    box-shadow: 0 1px 6px rgba(234, 179, 8, 0.45);
 }
 
 /* Light Mode Text Size Switcher State */
 [data-theme="light"] .text-size-track {
-    background: #e2e8f0;
-    border-color: #cbd5e1;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(15, 23, 42, 0.05);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+[data-theme="light"] .text-size-toggle-btn:hover .text-size-track {
+    background: rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="light"] .text-size-icon {
@@ -913,9 +1026,7 @@ footer.site-footer {
 }
 
 [data-theme="light"][data-text-size="large"] .text-size-track {
-    background: #fff7ed;
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
+    background: #fff7ed !important;
 }
 
 [data-theme="light"][data-text-size="large"] .text-size-icon {
@@ -932,12 +1043,6 @@ footer.site-footer {
     --text-sub: #0f172a;
 }
 
-[data-theme="light"] .theme-toggle-thumb {
-    right: calc(100% - 28px);
-    background: linear-gradient(135deg, #f59e0b, #eab308);
-    box-shadow: 0 2px 8px rgba(234, 179, 8, 0.45);
-}
-
 /* Light Mode Body & Background */
 [data-theme="light"] body {
     background-color: #f8fafc;
@@ -949,9 +1054,9 @@ footer.site-footer {
 
 /* Light Mode Header & Navigation */
 [data-theme="light"] header.site-header {
-    background: rgba(255, 255, 255, 0.92);
-    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
 }
 
 [data-theme="light"] .brand-logo {
@@ -965,12 +1070,39 @@ footer.site-footer {
     -webkit-text-fill-color: transparent;
 }
 
-[data-theme="light"] .nav-item a {
+[data-theme="light"] .nav-item .nav-link {
     color: #475569;
 }
 
-[data-theme="light"] .nav-item a:hover {
+[data-theme="light"] .nav-item .nav-link:hover {
     color: #0f172a;
+    background: rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .nav-item .nav-link.active {
+    color: #ea580c;
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.25);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.1);
+}
+
+/* Light Mode Tools Dock & Dividers */
+[data-theme="light"] .nav-tools-group {
+    background: #f1f5f9;
+    border-color: rgba(203, 213, 225, 0.85);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .nav-tools-group:hover {
+    border-color: rgba(148, 163, 184, 0.8);
+}
+
+[data-theme="light"] .nav-tool-separator {
+    background: rgba(0, 0, 0, 0.09);
+}
+
+[data-theme="light"] .nav-section-divider {
+    background: rgba(0, 0, 0, 0.1);
 }
 
 /* Light Mode Buttons */
@@ -991,16 +1123,16 @@ footer.site-footer {
 /* Light Mode User Menu & Dropdown */
 [data-theme="light"] .user-pill-btn {
     background: #ffffff;
-    border-color: #cbd5e1;
+    border-color: rgba(203, 213, 225, 0.85);
     color: #0f172a;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 [data-theme="light"] .user-pill-btn:hover,
 [data-theme="light"] .user-pill-btn.active {
     background: #f8fafc;
-    border-color: #94a3b8;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.09);
+    border-color: rgba(249, 115, 22, 0.4);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
 }
 
 [data-theme="light"] .user-name {
@@ -1257,5 +1389,358 @@ footer.site-footer {
 
 [data-theme="light"] .footer-bottom {
     border-top: 1px solid #e2e8f0;
+}
+
+/* ==============================================================================
+   CARGOLINK - INTERNATIONALIZATION (i18n) FLAG DROPDOWN SWITCHER
+   Bouton drapeau avec menu déroulant animé
+   ============================================================================== */
+
+.lang-dropdown-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.lang-flag-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 8px;
+    background: transparent;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.lang-flag-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.lang-flag-btn.active {
+    background: rgba(249, 115, 22, 0.16);
+}
+
+.lang-current-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.lang-current-code {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+}
+
+.lang-chevron {
+    color: var(--text-muted, #94a3b8);
+    transition: transform 0.22s ease;
+}
+
+.lang-flag-btn.active .lang-chevron {
+    transform: rotate(180deg);
+}
+
+/* Menu Déroulant des Langues */
+.lang-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 165px;
+    background: rgba(15, 23, 42, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 1000;
+    animation: langDropdownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lang-dropdown-menu.show {
+    display: flex;
+}
+
+@keyframes langDropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lang-dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: var(--text-sub, #cbd5e1);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: left;
+    width: 100%;
+    transition: all 0.15s ease;
+}
+
+.lang-dropdown-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.lang-dropdown-option.active {
+    background: rgba(249, 115, 22, 0.15);
+    color: #f97316;
+}
+
+.flag-svg {
+    width: 19px;
+    height: 13px;
+    border-radius: 2.5px;
+    display: inline-block;
+    vertical-align: middle;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.lang-current-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.lang-opt-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.lang-opt-name {
+    flex: 1;
+}
+
+.lang-opt-check {
+    font-size: 0.85rem;
+    color: #f97316;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.lang-dropdown-option.active .lang-opt-check {
+    opacity: 1;
+}
+
+/* Light Mode Styles */
+[data-theme="light"] .lang-flag-btn {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+[data-theme="light"] .lang-flag-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .lang-flag-btn.active {
+    background: rgba(249, 115, 22, 0.12);
+}
+
+[data-theme="light"] .lang-current-code {
+    color: #0f172a;
+}
+
+[data-theme="light"] .lang-dropdown-menu {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .lang-dropdown-option {
+    color: #334155;
+}
+
+[data-theme="light"] .lang-dropdown-option:hover {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+[data-theme="light"] .lang-dropdown-option.active {
+    background: rgba(249, 115, 22, 0.08);
+    color: #ea580c;
+}
+
+/* ==============================================================================
+   CARGOLINK - RTL (RIGHT-TO-LEFT) ARABIC SUPPORT
+   Adaptation native de la mise en page pour l'Arabe (العربية)
+   ============================================================================== */
+
+[dir="rtl"] {
+    font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    text-align: right;
+}
+
+[dir="rtl"] body {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .brand-logo {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .brand-text {
+    text-align: right;
+}
+
+[dir="rtl"] .brand-tagline {
+    letter-spacing: 0.05em;
+}
+
+[dir="rtl"] .nav-auth {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .nav-menu-wrapper {
+    margin-left: 0;
+    margin-right: 1.25rem;
+}
+
+[dir="rtl"] .user-pill-btn {
+    flex-direction: row-reverse;
+    text-align: right;
+    padding: 0 0.3rem 0 0.75rem;
+}
+
+[dir="rtl"] .lang-dropdown-menu {
+    left: 0;
+    right: auto;
+}
+
+[dir="rtl"] .user-dropdown-menu {
+    left: 0;
+    right: auto;
+}
+
+[dir="rtl"] .dropdown-header {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+[dir="rtl"] .dropdown-actions .dropdown-item {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+[dir="rtl"] .footer-grid {
+    text-align: right;
+}
+
+[dir="rtl"] .footer-bottom {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .page-top-bar {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .page-title-box {
+    text-align: right;
+}
+
+[dir="rtl"] .top-actions-group {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .kpi-card {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+[dir="rtl"] .filter-form {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .search-input-wrapper {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .search-icon-inside {
+    right: 12px;
+    left: auto;
+}
+
+[dir="rtl"] .search-input-field {
+    padding-right: 2.5rem;
+    padding-left: 1rem;
+    text-align: right;
+}
+
+[dir="rtl"] .creneaux-table th,
+[dir="rtl"] .creneaux-table td {
+    text-align: right;
+}
+
+[dir="rtl"] .creneaux-table th:last-child,
+[dir="rtl"] .creneaux-table td:last-child {
+    text-align: left;
+}
+
+[dir="rtl"] .planning-header-bar {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .date-navigator {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .timeline-hours-header {
+    direction: ltr; /* Keeps hours timeline left-to-right for consistent chronological read */
+}
+
+[dir="rtl"] .form-card {
+    text-align: right;
+}
+
+[dir="rtl"] .form-group {
+    text-align: right;
+}
+
+[dir="rtl"] .form-label {
+    text-align: right;
+}
+
+[dir="rtl"] .detail-layout {
+    direction: rtl;
+}
+
+[dir="rtl"] .detail-main-card {
+    text-align: right;
+}
+
+[dir="rtl"] .detail-sidebar {
+    text-align: right;
 }
 
