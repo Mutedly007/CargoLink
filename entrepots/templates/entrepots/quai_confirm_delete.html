@@ -1,0 +1,45 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Supprimer le Quai {{ quai.numero }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'entrepots/css/entrepots.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="entrepots-container">
+    <div class="delete-card">
+        <div class="delete-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        </div>
+        <h1>Supprimer ce Quai ?</h1>
+        <p class="delete-desc">
+            Êtes-vous sûr de vouloir supprimer définitivement le quai 
+            <strong style="color: #ffffff;">« {{ quai.numero }} »</strong> 
+            rattaché à l'entrepôt <strong>{{ quai.entrepot.nom }}</strong> ?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+                <a href="{% url 'entrepots:entrepot_detail' quai.entrepot.pk %}" class="btn btn-outline" style="padding: 0.7rem 1.5rem;">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-danger-submit" style="display: inline-flex; align-items: center; gap: 0.45rem;">
+                    <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Confirmer la suppression du quai
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

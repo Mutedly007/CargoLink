@@ -1,0 +1,86 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Page Non Accessible &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="access-denied-page">
+    <div class="access-denied-card">
+        <!-- Glowing Shield Icon -->
+        <div class="access-denied-icon-box">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+
+        <div class="badge-forbidden-pill">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 8px #ef4444; display: inline-block;"></span>
+            403 &bull; Accès Restreint
+        </div>
+
+        <h1>Page non accessible</h1>
+
+        <p class="access-denied-desc">
+            L'accès à l'interface d'administration est strictement réservé aux utilisateurs disposant du rôle <strong>Administrateur Plateforme</strong>.
+        </p>
+
+        {% if current_user %}
+        <div class="user-status-strip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #94a3b8;">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Compte connecté : <strong>{{ current_user.username }}</strong></span>
+            <span style="color: var(--text-muted);">&bull;</span>
+            <span style="color: #fb923c;">
+                {% if current_user.profile %}{{ current_user.profile.get_role_display }}{% else %}Utilisateur Standard{% endif %}
+            </span>
+        </div>
+        {% else %}
+        <div class="user-status-strip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #94a3b8;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Vous n'êtes actuellement pas connecté à la plateforme.</span>
+        </div>
+        {% endif %}
+
+        <div class="access-actions-group">
+            <a href="{% url 'landing' %}" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Retour à l'accueil
+            </a>
+
+            {% if current_user %}
+                <a href="{% url 'logout' %}" class="btn btn-outline" style="color: #f87171; border-color: rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Changer de compte
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}?next=/admin/" class="btn btn-accent" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <span>Connexion Administrateur</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}{{ action_title }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'entrepots/css/entrepots.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    <a href="{% if is_edit %}{% url 'entrepots:entrepot_detail' quai.entrepot.pk %}{% elif preset_entrepot %}{% url 'entrepots:entrepot_detail' preset_entrepot.pk %}{% else %}{% url 'entrepots:quai_list' %}{% endif %}" class="detail-back-link">
+        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Annuler et retourner
+    </a>
+
+    <div class="form-main-card">
+        <div class="form-title-area">
+            <h1>{{ action_title }}</h1>
+            <p>Définissez les spécifications techniques du quai, sa capacité horaire et ses équipements.</p>
+        </div>
+
+        {% if form.errors %}
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; color: #fca5a5;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f87171;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <strong style="color: #ffffff;">Erreur de validation :</strong>
+            </div>
+            <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{% if field != '__all__' %}<strong>{{ field|title }}</strong> : {% endif %}{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.entrepot.id_for_label }}">Entrepôt Rattaché *</label>
+                    {{ form.entrepot }}
+                    {% if form.entrepot.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.entrepot.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.numero.id_for_label }}">Numéro / Identifiant du Quai *</label>
+                    {{ form.numero }}
+                    {% if form.numero.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.numero.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.type_quai.id_for_label }}">Type de Quai *</label>
+                    {{ form.type_quai }}
+                    {% if form.type_quai.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.type_quai.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.statut.id_for_label }}">Statut Initial *</label>
+                    {{ form.statut }}
+                    {% if form.statut.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.statut.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.type_camion_accepte.id_for_label }}">Gabarit Camion Admis</label>
+                    {{ form.type_camion_accepte }}
+                    {% if form.type_camion_accepte.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.type_camion_accepte.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.capacite_camions_simultanes.id_for_label }}">Camions Simultanés</label>
+                    {{ form.capacite_camions_simultanes }}
+                    {% if form.capacite_camions_simultanes.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.capacite_camions_simultanes.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.capacite_palettes_heure.id_for_label }}">Débit Moyen (Palettes / Heure) *</label>
+                {{ form.capacite_palettes_heure }}
+                {% if form.capacite_palettes_heure.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.capacite_palettes_heure.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Équipements Techniques & Sécurité</label>
+                <div style="display: flex; gap: 2rem; margin-top: 0.4rem;">
+                    <label class="checkbox-group">
+                        {{ form.a_niveleur }}
+                        <span style="font-size: 0.9rem; color: #ffffff;">Niveleur hydraulique</span>
+                    </label>
+
+                    <label class="checkbox-group">
+                        {{ form.a_sas_isotherme }}
+                        <span style="font-size: 0.9rem; color: #ffffff;">Sas d'étanchéité thermique</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.remarques.id_for_label }}">Consignes Particulières / Remarques</label>
+                {{ form.remarques }}
+                {% if form.remarques.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.remarques.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-actions-footer">
+                <a href="{% if is_edit %}{% url 'entrepots:entrepot_detail' quai.entrepot.pk %}{% elif preset_entrepot %}{% url 'entrepots:entrepot_detail' preset_entrepot.pk %}{% else %}{% url 'entrepots:quai_list' %}{% endif %}" class="btn btn-outline">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-accent" style="padding: 0.75rem 1.75rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <span>{{ btn_label }}</span>
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

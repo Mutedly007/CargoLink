@@ -68,7 +68,7 @@ def login_view(request):
                 request,
                 f"Ravi de vous revoir, {display_name} ! Connecté en tant que {role_label}."
             )
-            next_url = request.GET.get('next', 'landing')
+            next_url = request.POST.get('next') or request.GET.get('next') or 'landing'
             return redirect(next_url)
     else:
         form = LoginForm()

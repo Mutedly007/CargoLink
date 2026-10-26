@@ -355,3 +355,106 @@
     .form-grid-2 { grid-template-columns: 1fr; gap: 0; }
     .signup-header h1 { font-size: 1.95rem; }
 }
+
+/* ===================================================
+   ACCESS DENIED (403 PAGE NON ACCESSIBLE)
+   =================================================== */
+.access-denied-page {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+}
+
+.access-denied-card {
+    max-width: 580px;
+    width: 100%;
+    background: rgba(15, 27, 49, 0.85);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    backdrop-filter: blur(24px);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2.5rem;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 35px rgba(239, 68, 68, 0.15);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.access-denied-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ef4444, #f97316);
+}
+
+.access-denied-icon-box {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: #f87171;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.25);
+}
+
+.badge-forbidden-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.95rem;
+    border-radius: 9999px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.15rem;
+}
+
+.access-denied-card h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.access-denied-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.user-status-strip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.access-actions-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+

@@ -43,9 +43,43 @@
                     <span class="live-dot-idle"></span>
                     <span>Monitoring Quais en Direct</span>
                 </div>
-                <span class="badge-status">En attente de quais</span>
+                {% if total_quais > 0 %}
+                    <span class="badge-status" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3);">
+                        ● {{ quais_disponibles }}/{{ total_quais }} Disponibles
+                    </span>
+                {% else %}
+                    <span class="badge-status">En attente de quais</span>
+                {% endif %}
             </div>
 
+            {% if total_quais > 0 %}
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin: 1.25rem 0;">
+                {% for q in quais_preview %}
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 700; color: #ffffff; font-size: 0.85rem;">{{ q.numero }}</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;">{{ q.entrepot.nom }} &bull; {{ q.get_type_quai_display }}</div>
+                    </div>
+                    <div>
+                        {% if q.statut == 'DISPONIBLE' %}
+                            <span class="badge-status-pill status-disponible" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;">● Libre</span>
+                        {% elif q.statut == 'OCCUPE' %}
+                            <span class="badge-status-pill status-occupe" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;">● Occupé</span>
+                        {% else %}
+                            <span class="badge-status-pill status-reserve" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;">● {{ q.get_statut_display }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">{{ total_entrepots }} entrepôt(s) actif(s)</span>
+                <a href="{% url 'entrepots:quai_list' %}" style="font-size: 0.8rem; font-weight: 700; color: var(--accent); text-decoration: none;">
+                    Régulation Complète &rarr;
+                </a>
+            </div>
+            {% else %}
             <!-- Empty State Container -->
             <div class="dock-empty-state">
                 <div class="dock-empty-icon">🏗️</div>
@@ -62,6 +96,7 @@
                 <span style="font-size: 0.8rem; color: var(--text-muted);">Capacité instantanée</span>
                 <span style="font-size: 0.85rem; font-weight: 700; color: #94a3b8;">Aucune donnée (0/0 Palettes)</span>
             </div>
+            {% endif %}
         </div>
     </div>
 </section>

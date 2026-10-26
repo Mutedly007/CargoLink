@@ -1,0 +1,161 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}{{ action_title }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'entrepots/css/entrepots.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    <a href="{% if is_edit %}{% url 'entrepots:entrepot_detail' entrepot.pk %}{% else %}{% url 'entrepots:entrepot_list' %}{% endif %}" class="detail-back-link">
+        <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Annuler et retourner
+    </a>
+
+    <div class="form-main-card">
+        <div class="form-title-area">
+            <h1>{{ action_title }}</h1>
+            <p>Renseignez les caractéristiques techniques, la localisation et les capacités de stockage de l'entrepôt.</p>
+        </div>
+
+        {% if form.errors %}
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; color: #fca5a5;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f87171;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <strong style="color: #ffffff;">Erreur de validation :</strong>
+            </div>
+            <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{% if field != '__all__' %}<strong>{{ field|title }}</strong> : {% endif %}{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.nom.id_for_label }}">Nom de l'Entrepôt *</label>
+                    {{ form.nom }}
+                    {% if form.nom.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.nom.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.code.id_for_label }}">Code d'Identification Unique *</label>
+                    {{ form.code }}
+                    {% if form.code.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.code.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.adresse.id_for_label }}">Adresse Postale Complète *</label>
+                {{ form.adresse }}
+                {% if form.adresse.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.adresse.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.ville.id_for_label }}">Ville *</label>
+                    {{ form.ville }}
+                    {% if form.ville.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.ville.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.code_postal.id_for_label }}">Code Postal *</label>
+                    {{ form.code_postal }}
+                    {% if form.code_postal.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.code_postal.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.telephone.id_for_label }}">Téléphone de Contact</label>
+                    {{ form.telephone }}
+                    {% if form.telephone.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.telephone.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.email_contact.id_for_label }}">Email de Contact</label>
+                    {{ form.email_contact }}
+                    {% if form.email_contact.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.email_contact.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.statut.id_for_label }}">Statut d'Exploitation</label>
+                    {{ form.statut }}
+                    {% if form.statut.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.statut.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.gestionnaire.id_for_label }}">Responsable / Gestionnaire</label>
+                    {{ form.gestionnaire }}
+                    {% if form.gestionnaire.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.gestionnaire.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.capacite_palettes.id_for_label }}">Capacité de Stockage (Palettes) *</label>
+                    {{ form.capacite_palettes }}
+                    {% if form.capacite_palettes.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.capacite_palettes.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.superficie_m2.id_for_label }}">Superficie en m²</label>
+                    {{ form.superficie_m2 }}
+                    {% if form.superficie_m2.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.superficie_m2.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.horaire_ouverture.id_for_label }}">Heure d'Ouverture (Format HH:MM) *</label>
+                    {{ form.horaire_ouverture }}
+                    {% if form.horaire_ouverture.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.horaire_ouverture.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.horaire_fermeture.id_for_label }}">Heure de Fermeture (Format HH:MM) *</label>
+                    {{ form.horaire_fermeture }}
+                    {% if form.horaire_fermeture.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.horaire_fermeture.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.jours_ouverture.id_for_label }}">Jours d'Ouverture</label>
+                {{ form.jours_ouverture }}
+                {% if form.jours_ouverture.errors %}<div style="color: #f87171; font-size: 0.78rem; margin-top: 0.3rem;">{{ form.jours_ouverture.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-actions-footer">
+                <a href="{% if is_edit %}{% url 'entrepots:entrepot_detail' entrepot.pk %}{% else %}{% url 'entrepots:entrepot_list' %}{% endif %}" class="btn btn-outline">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-accent" style="padding: 0.75rem 1.75rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <span>{{ btn_label }}</span>
+                    <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

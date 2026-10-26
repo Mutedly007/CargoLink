@@ -48,8 +48,11 @@
             </div>
             {% endif %}
 
-            <form method="post" action="{% url 'login' %}">
+            <form method="post">
                 {% csrf_token %}
+                {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
                 
                 <div class="form-group">
                     <label class="form-label" for="{{ form.username.id_for_label }}">Nom d'utilisateur ou Email</label>

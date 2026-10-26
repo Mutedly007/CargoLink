@@ -102,4 +102,45 @@ class AccountsAuthTests(TestCase):
         self.assertNotContains(response, "Dashboard Admin")
         self.assertContains(response, "Gestionnaire d'Entrepôt")
 
+    def test_unauthenticated_user_accessing_admin_shows_page_not_accessible(self):
+        """Un utilisateur non connecté accédant à /admin/ reçoit un 403 Page Non Accessible."""
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "Page non accessible", status_code=403)
+        self.assertContains(response, "Accès Restreint", status_code=403)
+        self.assertNotContains(response, "Django administration", status_code=403)
+
+    def test_non_admin_user_accessing_admin_shows_page_not_accessible(self):
+        """Un utilisateur avec rôle non-admin (ex: ENTREPOT) accédant à /admin/ reçoit un 403."""
+        user = User.objects.create_user(
+            username='simple_entrepot',
+            email='simple@test.com',
+            password='TestPassword123!'
+        )
+        user.profile.role = 'ENTREPOT'
+        user.profile.save()
+        self.client.force_login(user)
+
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "Page non accessible", status_code=403)
+        self.assertContains(response, "simple_entrepot", status_code=403)
+        self.assertNotContains(response, "Django administration", status_code=403)
+
+    def test_admin_user_accessing_admin_is_authorized(self):
+        """Un administrateur CargoLink peut accéder normalement à /admin/."""
+        admin_user = User.objects.create_user(
+            username='super_admin',
+            email='admin@cargolink.tn',
+            password='AdminPassword123!'
+        )
+        admin_user.profile.role = 'ADMIN'
+        admin_user.profile.save()
+        self.client.force_login(admin_user)
+
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Site administration")
+
+
 
