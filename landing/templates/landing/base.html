@@ -132,6 +132,14 @@
 
                             <!-- Actions -->
                             <div class="dropdown-actions">
+                                <a href="{% url 'profile' %}" class="dropdown-item">
+                                    <span class="dropdown-item-icon">👤</span>
+                                    <div class="dropdown-item-content">
+                                        <span class="dropdown-item-title">Mon Profil</span>
+                                        <span class="dropdown-item-sub">Modifier mes coordonnées & sécurité</span>
+                                    </div>
+                                    <span style="margin-left: auto; color: var(--accent); font-size: 0.95rem; font-weight: 700;">&rarr;</span>
+                                </a>
                                 {% if user.profile.is_admin %}
                                 <a href="{% url 'admin:index' %}" class="dropdown-item admin-item">
                                     <span class="dropdown-item-icon">⚙️</span>
