@@ -199,6 +199,174 @@
             ai_welcome_desc: "Interrogez-moi pour vérifier les disponibilités, auditer les conflits horaires, ou obtenir des recommandations d'allocation de quais.",
             ai_thinking: "L'assistant analyse les données du planning...",
 
+            // Module Chauffeurs & Flotte
+            page_title: "Gestion des Chauffeurs",
+            page_subtitle: "Supervisez les conducteurs de fret, contrôlez la conformité des permis (C, CE, ADR) et suivez l'historique de passage sur vos sites logistiques.",
+            btn_ai: "Assistant IA Chauffeurs",
+            btn_mobile: "Portail Mobile",
+            btn_export: "Export CSV",
+            btn_add: "Ajouter un Chauffeur",
+            kpi_total: "Total Chauffeurs",
+            kpi_total_sub: "enregistrés dans la flotte",
+            kpi_dispo: "Disponibles",
+            kpi_dispo_sub: "prêts pour affectation",
+            kpi_mission: "En Mission",
+            kpi_mission_sub: "en transit sur le réseau",
+            kpi_aquai: "À Quai",
+            kpi_aquai_sub: "sur site logistique",
+            kpi_repos: "En Repos",
+            kpi_repos_sub: "indisponibles temporairement",
+            kpi_alertes: "Alertes Permis",
+            kpi_alertes_sub: "expirés ou à renouveler (< 30j)",
+            kpi_visites: "Total Visites",
+            kpi_visites_sub: "passages aux entrepôts",
+            filter_search_placeholder: "Rechercher par nom, prénom, CIN, entreprise...",
+            filter_status_all: "Tous les statuts opérationnels",
+            filter_cat_all: "Toutes les catégories de permis",
+            filter_alert_all: "Toutes les alertes permis",
+            filter_alert_expire: "⚠️ Permis expirés uniquement",
+            filter_alert_bientot: "⏳ Expire dans moins de 30 jours",
+            filter_alert_valide: "✅ Permis valides (> 30 jours)",
+            filter_submit: "Filtrer",
+            filter_reset: "Réinitialiser",
+            spec_truck: "Camion attitré",
+            spec_company: "Entreprise",
+            spec_city: "Résidence",
+            spec_phone: "Téléphone",
+            spec_license: "Permis & Validité",
+            spec_visits: "Visites & Passages",
+            badge_expire: "Expiré",
+            badge_soon_prefix: "Expire dans ",
+            badge_soon_suffix: " jours",
+            badge_valid: "Permis Valide",
+            visits_suffix: "visite",
+            visits_plural_suffix: "visites",
+            btn_full_profile: "Fiche Complète",
+            btn_edit_tooltip: "Modifier le chauffeur",
+            no_driver_title: "Aucun chauffeur trouvé",
+            no_driver_desc: "Aucun profil de conducteur ne correspond à vos critères de recherche ou filtres.",
+            btn_add_first: "Ajouter le premier chauffeur",
+            breadcrumb_back: "Retour à la liste des chauffeurs",
+            badge_portuaire: "🛡️ Badge Portuaire Actif",
+            statut_btn_disponible: "Disponible",
+            statut_btn_mission: "En Mission",
+            statut_btn_aquai: "À Quai",
+            statut_btn_repos: "En Repos",
+            btn_edit: "Modifier Fiche",
+            btn_add_visit: "Enregistrer Visite",
+            btn_delete_title: "Supprimer ce chauffeur",
+            panel_identity_title: "Identité & Coordonnées",
+            label_fullname: "Prénom & Nom",
+            label_cin: "Numéro CIN / Passeport",
+            label_phone: "Téléphone principal",
+            label_emergency_phone: "Contact d'urgence",
+            label_email: "Adresse Email",
+            label_residence: "Résidence",
+            label_hire_date: "Date d'embauche",
+            not_provided: "Non renseigné",
+            not_specified: "Non spécifié",
+            panel_license_title: "Permis de Conduire & Conformité",
+            label_license_num: "Numéro de permis",
+            label_license_cat: "Catégorie",
+            label_license_issued: "Délivré le",
+            label_license_expiry: "Date d'expiration",
+            panel_truck_title: "Camion Habituel & Fret",
+            label_truck_plate: "Immatriculation",
+            no_truck_assigned: "Aucun véhicule attitré",
+            label_truck_model: "Modèle / Marque",
+            label_truck_type: "Gabarit / Type",
+            label_truck_capacity: "Capacité de charge",
+            unit_tonnes: "Tonnes",
+            label_company: "Entreprise",
+            label_remarks: "Remarques :",
+            op_badge_title: "⚡ Régulation Logistique & Flotte",
+            op_mission_active: "🟢 Mission Active",
+            op_awaiting_assignment: "⚪ En Attente d'Affectation",
+            op_section_title: "Affectation Camion, Créneau & Quai Disponibles",
+            op_section_desc: "Règle de régulation CargoLink : un chauffeur doit être affecté à un camion disponible et à un créneau sur quai disponible.",
+            op_btn_release: "Libérer la mission & Rendre disponible",
+            op_current_title: "📋 État de l'Affectation Actuelle",
+            op_current_truck: "Camion assigné",
+            op_no_truck: "Aucun camion",
+            op_current_availability: "Disponibilité du véhicule",
+            op_not_central_fleet: "Non rattaché à la flotte centrale",
+            op_current_slot: "Mission / Créneau actif",
+            op_awaiting_mission: "En attente de mission",
+            op_new_title: "⚡ Affecter une Nouvelle Mission",
+            op_label_truck: "Camion disponible",
+            op_count_free: "libres",
+            op_select_truck: "-- Sélectionner un camion disponible --",
+            op_label_dock: "Entrepôt & Quai disponible",
+            op_select_dock: "-- Sélectionner un quai disponible --",
+            op_label_slot: "Créneau Quai disponible :",
+            op_select_slot_auto: "-- Génération automatique d'un créneau immédiat --",
+            op_btn_submit: "Valider l'Affectation Mission",
+            visits_section_title: "Historique des Visites & Passages aux Entrepôts",
+            visits_section_desc: "Traçabilité complète des déchargements, chargements et contrôles effectués par ce conducteur.",
+            visits_btn_add: "Ajouter une Visite",
+            th_date_time: "Date & Horaires",
+            th_dock: "Entrepôt & Quai",
+            th_cmr: "N° Bon / CMR",
+            th_operation: "Opération",
+            th_duration: "Durée",
+            th_status: "Statut",
+            th_signoff: "Émargement",
+            site_external: "Site Externe",
+            unit_min: "min",
+            signoff_validated: "✅ Validé",
+            signoff_pending: "⏳ En attente",
+            no_visits_msg: "Aucune visite ni passage enregistré pour l'instant pour ce chauffeur.",
+            btn_record_first_visit: "Enregistrer la première visite",
+            slots_section_title: "Créneaux & Réservations Récentes Associées",
+            slots_section_desc: "Synchronisé en temps réel avec le module Créneaux & Régulation des Quais.",
+            btn_view_all_slots: "Voir tous les créneaux →",
+            th_slot_ref: "Référence",
+            th_slot_datetime: "Date & Créneau",
+            th_slot_dock: "Quai & Entrepôt",
+            th_action: "Action",
+            btn_details: "Détails",
+            alert_expired_strong: "Permis Expiré !",
+            alert_expired_text: "Ce chauffeur n'est plus autorisé à circuler. Renouvellement urgent requis.",
+            alert_soon_strong: "Expiration proche ({days} jours) !",
+            alert_soon_text: "Penser au renouvellement de la visite médicale et de la carte conducteur.",
+            alert_valid_strong: "Permis en règle.",
+            alert_valid_text: "Valide pour encore {days} jours.",
+            btn_cancel_back: "Annuler et retourner",
+            form_subtitle: "Renseignez les données administratives, les catégories de permis et le véhicule attitré du conducteur.",
+            form_errors_title: "Erreurs détectées :",
+            sec1_title: "1. Informations Personnelles & Contact",
+            lbl_prenom: "Prénom *",
+            lbl_nom: "Nom de famille *",
+            lbl_cin: "Numéro CIN / Passeport",
+            lbl_email: "Adresse Email",
+            lbl_phone: "Téléphone principal *",
+            lbl_emergency_phone: "Téléphone d'urgence",
+            lbl_birthdate: "Date de naissance",
+            lbl_hiredate: "Date d'embauche",
+            lbl_residence: "Ville de résidence",
+            lbl_photo: "Photo du chauffeur",
+            sec2_title: "2. Permis de Conduire & Validité",
+            lbl_license_num: "Numéro de Permis *",
+            lbl_license_cat: "Catégorie de Permis *",
+            lbl_license_issued: "Date de délivrance",
+            lbl_license_expiry: "Date d'expiration / Validité *",
+            sec3_title: "3. Entreprise de Transport & Véhicule Associé",
+            lbl_company: "Société / Entreprise de Transport *",
+            lbl_carrier_account: "Compte Utilisateur Transporteur",
+            lbl_truck_plate: "Immatriculation du Camion",
+            lbl_truck_model: "Marque / Modèle",
+            lbl_truck_type: "Type de gabarit",
+            lbl_truck_capacity: "Capacité (Tonnes)",
+            sec4_title: "4. Statut Opérationnel & Sécurité",
+            lbl_statut: "Statut Opérationnel *",
+            lbl_badge_portuaire: "Badge d'accès portuaire / sécurisé actif",
+            lbl_remarks: "Remarques & Habilitations particulières",
+            btn_cancel: "Annuler",
+            btn_submit_create: "Enregistrer le Chauffeur",
+            btn_submit_update: "Enregistrer les Modifications",
+            title_create: "Nouveau Chauffeur",
+            title_update_prefix: "Modifier ",
+
             // Toasts & feedback
             toast_lang_changed: "🌐 Langue basculée en Français",
         },
@@ -394,6 +562,174 @@
             ai_welcome_desc: "Ask me to check availability, audit schedule conflicts, or get intelligent dock allocation recommendations.",
             ai_thinking: "The assistant is analyzing schedule data...",
 
+            // Chauffeurs & Fleet Module
+            page_title: "Drivers Management",
+            page_subtitle: "Supervise freight drivers, monitor license compliance (C, CE, ADR), and track warehouse gate log history.",
+            btn_ai: "Driver AI Assistant",
+            btn_mobile: "Mobile Portal",
+            btn_export: "Export CSV",
+            btn_add: "Add Driver",
+            kpi_total: "Total Drivers",
+            kpi_total_sub: "registered in fleet",
+            kpi_dispo: "Available",
+            kpi_dispo_sub: "ready for dispatch",
+            kpi_mission: "On Mission",
+            kpi_mission_sub: "in transit on road",
+            kpi_aquai: "At Dock",
+            kpi_aquai_sub: "on facility premises",
+            kpi_repos: "On Rest",
+            kpi_repos_sub: "off-duty / resting",
+            kpi_alertes: "License Alerts",
+            kpi_alertes_sub: "expired or renewing (< 30d)",
+            kpi_visites: "Total Visits",
+            kpi_visites_sub: "logged warehouse passes",
+            filter_search_placeholder: "Search by first name, last name, ID, company...",
+            filter_status_all: "All operational statuses",
+            filter_cat_all: "All license categories",
+            filter_alert_all: "All license alerts",
+            filter_alert_expire: "⚠️ Expired licenses only",
+            filter_alert_bientot: "⏳ Expiring in under 30 days",
+            filter_alert_valide: "✅ Valid licenses (> 30 days)",
+            filter_submit: "Filter",
+            filter_reset: "Reset",
+            spec_truck: "Assigned Truck",
+            spec_company: "Company",
+            spec_city: "City",
+            spec_phone: "Phone",
+            spec_license: "License & Validity",
+            spec_visits: "Visits & Passes",
+            badge_expire: "Expired",
+            badge_soon_prefix: "Expires in ",
+            badge_soon_suffix: " days",
+            badge_valid: "Valid License",
+            visits_suffix: "visit",
+            visits_plural_suffix: "visits",
+            btn_full_profile: "Full Profile",
+            btn_edit_tooltip: "Edit Driver",
+            no_driver_title: "No drivers found",
+            no_driver_desc: "No driver profile matches your current search criteria or filter options.",
+            btn_add_first: "Register First Driver",
+            breadcrumb_back: "Back to drivers list",
+            badge_portuaire: "🛡️ Active Port Badge",
+            statut_btn_disponible: "Available",
+            statut_btn_mission: "On Mission",
+            statut_btn_aquai: "At Dock",
+            statut_btn_repos: "On Rest",
+            btn_edit: "Edit Profile",
+            btn_add_visit: "Record Visit",
+            btn_delete_title: "Delete this driver",
+            panel_identity_title: "Identity & Contact Info",
+            label_fullname: "Full Name",
+            label_cin: "National ID / Passport",
+            label_phone: "Primary Phone",
+            label_emergency_phone: "Emergency Contact",
+            label_email: "Email Address",
+            label_residence: "Residence / City",
+            label_hire_date: "Hire Date",
+            not_provided: "Not provided",
+            not_specified: "Not specified",
+            panel_license_title: "Driving License & Compliance",
+            label_license_num: "License Number",
+            label_license_cat: "Category",
+            label_license_issued: "Issued On",
+            label_license_expiry: "Expiration Date",
+            panel_truck_title: "Assigned Truck & Freight",
+            label_truck_plate: "License Plate",
+            no_truck_assigned: "No assigned truck",
+            label_truck_model: "Model / Make",
+            label_truck_type: "Type / Size",
+            label_truck_capacity: "Load Capacity",
+            unit_tonnes: "Tons",
+            label_company: "Transport Company",
+            label_remarks: "Remarks:",
+            op_badge_title: "⚡ Fleet & Logistics Regulation",
+            op_mission_active: "🟢 Active Mission",
+            op_awaiting_assignment: "⚪ Awaiting Assignment",
+            op_section_title: "Available Truck, Slot & Dock Assignment",
+            op_section_desc: "CargoLink regulation rule: a driver must be assigned to an available truck and an available dock slot.",
+            op_btn_release: "Release mission & Mark available",
+            op_current_title: "📋 Current Assignment Status",
+            op_current_truck: "Assigned Truck",
+            op_no_truck: "No truck",
+            op_current_availability: "Vehicle Availability",
+            op_not_central_fleet: "Not attached to central fleet",
+            op_current_slot: "Active Mission / Slot",
+            op_awaiting_mission: "Awaiting mission",
+            op_new_title: "⚡ Assign New Mission",
+            op_label_truck: "Available truck",
+            op_count_free: "free",
+            op_select_truck: "-- Select an available truck --",
+            op_label_dock: "Available Warehouse & Dock",
+            op_select_dock: "-- Select an available dock --",
+            op_label_slot: "Available Dock Time Slot:",
+            op_select_slot_auto: "-- Auto-generate immediate time slot --",
+            op_btn_submit: "Confirm Mission Assignment",
+            visits_section_title: "Warehouse Visits & Checkpoints History",
+            visits_section_desc: "Full traceability of loadings, unloadings and inspections performed by this driver.",
+            visits_btn_add: "Add Visit",
+            th_date_time: "Date & Time",
+            th_dock: "Warehouse & Dock",
+            th_cmr: "Bill / CMR No.",
+            th_operation: "Operation",
+            th_duration: "Duration",
+            th_status: "Status",
+            th_signoff: "Sign-off",
+            site_external: "External Site",
+            unit_min: "min",
+            signoff_validated: "✅ Validated",
+            signoff_pending: "⏳ Pending",
+            no_visits_msg: "No visits or check-ins recorded yet for this driver.",
+            btn_record_first_visit: "Record first visit",
+            slots_section_title: "Associated Recent Time Slots & Bookings",
+            slots_section_desc: "Synchronized in real-time with the Docks & Slots Regulation module.",
+            btn_view_all_slots: "View all slots →",
+            th_slot_ref: "Reference",
+            th_slot_datetime: "Date & Slot",
+            th_slot_dock: "Dock & Warehouse",
+            th_action: "Action",
+            btn_details: "Details",
+            alert_expired_strong: "License Expired!",
+            alert_expired_text: "This driver is no longer authorized to drive. Urgent renewal required.",
+            alert_soon_strong: "Expiring soon ({days} days)!",
+            alert_soon_text: "Please renew medical checkup and professional driver card.",
+            alert_valid_strong: "License in good standing.",
+            alert_valid_text: "Valid for another {days} days.",
+            btn_cancel_back: "Cancel and return",
+            form_subtitle: "Fill in administrative data, license categories, and the driver's assigned vehicle.",
+            form_errors_title: "Errors detected:",
+            sec1_title: "1. Personal & Contact Information",
+            lbl_prenom: "First Name *",
+            lbl_nom: "Last Name *",
+            lbl_cin: "National ID / Passport",
+            lbl_email: "Email Address",
+            lbl_phone: "Primary Phone *",
+            lbl_emergency_phone: "Emergency Phone",
+            lbl_birthdate: "Date of Birth",
+            lbl_hiredate: "Hire Date",
+            lbl_residence: "City of Residence",
+            lbl_photo: "Driver Photo",
+            sec2_title: "2. Driving License & Validity",
+            lbl_license_num: "License Number *",
+            lbl_license_cat: "License Category *",
+            lbl_license_issued: "Issue Date",
+            lbl_license_expiry: "Expiration Date / Validity *",
+            sec3_title: "3. Transport Company & Assigned Vehicle",
+            lbl_company: "Transport / Logistics Company *",
+            lbl_carrier_account: "Carrier User Account",
+            lbl_truck_plate: "Truck License Plate",
+            lbl_truck_model: "Make / Model",
+            lbl_truck_type: "Vehicle Type / Size",
+            lbl_truck_capacity: "Capacity (Tons)",
+            sec4_title: "4. Operational Status & Security",
+            lbl_statut: "Operational Status *",
+            lbl_badge_portuaire: "Active port / secure access badge",
+            lbl_remarks: "Remarks & Special Authorizations",
+            btn_cancel: "Cancel",
+            btn_submit_create: "Save Driver",
+            btn_submit_update: "Save Changes",
+            title_create: "New Driver",
+            title_update_prefix: "Edit ",
+
             // Toasts & feedback
             toast_lang_changed: "🌐 Language switched to English",
         },
@@ -588,6 +924,174 @@
             ai_welcome_title: "مرحباً بك! أنا مساعدك الذكي المخصص لجدولة أرصفة الشحن.",
             ai_welcome_desc: "اسألني للتحقق من التوفر، أو تدقيق التعارضات الزمنية، أو الحصول على توصيات ذكية لتخصيص الأرصفة.",
             ai_thinking: "المساعد يحلل بيانات الجدولة حالياً...",
+
+            // وحدة السائقين والأسطول
+            page_title: "إدارة السائقين",
+            page_subtitle: "متابعة سائقي الشحن، ومراقبة مطابقة رخص القيادة (C, CE, ADR) وتتبع سجل العبور بمواقعكم اللوجستية.",
+            btn_ai: "مساعد الذكاء الاصطناعي",
+            btn_mobile: "بوابة الجوال",
+            btn_export: "تصدير CSV",
+            btn_add: "إضافة سائق",
+            kpi_total: "إجمالي السائقين",
+            kpi_total_sub: "المسجلين في الأسطول",
+            kpi_dispo: "المتاحون",
+            kpi_dispo_sub: "جاهزون للتعيين",
+            kpi_mission: "في مهمة",
+            kpi_mission_sub: "في مسار على الشبكة",
+            kpi_aquai: "على الرصيف",
+            kpi_aquai_sub: "بالموقع اللوجستي",
+            kpi_repos: "في راحة",
+            kpi_repos_sub: "غير متاحين مؤقتاً",
+            kpi_alertes: "تنبيهات الرخص",
+            kpi_alertes_sub: "منتهية أو للتجديد (< 30 يوم)",
+            kpi_visites: "إجمالي الزيارات",
+            kpi_visites_sub: "عمليات العبور بالمستودعات",
+            filter_search_placeholder: "بحث بالاسم، اللقب، ب.ت.و، الشركة...",
+            filter_status_all: "جميع الحالات التشغيلية",
+            filter_cat_all: "جميع أصناف الرخص",
+            filter_alert_all: "جميع تنبيهات الرخص",
+            filter_alert_expire: "⚠️ الرخص منتهية الصلاحية فقط",
+            filter_alert_bientot: "⏳ تنتهي في أقل من 30 يوماً",
+            filter_alert_valide: "✅ رخص سارية (> 30 يوماً)",
+            filter_submit: "تصفية",
+            filter_reset: "إعادة تعيين",
+            spec_truck: "الشاحنة المخصصة",
+            spec_company: "الشركة",
+            spec_city: "مكان الإقامة",
+            spec_phone: "الهاتف",
+            spec_license: "الرخصة وصلاحيتها",
+            spec_visits: "الزيارات والعمليات",
+            badge_expire: "منتهية",
+            badge_soon_prefix: "تنتهي خلال ",
+            badge_soon_suffix: " يوم",
+            badge_valid: "رخصة سارية",
+            visits_suffix: "زيارة",
+            visits_plural_suffix: "زيارة",
+            btn_full_profile: "الملف الكامل",
+            btn_edit_tooltip: "تعديل بيانات السائق",
+            no_driver_title: "لم يتم العثور على أي سائق",
+            no_driver_desc: "لا يوجد أي ملف سائق يطابق معايير البحث أو التصفية المحددة.",
+            btn_add_first: "تسجيل أول سائق",
+            breadcrumb_back: "العودة إلى قائمة السائقين",
+            badge_portuaire: "🛡️ شارة الميناء نشطة",
+            statut_btn_disponible: "متاح",
+            statut_btn_mission: "في مهمة",
+            statut_btn_aquai: "على الرصيف",
+            statut_btn_repos: "في راحة",
+            btn_edit: "تعديل الملف",
+            btn_add_visit: "تسجيل زيارة",
+            btn_delete_title: "حذف هذا السائق",
+            panel_identity_title: "الهوية وبيانات الاتصال",
+            label_fullname: "الاسم واللقب",
+            label_cin: "رقم ب.ت.و / جواز السفر",
+            label_phone: "الهاتف الرئيسي",
+            label_emergency_phone: "جهة اتصال الطوارئ",
+            label_email: "البريد الإلكتروني",
+            label_residence: "مكان الإقامة",
+            label_hire_date: "تاريخ الانتداب",
+            not_provided: "غير مسجل",
+            not_specified: "غير محدد",
+            panel_license_title: "رخصة القيادة والمطابقة",
+            label_license_num: "رقم الرخصة",
+            label_license_cat: "الصنف",
+            label_license_issued: "تاريخ الإصدار",
+            label_license_expiry: "تاريخ انتهاء الصلاحية",
+            panel_truck_title: "الشاحنة المعتادة ونقل البضائع",
+            label_truck_plate: "رقم اللوحة",
+            no_truck_assigned: "لا توجد شاحنة مخصصة",
+            label_truck_model: "الطراز / العلامة",
+            label_truck_type: "الحجم / الصنف",
+            label_truck_capacity: "حمولة الشاحنة",
+            unit_tonnes: "أطنان",
+            label_company: "الشركة الناقلة",
+            label_remarks: "ملاحظات :",
+            op_badge_title: "⚡ تنظيم الأسطول واللوجستيات",
+            op_mission_active: "🟢 مهمة نشطة",
+            op_awaiting_assignment: "⚪ في انتظار التعيين",
+            op_section_title: "تعيين الشاحنة والرصيف والموعد المتاح",
+            op_section_desc: "قاعدة تنظيم CargoLink: يجب تعيين السائق لشاحنة متاحة وموعد رصيف متاح.",
+            op_btn_release: "إنهاء المهمة وجعله متاحاً",
+            op_current_title: "📋 حالة التعيين الحالي",
+            op_current_truck: "الشاحنة المعينة",
+            op_no_truck: "لا توجد شاحنة",
+            op_current_availability: "حالة توفر الشاحنة",
+            op_not_central_fleet: "غير مرتبط بالأسطول المركزي",
+            op_current_slot: "المهمة / الموعد النشط",
+            op_awaiting_mission: "في انتظار مهمة",
+            op_new_title: "⚡ تعيين مهمة جديدة",
+            op_label_truck: "الشاحنة المتاحة",
+            op_count_free: "متاح",
+            op_select_truck: "-- اختر شاحنة متاحة --",
+            op_label_dock: "المستودع والرصيف المتاح",
+            op_select_dock: "-- اختر رصيفاً متاحاً --",
+            op_label_slot: "الموعد الزمني المتاح على الرصيف :",
+            op_select_slot_auto: "-- إنشاء موعد فوري تلقائياً --",
+            op_btn_submit: "تأكيد تعيين المهمة",
+            visits_section_title: "سجل الزيارات والعبور بالمستودعات",
+            visits_section_desc: "تتبع كامل لعمليات الشحن والتفريغ والمراقبة المنجزة من قبل هذا السائق.",
+            visits_btn_add: "إضافة زيارة",
+            th_date_time: "التاريخ والتوقيت",
+            th_dock: "المستودع والرصيف",
+            th_cmr: "رقم الإذن / CMR",
+            th_operation: "العملية",
+            th_duration: "المدة",
+            th_status: "الحالة",
+            th_signoff: "التأشير",
+            site_external: "موقع خارجي",
+            unit_min: "دقيقة",
+            signoff_validated: "✅ تم التأشير",
+            signoff_pending: "⏳ في الانتظار",
+            no_visits_msg: "لا توجد أي زيارات أو عبور مسجل حالياً لهذا السائق.",
+            btn_record_first_visit: "تسجيل أول زيارة",
+            slots_section_title: "المواعيد والحجوزات الأخيرة المرتبطة",
+            slots_section_desc: "متزامن في الوقت الفعلي مع وحدة المواعيد وتنظيم الأرصفة.",
+            btn_view_all_slots: "عرض جميع المواعيد ←",
+            th_slot_ref: "المرجع",
+            th_slot_datetime: "Date & Creneau",
+            th_slot_dock: "الرصيف والمستودع",
+            th_action: "الإجراء",
+            btn_details: "التفاصيل",
+            alert_expired_strong: "الرخصة منتهية الصلاحية!",
+            alert_expired_text: "لم يعد مسموحاً لهذا السائق بالقيادة. التجديد العاجل مطلوب.",
+            alert_soon_strong: "اقتراب انتهاء الصلاحية ({days} يوم)!",
+            alert_soon_text: "يرجى تجديد الفحص الطبي وبطاقة السائق المهنية.",
+            alert_valid_strong: "الرخصة سارية المفعول.",
+            alert_valid_text: "صالحة لمدة {days} يوم إضافية.",
+            btn_cancel_back: "إلغاء والعودة",
+            form_subtitle: "يرجى إدخال البيانات الإدارية وأصناف رخصة القيادة والمركبة المخصصة للسائق.",
+            form_errors_title: "أخطاء تم اكتشافها :",
+            sec1_title: "1. البيانات الشخصية ومعلومات الاتصال",
+            lbl_prenom: "الاسم *",
+            lbl_nom: "اللقب *",
+            lbl_cin: "رقم ب.ت.و / جواز السفر",
+            lbl_email: "البريد الإلكتروني",
+            lbl_phone: "الهاتف الرئيسي *",
+            lbl_emergency_phone: "هاتف الطوارئ",
+            lbl_birthdate: "تاريخ الولادة",
+            lbl_hiredate: "تاريخ التوظيف",
+            lbl_residence: "مدينة الإقامة",
+            lbl_photo: "صورة السائق",
+            sec2_title: "2. رخصة القيادة وصلاحيتها",
+            lbl_license_num: "رقم الرخصة *",
+            lbl_license_cat: "صنف الرخصة *",
+            lbl_license_issued: "تاريخ الإصدار",
+            lbl_license_expiry: "تاريخ انتهاء الصلاحية *",
+            sec3_title: "3. شركة النقل والمركبة المرتبطة",
+            lbl_company: "شركة النقل / الشحن *",
+            lbl_carrier_account: "حساب مستخدم الناقل",
+            lbl_truck_plate: "رقم لوحة الشاحنة",
+            lbl_truck_model: "العلامة / الطراز",
+            lbl_truck_type: "صنف وحجم الشاحنة",
+            lbl_truck_capacity: "الحمولة (أطنان)",
+            sec4_title: "4. الحالة التشغيلية والأمان",
+            lbl_statut: "الحالة التشغيلية *",
+            lbl_badge_portuaire: "شارة العبور المينائي / المؤمن نشطة",
+            lbl_remarks: "ملاحظات وتراخيص خاصة",
+            btn_cancel: "إلغاء",
+            btn_submit_create: "حفظ بيانات السائق",
+            btn_submit_update: "حفظ التعديلات",
+            title_create: "سائق جديد",
+            title_update_prefix: "تعديل ملف ",
 
             // Toasts & feedback
             toast_lang_changed: "🌐 تم تغيير لغة الواجهة إلى العربية",
@@ -1085,6 +1589,204 @@
 
             // 5. Remplacement des expressions directes (tables, filtres, options)
             this.translateDirectPhrases(lang);
+
+            // 6. Traduction dynamique du module Chauffeurs & Flotte
+            this.translateChauffeurs(lang);
+        },
+
+        translateChauffeurs: function (lang) {
+            const dict = this.getTranslations(lang);
+            const isRTL = lang === 'ar';
+
+            // 1. Conteneurs avec direction RTL / LTR
+            document.querySelectorAll('.chauffeurs-container, .chauffeur-form-container').forEach(c => {
+                c.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+            });
+
+            // 2. Flèches de retour
+            const breadcrumbArrow = document.getElementById('breadcrumbBackArrow');
+            if (breadcrumbArrow) {
+                breadcrumbArrow.innerHTML = isRTL ? '&rarr;' : '&larr;';
+            }
+            const formArrow = document.getElementById('formBackArrow');
+            if (formArrow) {
+                formArrow.innerHTML = isRTL ? '&rarr;' : '&larr;';
+            }
+
+            // 3. Mappages des libellés dynamiques
+            const STATUS_MAP = {
+                DISPONIBLE: { fr: "Disponible", en: "Available", ar: "متاح" },
+                EN_MISSION: { fr: "En mission", en: "On mission", ar: "في مهمة" },
+                A_QUAI: { fr: "À quai", en: "At dock", ar: "على الرصيف" },
+                EN_REPOS: { fr: "En repos", en: "On rest", ar: "في راحة" },
+                INACTIF: { fr: "Inactif", en: "Inactive", ar: "غير نشط" }
+            };
+
+            const CAMION_MAP = {
+                DISPONIBLE: { fr: "Disponible", en: "Available", ar: "متاح" },
+                EN_MISSION: { fr: "En mission", en: "On mission", ar: "في مهمة" },
+                EN_MAINTENANCE: { fr: "En maintenance", en: "In maintenance", ar: "في الصيانة" },
+                HORS_SERVICE: { fr: "Hors service", en: "Out of service", ar: "خارج الخدمة" }
+            };
+
+            const OP_MAP = {
+                DECHARGEMENT: { fr: "Déchargement", en: "Unloading", ar: "تفريغ" },
+                CHARGEMENT: { fr: "Chargement", en: "Loading", ar: "شحن" },
+                CONTROLE: { fr: "Contrôle / Transit", en: "Inspection / Transit", ar: "مراقبة / عبور" },
+                LIVRAISON: { fr: "Livraison", en: "Delivery", ar: "تسليم" }
+            };
+
+            const VISITE_STATUS_MAP = {
+                EN_ATTENTE: { fr: "En attente", en: "Pending", ar: "في الانتظار" },
+                A_QUAI: { fr: "À quai", en: "At dock", ar: "على الرصيف" },
+                EN_COURS: { fr: "En cours", en: "In progress", ar: "قيد الإنجاز" },
+                TERMINE: { fr: "Terminé", en: "Completed", ar: "مكتمل" },
+                ANNULE: { fr: "Annulé", en: "Cancelled", ar: "ملغى" }
+            };
+
+            const CRENEAU_STATUS_MAP = {
+                DEMANDE: { fr: "Demandé", en: "Requested", ar: "مطلوب" },
+                CONFIRME: { fr: "Confirmé", en: "Confirmed", ar: "مؤكد" },
+                EN_COURS: { fr: "En cours", en: "In progress", ar: "قيد الإنجاز" },
+                TERMINE: { fr: "Terminé", en: "Completed", ar: "مكتمل" },
+                ANNULE: { fr: "Annulé", en: "Cancelled", ar: "ملغى" }
+            };
+
+            const LIC_CAT_MAP = {
+                C: { fr: "Permis C (Poids lourd > 3.5t)", en: "Class C (Heavy truck > 3.5t)", ar: "صنف C (وزن ثقيل > 3.5 طن)" },
+                CE: { fr: "Permis CE (Poids lourd avec remorque)", en: "Class CE (Heavy truck with trailer)", ar: "صنف CE (شاحنة مقطورة)" },
+                C1: { fr: "Permis C1 (Poids lourd intermédiaire)", en: "Class C1 (Intermediate heavy truck)", ar: "صنف C1 (وزن ثقيل متوسط)" },
+                C1E: { fr: "Permis C1E (Intermédiaire avec remorque)", en: "Class C1E (Intermediate with trailer)", ar: "صنف C1E (متوسط بمقطورة)" },
+                D: { fr: "Permis D (Transport en commun)", en: "Class D (Passenger transport)", ar: "صنف D (نقل جماعي)" },
+                ADR: { fr: "Certificat ADR (Matières Dangereuses)", en: "ADR Certificate (Hazardous materials)", ar: "شهادة ADR (مواد خطرة)" }
+            };
+
+            // Badges statut chauffeur
+            document.querySelectorAll('[data-status-badge]').forEach(badge => {
+                const code = badge.getAttribute('data-status-badge');
+                const labelSpan = badge.querySelector('.status-badge-text');
+                if (labelSpan && STATUS_MAP[code] && STATUS_MAP[code][lang]) {
+                    labelSpan.textContent = STATUS_MAP[code][lang];
+                }
+            });
+
+            // Options de filtrage par statut
+            document.querySelectorAll('#selectStatut option[data-status-opt]').forEach(opt => {
+                const code = opt.getAttribute('data-status-opt');
+                if (STATUS_MAP[code] && STATUS_MAP[code][lang]) {
+                    opt.textContent = STATUS_MAP[code][lang];
+                }
+            });
+
+            // Options formulaires statut
+            document.querySelectorAll('select[name="statut"] option').forEach(opt => {
+                const code = opt.value;
+                if (STATUS_MAP[code] && STATUS_MAP[code][lang]) {
+                    opt.textContent = STATUS_MAP[code][lang];
+                }
+            });
+
+            // Options catégories permis
+            document.querySelectorAll('select[name="categorie_permis"] option').forEach(opt => {
+                const code = opt.value;
+                if (LIC_CAT_MAP[code] && LIC_CAT_MAP[code][lang]) {
+                    opt.textContent = LIC_CAT_MAP[code][lang];
+                }
+            });
+
+            // Statut camion associé
+            document.querySelectorAll('[data-camion-status]').forEach(badge => {
+                const code = badge.getAttribute('data-camion-status');
+                const labelSpan = badge.querySelector('.status-badge-text');
+                if (labelSpan && CAMION_MAP[code] && CAMION_MAP[code][lang]) {
+                    labelSpan.textContent = CAMION_MAP[code][lang];
+                }
+            });
+
+            // Types d'opérations
+            document.querySelectorAll('[data-operation-type]').forEach(el => {
+                const code = el.getAttribute('data-operation-type');
+                if (OP_MAP[code] && OP_MAP[code][lang]) {
+                    el.textContent = OP_MAP[code][lang];
+                }
+            });
+
+            // Statuts visites
+            document.querySelectorAll('[data-visite-status]').forEach(el => {
+                const code = el.getAttribute('data-visite-status');
+                if (VISITE_STATUS_MAP[code] && VISITE_STATUS_MAP[code][lang]) {
+                    el.textContent = VISITE_STATUS_MAP[code][lang];
+                }
+            });
+
+            // Statuts créneaux
+            document.querySelectorAll('[data-creneau-status]').forEach(el => {
+                const code = el.getAttribute('data-creneau-status');
+                if (CRENEAU_STATUS_MAP[code] && CRENEAU_STATUS_MAP[code][lang]) {
+                    el.textContent = CRENEAU_STATUS_MAP[code][lang];
+                }
+            });
+
+            // Libellé de catégorie de permis sur la fiche
+            document.querySelectorAll('[data-license-category]').forEach(el => {
+                const cat = el.getAttribute('data-license-category');
+                const span = el.querySelector('.license-cat-text');
+                if (span && LIC_CAT_MAP[cat] && LIC_CAT_MAP[cat][lang]) {
+                    span.textContent = LIC_CAT_MAP[cat][lang];
+                }
+            });
+
+            // Badges de validité permis dans la liste
+            document.querySelectorAll('.license-validity-badge').forEach(badge => {
+                const status = badge.getAttribute('data-license-status');
+                const days = badge.getAttribute('data-days');
+                if (status === 'expire') {
+                    badge.innerHTML = `<span class="badge-permis-expire">${dict.badge_expire || 'Expiré'}</span>`;
+                } else if (status === 'bientot') {
+                    badge.innerHTML = `<span class="badge-permis-bientot">${dict.badge_soon_prefix || 'Expire dans '}${days}${dict.badge_soon_suffix || ' jours'}</span>`;
+                } else {
+                    badge.innerHTML = `<span class="badge-permis-valide">${dict.badge_valid || 'Permis Valide'}</span>`;
+                }
+            });
+
+            // Alertes permis sur la fiche détail
+            document.querySelectorAll('[data-license-alert]').forEach(box => {
+                const alertType = box.getAttribute('data-license-alert');
+                const days = box.getAttribute('data-days') || '0';
+                const content = box.querySelector('.license-alert-content');
+                if (!content) return;
+                if (alertType === 'expired') {
+                    content.innerHTML = `<strong>${dict.alert_expired_strong || 'Permis Expiré !'}</strong> ${dict.alert_expired_text || "Ce chauffeur n'est plus autorisé à circuler."}`;
+                } else if (alertType === 'soon') {
+                    const strong = (dict.alert_soon_strong || 'Expiration proche ({days} jours) !').replace('{days}', days);
+                    content.innerHTML = `<strong>${strong}</strong> ${dict.alert_soon_text || 'Penser au renouvellement.'}`;
+                } else if (alertType === 'valid') {
+                    const text = (dict.alert_valid_text || 'Valide pour encore {days} jours.').replace('{days}', days);
+                    content.innerHTML = `<strong>${dict.alert_valid_strong || 'Permis en règle.'}</strong> ${text}`;
+                }
+            });
+
+            // Compteur de visites
+            document.querySelectorAll('.visits-count-text').forEach(el => {
+                const count = parseInt(el.getAttribute('data-count') || '0', 10);
+                const suffix = (count > 1 && dict.visits_plural_suffix) ? dict.visits_plural_suffix : (dict.visits_suffix || 'visites');
+                el.textContent = `${count} ${suffix}`;
+            });
+
+            // Formulaire chauffeur (Create / Edit)
+            const formRoot = document.getElementById('chauffeurFormContainer');
+            if (formRoot) {
+                const isEdit = formRoot.getAttribute('data-is-edit') === '1';
+                const chName = formRoot.getAttribute('data-chauffeur-name') || '';
+                const mainTitle = document.getElementById('formMainTitle');
+                if (mainTitle) {
+                    mainTitle.textContent = isEdit ? ((dict.title_update_prefix || 'Modifier ') + chName) : (dict.title_create || 'Nouveau Chauffeur');
+                }
+                const submitBtn = document.getElementById('btnSubmitForm');
+                if (submitBtn) {
+                    submitBtn.textContent = isEdit ? (dict.btn_submit_update || 'Enregistrer les Modifications') : (dict.btn_submit_create || 'Enregistrer le Chauffeur');
+                }
+            }
         },
 
         translateDirectPhrases: function (lang) {

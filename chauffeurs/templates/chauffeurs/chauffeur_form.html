@@ -6,62 +6,40 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
 <style>
-    /* Trilingual switcher in Chauffeur Form */
-    .lang-switcher-pill {
-        display: inline-flex;
-        align-items: center;
-        background: rgba(15, 23, 42, 0.7);
-        padding: 0.25rem 0.35rem;
-        border-radius: 9999px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        gap: 0.25rem;
-    }
-
-    .lang-switcher-pill button {
-        background: transparent;
-        border: none;
-        color: #94a3b8;
-        font-size: 0.8rem;
-        font-weight: 700;
-        padding: 0.35rem 0.65rem;
-        border-radius: 9999px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .lang-switcher-pill button:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .lang-switcher-pill button.active {
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-    }
-
     /* RTL Support for Form */
+    html[dir="rtl"] .chauffeur-form-container,
     .chauffeur-form-container[dir="rtl"] {
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeur-form-container .top-bar-nav,
     .chauffeur-form-container[dir="rtl"] .top-bar-nav {
         flex-direction: row-reverse;
     }
 
+    html[dir="rtl"] .chauffeur-form-container .form-section-title,
     .chauffeur-form-container[dir="rtl"] .form-section-title {
         flex-direction: row-reverse;
         justify-content: flex-end;
     }
 
+    html[dir="rtl"] .chauffeur-form-container .form-group,
     .chauffeur-form-container[dir="rtl"] .form-group {
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeur-form-container .form-label,
     .chauffeur-form-container[dir="rtl"] .form-label {
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeur-form-container input[type="text"],
+    html[dir="rtl"] .chauffeur-form-container input[type="email"],
+    html[dir="rtl"] .chauffeur-form-container input[type="tel"],
+    html[dir="rtl"] .chauffeur-form-container input[type="number"],
+    html[dir="rtl"] .chauffeur-form-container input[type="date"],
+    html[dir="rtl"] .chauffeur-form-container select,
+    html[dir="rtl"] .chauffeur-form-container textarea,
     .chauffeur-form-container[dir="rtl"] input[type="text"],
     .chauffeur-form-container[dir="rtl"] input[type="email"],
     .chauffeur-form-container[dir="rtl"] input[type="tel"],
@@ -73,15 +51,18 @@
         direction: rtl;
     }
 
+    html[dir="rtl"] .chauffeur-form-container .checkbox-label,
     .chauffeur-form-container[dir="rtl"] .checkbox-label {
         flex-direction: row-reverse;
         justify-content: flex-end;
     }
 
+    html[dir="rtl"] .chauffeur-form-container .form-actions-bottom,
     .chauffeur-form-container[dir="rtl"] .form-actions-bottom {
         flex-direction: row-reverse;
     }
 
+    html[dir="rtl"] .chauffeur-form-container .form-errors-box ul,
     .chauffeur-form-container[dir="rtl"] .form-errors-box ul {
         margin: 0.5rem 1.25rem 0 0;
         padding-right: 1.25rem;
@@ -98,12 +79,6 @@
             <span id="formBackArrow">&larr;</span> <span data-i18n="btn_cancel_back">Annuler et retourner</span>
         </a>
 
-        <!-- Language Switcher Pill -->
-        <div class="lang-switcher-pill" title="Changer la langue / Switch language / تغيير اللغة">
-            <button type="button" id="btnFormLangFr" class="active" onclick="setChauffeurFormLanguage('fr')">🇫🇷 FR</button>
-            <button type="button" id="btnFormLangEn" onclick="setChauffeurFormLanguage('en')">🇬🇧 EN</button>
-            <button type="button" id="btnFormLangAr" onclick="setChauffeurFormLanguage('ar')">🇹🇳 AR</button>
-        </div>
     </div>
 
     <div class="form-card-box">
@@ -288,222 +263,19 @@
     </div>
 </div>
 
-<!-- Trilingual JS Engine for Chauffeur Form -->
+<!-- Global CargoLink i18n Bridge for Chauffeur Form -->
 <script>
-    const formRoot = document.getElementById('chauffeurFormContainer');
-    const IS_EDIT_MODE = formRoot ? formRoot.getAttribute('data-is-edit') === '1' : false;
-    const CHAUFFEUR_NAME = formRoot ? (formRoot.getAttribute('data-chauffeur-name') || '') : '';
-
-    const CHAUFFEUR_FORM_I18N = {
-        fr: {
-            btn_cancel_back: "Annuler et retourner",
-            form_subtitle: "Renseignez les données administratives, les catégories de permis et le véhicule attitré du conducteur.",
-            form_errors_title: "Erreurs détectées :",
-            sec1_title: "1. Informations Personnelles & Contact",
-            lbl_prenom: "Prénom *",
-            lbl_nom: "Nom de famille *",
-            lbl_cin: "Numéro CIN / Passeport",
-            lbl_email: "Adresse Email",
-            lbl_phone: "Téléphone principal *",
-            lbl_emergency_phone: "Téléphone d'urgence",
-            lbl_birthdate: "Date de naissance",
-            lbl_hiredate: "Date d'embauche",
-            lbl_residence: "Ville de résidence",
-            lbl_photo: "Photo du chauffeur",
-            sec2_title: "2. Permis de Conduire & Validité",
-            lbl_license_num: "Numéro de Permis *",
-            lbl_license_cat: "Catégorie de Permis *",
-            lbl_license_issued: "Date de délivrance",
-            lbl_license_expiry: "Date d'expiration / Validité *",
-            sec3_title: "3. Entreprise de Transport & Véhicule Associé",
-            lbl_company: "Société / Entreprise de Transport *",
-            lbl_carrier_account: "Compte Utilisateur Transporteur",
-            lbl_truck_plate: "Immatriculation du Camion",
-            lbl_truck_model: "Marque / Modèle",
-            lbl_truck_type: "Type de gabarit",
-            lbl_truck_capacity: "Capacité (Tonnes)",
-            sec4_title: "4. Statut Opérationnel & Sécurité",
-            lbl_statut: "Statut Opérationnel *",
-            lbl_badge_portuaire: "Badge d'accès portuaire / sécurisé actif",
-            lbl_remarks: "Remarques & Habilitations particulières",
-            btn_cancel: "Annuler",
-            btn_submit_create: "Enregistrer le Chauffeur",
-            btn_submit_update: "Enregistrer les Modifications",
-            title_create: "Nouveau Chauffeur",
-            title_update_prefix: "Modifier "
-        },
-        en: {
-            btn_cancel_back: "Cancel and return",
-            form_subtitle: "Fill in administrative data, license categories, and the driver's assigned vehicle.",
-            form_errors_title: "Errors detected:",
-            sec1_title: "1. Personal & Contact Information",
-            lbl_prenom: "First Name *",
-            lbl_nom: "Last Name *",
-            lbl_cin: "National ID / Passport",
-            lbl_email: "Email Address",
-            lbl_phone: "Primary Phone *",
-            lbl_emergency_phone: "Emergency Phone",
-            lbl_birthdate: "Date of Birth",
-            lbl_hiredate: "Hire Date",
-            lbl_residence: "City of Residence",
-            lbl_photo: "Driver Photo",
-            sec2_title: "2. Driving License & Validity",
-            lbl_license_num: "License Number *",
-            lbl_license_cat: "License Category *",
-            lbl_license_issued: "Issue Date",
-            lbl_license_expiry: "Expiration Date / Validity *",
-            sec3_title: "3. Transport Company & Assigned Vehicle",
-            lbl_company: "Transport / Logistics Company *",
-            lbl_carrier_account: "Carrier User Account",
-            lbl_truck_plate: "Truck License Plate",
-            lbl_truck_model: "Make / Model",
-            lbl_truck_type: "Vehicle Type / Size",
-            lbl_truck_capacity: "Capacity (Tons)",
-            sec4_title: "4. Operational Status & Security",
-            lbl_statut: "Operational Status *",
-            lbl_badge_portuaire: "Active port / secure access badge",
-            lbl_remarks: "Remarks & Special Authorizations",
-            btn_cancel: "Cancel",
-            btn_submit_create: "Save Driver",
-            btn_submit_update: "Save Changes",
-            title_create: "New Driver",
-            title_update_prefix: "Edit "
-        },
-        ar: {
-            btn_cancel_back: "إلغاء والعودة",
-            form_subtitle: "يرجى إدخال البيانات الإدارية وأصناف رخصة القيادة والمركبة المخصصة للسائق.",
-            form_errors_title: "أخطاء تم اكتشافها :",
-            sec1_title: "1. البيانات الشخصية ومعلومات الاتصال",
-            lbl_prenom: "الاسم *",
-            lbl_nom: "اللقب *",
-            lbl_cin: "رقم ب.ت.و / جواز السفر",
-            lbl_email: "البريد الإلكتروني",
-            lbl_phone: "الهاتف الرئيسي *",
-            lbl_emergency_phone: "هاتف الطوارئ",
-            lbl_birthdate: "تاريخ الولادة",
-            lbl_hiredate: "تاريخ التوظيف",
-            lbl_residence: "مدينة الإقامة",
-            lbl_photo: "صورة السائق",
-            sec2_title: "2. رخصة القيادة وصلاحيتها",
-            lbl_license_num: "رقم الرخصة *",
-            lbl_license_cat: "صنف الرخصة *",
-            lbl_license_issued: "تاريخ الإصدار",
-            lbl_license_expiry: "تاريخ انتهاء الصلاحية *",
-            sec3_title: "3. شركة النقل والمركبة المرتبطة",
-            lbl_company: "شركة النقل / الشحن *",
-            lbl_carrier_account: "حساب مستخدم الناقل",
-            lbl_truck_plate: "رقم لوحة الشاحنة",
-            lbl_truck_model: "العلامة / الطراز",
-            lbl_truck_type: "صنف وحجم الشاحنة",
-            lbl_truck_capacity: "الحمولة (أطنان)",
-            sec4_title: "4. الحالة التشغيلية والأمان",
-            lbl_statut: "الحالة التشغيلية *",
-            lbl_badge_portuaire: "شارة العبور المينائي / المؤمن نشطة",
-            lbl_remarks: "ملاحظات وتراخيص خاصة",
-            btn_cancel: "إلغاء",
-            btn_submit_create: "حفظ بيانات السائق",
-            btn_submit_update: "حفظ التعديلات",
-            title_create: "سائق جديد",
-            title_update_prefix: "تعديل ملف "
+    window.addEventListener('cargolink:languageChanged', function(e) {
+        if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+            window.CargoLinkI18n.translateChauffeurs(e.detail.lang);
         }
-    };
+    });
 
-    const STATUS_SELECT_TRANSLATIONS = {
-        DISPONIBLE: { fr: "Disponible", en: "Available", ar: "متاح" },
-        EN_MISSION: { fr: "En mission", en: "On mission", ar: "في مهمة" },
-        A_QUAI: { fr: "À quai", en: "At dock", ar: "على الرصيف" },
-        EN_REPOS: { fr: "En repos", en: "On rest", ar: "في راحة" },
-        INACTIF: { fr: "Inactif", en: "Inactive", ar: "غير نشط" }
-    };
-
-    const CATEGORIE_SELECT_TRANSLATIONS = {
-        C: { fr: "Permis C (Poids lourd > 3.5t)", en: "Class C (Heavy truck > 3.5t)", ar: "صنف C (وزن ثقيل > 3.5 طن)" },
-        CE: { fr: "Permis CE (Poids lourd avec remorque)", en: "Class CE (Heavy truck with trailer)", ar: "صنف CE (شاحنة مقطورة)" },
-        C1: { fr: "Permis C1 (Poids lourd intermédiaire)", en: "Class C1 (Intermediate heavy truck)", ar: "صنف C1 (وزن ثقيل متوسط)" },
-        C1E: { fr: "Permis C1E (Intermédiaire avec remorque)", en: "Class C1E (Intermediate with trailer)", ar: "صنف C1E (متوسط بمقطورة)" },
-        D: { fr: "Permis D (Transport en commun)", en: "Class D (Passenger transport)", ar: "صنف D (نقل جماعي)" },
-        ADR: { fr: "Certificat ADR (Matières Dangereuses)", en: "ADR Certificate (Hazardous materials)", ar: "شهادة ADR (مواد خطرة)" }
-    };
-
-    function setChauffeurFormLanguage(lang) {
-        if (!CHAUFFEUR_FORM_I18N[lang]) lang = 'fr';
-        localStorage.setItem('cargolink_chauffeur_lang', lang);
-
-        const dict = CHAUFFEUR_FORM_I18N[lang];
-        const container = document.getElementById('chauffeurFormContainer');
-
-        // RTL / LTR management
-        if (lang === 'ar') {
-            container.setAttribute('dir', 'rtl');
-            const arrow = document.getElementById('formBackArrow');
-            if (arrow) arrow.innerHTML = '&rarr;';
-        } else {
-            container.setAttribute('dir', 'ltr');
-            const arrow = document.getElementById('formBackArrow');
-            if (arrow) arrow.innerHTML = '&larr;';
-        }
-
-        // Toggle button states
-        document.getElementById('btnFormLangFr').classList.toggle('active', lang === 'fr');
-        document.getElementById('btnFormLangEn').classList.toggle('active', lang === 'en');
-        document.getElementById('btnFormLangAr').classList.toggle('active', lang === 'ar');
-
-        // Translate elements with data-i18n
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (dict[key]) {
-                el.textContent = dict[key];
-            }
-        });
-
-        // Translate main page title
-        const mainTitle = document.getElementById('formMainTitle');
-        if (mainTitle) {
-            if (IS_EDIT_MODE) {
-                mainTitle.textContent = dict.title_update_prefix + CHAUFFEUR_NAME;
-            } else {
-                mainTitle.textContent = dict.title_create;
-            }
-        }
-
-        // Translate submit button text
-        const submitBtn = document.getElementById('btnSubmitForm');
-        if (submitBtn) {
-            submitBtn.textContent = IS_EDIT_MODE ? dict.btn_submit_update : dict.btn_submit_create;
-        }
-
-        // Translate Status select options
-        const statutSelect = document.querySelector('select[name="statut"]');
-        if (statutSelect) {
-            Array.from(statutSelect.options).forEach(opt => {
-                const val = opt.value;
-                if (STATUS_SELECT_TRANSLATIONS[val] && STATUS_SELECT_TRANSLATIONS[val][lang]) {
-                    opt.textContent = STATUS_SELECT_TRANSLATIONS[val][lang];
-                }
-            });
-        }
-
-        // Translate Categorie Permis select options
-        const catSelect = document.querySelector('select[name="categorie_permis"]');
-        if (catSelect) {
-            Array.from(catSelect.options).forEach(opt => {
-                const val = opt.value;
-                if (CATEGORIE_SELECT_TRANSLATIONS[val] && CATEGORIE_SELECT_TRANSLATIONS[val][lang]) {
-                    opt.textContent = CATEGORIE_SELECT_TRANSLATIONS[val][lang];
-                }
-            });
-        }
-    }
-
-    // Auto-initialize language on page load
     document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlLang = urlParams.get('lang');
-        const savedLang = localStorage.getItem('cargolink_chauffeur_lang');
-        const c = document.getElementById('chauffeurFormContainer');
-        const defaultLang = (c && c.getAttribute('data-initial-lang')) || 'fr';
-        const initialLang = urlLang || savedLang || defaultLang;
-        setChauffeurFormLanguage(initialLang);
+        const current = (window.CargoLinkI18n && window.CargoLinkI18n.currentLang) || localStorage.getItem('cargolink_lang') || 'fr';
+        if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+            window.CargoLinkI18n.translateChauffeurs(current);
+        }
     });
 </script>
 {% endblock %}

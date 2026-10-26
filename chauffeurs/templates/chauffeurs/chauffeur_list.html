@@ -6,89 +6,67 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
 <style>
-    /* Trilingual switcher in Chauffeur List */
-    .lang-switcher-pill {
-        display: inline-flex;
-        align-items: center;
-        background: rgba(15, 23, 42, 0.7);
-        padding: 0.25rem 0.35rem;
-        border-radius: 9999px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        gap: 0.25rem;
-    }
-
-    .lang-switcher-pill button {
-        background: transparent;
-        border: none;
-        color: #94a3b8;
-        font-size: 0.8rem;
-        font-weight: 700;
-        padding: 0.35rem 0.65rem;
-        border-radius: 9999px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .lang-switcher-pill button:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .lang-switcher-pill button.active {
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-    }
-
-    /* RTL Support when Arabic is selected */
+    /* RTL Support when Arabic is selected in global switcher */
+    html[dir="rtl"] .chauffeurs-container,
     .chauffeurs-container[dir="rtl"] {
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeurs-container .page-title-box h1,
     .chauffeurs-container[dir="rtl"] .page-title-box h1 {
         flex-direction: row-reverse;
         justify-content: flex-end;
     }
 
+    html[dir="rtl"] .chauffeurs-container .search-input-wrapper svg,
     .chauffeurs-container[dir="rtl"] .search-input-wrapper svg {
         left: auto;
         right: 1rem;
     }
 
+    html[dir="rtl"] .chauffeurs-container .search-input-wrapper input,
     .chauffeurs-container[dir="rtl"] .search-input-wrapper input {
         padding-left: 1rem;
         padding-right: 2.85rem;
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeurs-container .chauffeur-card-header,
     .chauffeurs-container[dir="rtl"] .chauffeur-card-header {
         flex-direction: row-reverse;
     }
 
+    html[dir="rtl"] .chauffeurs-container .driver-info-main,
     .chauffeurs-container[dir="rtl"] .driver-info-main {
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeurs-container .spec-item,
     .chauffeurs-container[dir="rtl"] .spec-item {
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeurs-container .chauffeur-contact-row,
     .chauffeurs-container[dir="rtl"] .chauffeur-contact-row {
         flex-direction: row-reverse;
     }
 
+    html[dir="rtl"] .chauffeurs-container .kpi-card,
     .chauffeurs-container[dir="rtl"] .kpi-card {
         flex-direction: row-reverse;
     }
 
+    html[dir="rtl"] .chauffeurs-container .kpi-info,
     .chauffeurs-container[dir="rtl"] .kpi-info {
         text-align: right;
     }
 
+    html[dir="rtl"] .chauffeurs-container .top-actions-group,
     .chauffeurs-container[dir="rtl"] .top-actions-group {
         flex-direction: row-reverse;
     }
 
+    html[dir="rtl"] .chauffeurs-container .filters-form,
     .chauffeurs-container[dir="rtl"] .filters-form {
         flex-direction: row-reverse;
     }
@@ -111,12 +89,6 @@
         </div>
 
         <div class="top-actions-group">
-            <!-- Language Switcher Pill -->
-            <div class="lang-switcher-pill" title="Changer la langue / Switch language / تغيير اللغة">
-                <button type="button" id="btnListLangFr" class="active" onclick="setChauffeursListLanguage('fr')">🇫🇷 FR</button>
-                <button type="button" id="btnListLangEn" onclick="setChauffeursListLanguage('en')">🇬🇧 EN</button>
-                <button type="button" id="btnListLangAr" onclick="setChauffeursListLanguage('ar')">🇹🇳 AR</button>
-            </div>
 
             <!-- AI Assistant Button -->
             <a href="{% url 'chauffeurs:chauffeur_ai_assistant' %}" class="btn btn-outline" style="font-size: 0.875rem; border-color: rgba(139, 92, 246, 0.5); color: #c4b5fd; background: rgba(139, 92, 246, 0.1);" title="Assistant conversationnel IA en langage naturel (FR / AR / EN)">
@@ -389,221 +361,19 @@
     {% endif %}
 </div>
 
-<!-- Trilingual JavaScript Engine for Chauffeur List -->
+<!-- Global CargoLink i18n Bridge for Chauffeurs List -->
 <script>
-    const CHAUFFEUR_I18N = {
-        fr: {
-            page_title: "Gestion des Chauffeurs",
-            page_subtitle: "Supervisez les conducteurs de fret, contrôlez la conformité des permis (C, CE, ADR) et suivez l'historique de passage sur vos sites logistiques.",
-            btn_ai: "Assistant IA",
-            btn_mobile: "Portail Mobile",
-            btn_export: "Export CSV",
-            btn_add: "Ajouter un Chauffeur",
-            kpi_registered: "Chauffeurs Enregistrés",
-            kpi_available: "Disponibles de suite",
-            kpi_on_mission: "En Mission / À Quai",
-            kpi_alerts: "Alertes Permis (≤ 30j)",
-            kpi_visits: "Visites Effectuées",
-            search_placeholder: "Rechercher par nom, permis, matricule, société, ville...",
-            all_statuses: "Tous les statuts",
-            all_categories: "Toutes catégories de permis",
-            compliance_placeholder: "Conformité Permis",
-            filter_expire: "🚨 Permis Expiré",
-            filter_soon: "⚠️ Expire sous 30 jours",
-            filter_valid: "✅ Permis Valide",
-            btn_filter: "Filtrer",
-            btn_reset: "Réinitialiser",
-            spec_license: "Permis",
-            spec_validity: "Validité Permis",
-            badge_expire: "🚨 Expiré",
-            badge_soon_prefix: "⚠️ Dans ",
-            badge_soon_suffix: "j",
-            badge_valid: "✅ Valide",
-            spec_truck: "Camion Associé",
-            none: "Aucun",
-            spec_visits: "Passages / Visites",
-            visits_suffix: "visite",
-            visits_plural_suffix: "visites",
-            btn_full_profile: "Fiche Complète",
-            btn_edit_tooltip: "Modifier le chauffeur",
-            no_driver_title: "Aucun chauffeur trouvé",
-            no_driver_desc: "Aucun profil de chauffeur ne correspond à vos critères de recherche ou de filtre.",
-            btn_add_first: "Enregistrer un premier Chauffeur"
-        },
-        en: {
-            page_title: "Driver Fleet Management",
-            page_subtitle: "Supervise freight drivers, monitor license compliance (C, CE, ADR), and track warehouse passage history.",
-            btn_ai: "AI Assistant",
-            btn_mobile: "Mobile Portal",
-            btn_export: "Export CSV",
-            btn_add: "Add New Driver",
-            kpi_registered: "Registered Drivers",
-            kpi_available: "Available Now",
-            kpi_on_mission: "On Mission / At Dock",
-            kpi_alerts: "License Alerts (≤ 30d)",
-            kpi_visits: "Completed Visits",
-            search_placeholder: "Search by name, license, plate, carrier, city...",
-            all_statuses: "All Statuses",
-            all_categories: "All License Categories",
-            compliance_placeholder: "License Compliance",
-            filter_expire: "🚨 Expired License",
-            filter_soon: "⚠️ Expires within 30 days",
-            filter_valid: "✅ Valid License",
-            btn_filter: "Filter",
-            btn_reset: "Reset",
-            spec_license: "License",
-            spec_validity: "License Validity",
-            badge_expire: "🚨 Expired",
-            badge_soon_prefix: "⚠️ In ",
-            badge_soon_suffix: "d",
-            badge_valid: "✅ Valid",
-            spec_truck: "Assigned Truck",
-            none: "None",
-            spec_visits: "Passages / Visits",
-            visits_suffix: "visit",
-            visits_plural_suffix: "visits",
-            btn_full_profile: "Full Profile",
-            btn_edit_tooltip: "Edit driver",
-            no_driver_title: "No drivers found",
-            no_driver_desc: "No driver profile matches your search or filter criteria.",
-            btn_add_first: "Register First Driver"
-        },
-        ar: {
-            page_title: "إدارة أسطول السائقين",
-            page_subtitle: "الإشراف على سائقي النقل الثقيل، مراقبة صلاحية رخص القيادة (C, CE, ADR) وتتبع سجل الزيارات في المستودعات والموانئ.",
-            btn_ai: "مساعد الذكاء الاصطناعي",
-            btn_mobile: "بوابة الجوال",
-            btn_export: "تصدير CSV",
-            btn_add: "إضافة سائق جديد",
-            kpi_registered: "سائق مسجل",
-            kpi_available: "متاح فوراً",
-            kpi_on_mission: "في مهمة / على الرصيف",
-            kpi_alerts: "تنبيهات الرخص (≤ 30 يوم)",
-            kpi_visits: "زيارة منجزة",
-            search_placeholder: "بحث بالاسم، رقم الرخصة، اللوحة، الشركة، المدينة...",
-            all_statuses: "جميع الحالات",
-            all_categories: "جميع أصناف الرخص",
-            compliance_placeholder: "مطابقة رخص القيادة",
-            filter_expire: "🚨 رخصة منتهية",
-            filter_soon: "⚠️ تنتهي خلال 30 يوم",
-            filter_valid: "✅ رخصة صالحة",
-            btn_filter: "تصفية",
-            btn_reset: "إعادة ضبط",
-            spec_license: "الرخصة",
-            spec_validity: "صلاحية الرخصة",
-            badge_expire: "🚨 منتهية",
-            badge_soon_prefix: "⚠️ خلال ",
-            badge_soon_suffix: " يوم",
-            badge_valid: "✅ صالحة",
-            spec_truck: "الشاحنة المخصصة",
-            none: "لا يوجد",
-            spec_visits: "الزيارات والعمليات",
-            visits_suffix: "زيارة",
-            visits_plural_suffix: "زيارة",
-            btn_full_profile: "الملف الكامل",
-            btn_edit_tooltip: "تعديل بيانات السائق",
-            no_driver_title: "لم يتم العثور على أي سائق",
-            no_driver_desc: "لا يوجد أي ملف سائق يطابق معايير البحث أو التصفية المحددة.",
-            btn_add_first: "تسجيل أول سائق"
+    window.addEventListener('cargolink:languageChanged', function(e) {
+        if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+            window.CargoLinkI18n.translateChauffeurs(e.detail.lang);
         }
-    };
+    });
 
-    const STATUS_TRANSLATIONS = {
-        DISPONIBLE: { fr: "Disponible", en: "Available", ar: "متاح" },
-        EN_MISSION: { fr: "En mission", en: "On mission", ar: "في مهمة" },
-        A_QUAI: { fr: "À quai", en: "At dock", ar: "على الرصيف" },
-        EN_REPOS: { fr: "En repos", en: "On rest", ar: "في راحة" },
-        INACTIF: { fr: "Inactif", en: "Inactive", ar: "غير نشط" }
-    };
-
-    function setChauffeursListLanguage(lang) {
-        if (!CHAUFFEUR_I18N[lang]) lang = 'fr';
-        localStorage.setItem('cargolink_chauffeur_lang', lang);
-
-        const dict = CHAUFFEUR_I18N[lang];
-        const container = document.getElementById('chauffeursContainer');
-
-        // RTL / LTR management
-        if (lang === 'ar') {
-            container.setAttribute('dir', 'rtl');
-        } else {
-            container.setAttribute('dir', 'ltr');
-        }
-
-        // Toggle button states
-        document.getElementById('btnListLangFr').classList.toggle('active', lang === 'fr');
-        document.getElementById('btnListLangEn').classList.toggle('active', lang === 'en');
-        document.getElementById('btnListLangAr').classList.toggle('active', lang === 'ar');
-
-        // Translate elements with data-i18n
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (dict[key]) {
-                el.textContent = dict[key];
-            }
-        });
-
-        // Translate inputs with data-i18n-placeholder
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
-            if (dict[key]) {
-                el.placeholder = dict[key];
-            }
-        });
-
-        // Translate status pills
-        document.querySelectorAll('[data-status-badge]').forEach(badge => {
-            const code = badge.getAttribute('data-status-badge');
-            const labelSpan = badge.querySelector('.status-badge-text');
-            if (labelSpan && STATUS_TRANSLATIONS[code] && STATUS_TRANSLATIONS[code][lang]) {
-                labelSpan.textContent = STATUS_TRANSLATIONS[code][lang];
-            }
-        });
-
-        // Translate status select options
-        document.querySelectorAll('#selectStatut option[data-status-opt]').forEach(opt => {
-            const code = opt.getAttribute('data-status-opt');
-            if (STATUS_TRANSLATIONS[code] && STATUS_TRANSLATIONS[code][lang]) {
-                opt.textContent = STATUS_TRANSLATIONS[code][lang];
-            }
-        });
-
-        // Translate license validity badges
-        document.querySelectorAll('.license-validity-badge').forEach(badge => {
-            const status = badge.getAttribute('data-license-status');
-            const days = badge.getAttribute('data-days');
-
-            if (status === 'expire') {
-                badge.innerHTML = `<span class="badge-permis-expire">${dict.badge_expire}</span>`;
-            } else if (status === 'bientot') {
-                badge.innerHTML = `<span class="badge-permis-bientot">${dict.badge_soon_prefix}${days}${dict.badge_soon_suffix}</span>`;
-            } else {
-                badge.innerHTML = `<span class="badge-permis-valide">${dict.badge_valid}</span>`;
-            }
-        });
-
-        // Translate visits count text
-        document.querySelectorAll('.visits-count-text').forEach(el => {
-            const count = parseInt(el.getAttribute('data-count') || '0', 10);
-            if (lang === 'ar') {
-                el.textContent = `${count} ${dict.visits_suffix}`;
-            } else if (lang === 'en') {
-                el.textContent = `${count} ${count > 1 ? dict.visits_plural_suffix : dict.visits_suffix}`;
-            } else {
-                el.textContent = `${count} ${count > 1 ? dict.visits_plural_suffix : dict.visits_suffix}`;
-            }
-        });
-    }
-
-    // Auto-initialize language on page load
     document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlLang = urlParams.get('lang');
-        const savedLang = localStorage.getItem('cargolink_chauffeur_lang');
-        const c = document.getElementById('chauffeursContainer');
-        const defaultLang = (c && c.getAttribute('data-initial-lang')) || 'fr';
-        const initialLang = urlLang || savedLang || defaultLang;
-        setChauffeursListLanguage(initialLang);
+        const current = (window.CargoLinkI18n && window.CargoLinkI18n.currentLang) || localStorage.getItem('cargolink_lang') || 'fr';
+        if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+            window.CargoLinkI18n.translateChauffeurs(current);
+        }
     });
 </script>
 {% endblock %}
