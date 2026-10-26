@@ -86,13 +86,13 @@ Une commande Django personnalisée est disponible pour peupler automatiquement l
 uv run python manage.py populate_entrepots
 ```
 
-### B. Remplir la base avec des camions et historiques de passage (Module Rahma)
-Une commande dédiée permet de générer 5 camions réalistes (Volvo, Scania, Mercedes, Renault E-Tech, DAF) avec leurs historiques de passage aux entrepôts :
+### B. Remplir la base avec des chauffeurs et visites de test (Module Khalil)
+Une commande permet de générer 6 chauffeurs réalistes, camions associés et leur historique de visites :
 ```bash
-uv run python manage.py populate_camions
+uv run python manage.py populate_chauffeurs
 ```
 
-### B. Créer un compte super-administrateur
+### C. Créer un compte super-administrateur
 Pour créer votre compte administrateur Django et plateforme :
 ```bash
 uv run python manage.py createsuperuser
@@ -133,6 +133,9 @@ uv run python manage.py test --keepdb
 # Tests du module Entrepôts & Quais
 uv run python manage.py test entrepots.tests --keepdb
 
+# Tests du module Gestion des Chauffeurs (Khalil)
+uv run python manage.py test chauffeurs.tests --keepdb
+
 # Tests d'authentification et de contrôle d'accès
 uv run python manage.py test accounts.tests --keepdb
 
@@ -164,14 +167,13 @@ CargoLink/
 │   ├── static/entrepots/css/  # entrepots.css (Design system dédié, KPI, dots)
 │   └── templates/entrepots/   # Listes, détails, formulaires et suppressions
 │
-├── camions/                   # Module Gestion de la Flotte & Camions (Rahma)
-│   ├── models.py              # Camion & HistoriquePassage
-│   ├── forms.py               # CamionForm, HistoriquePassageForm
-│   ├── views.py               # CRUD complet, bascule d'état rapide, RBAC
-│   ├── ai_service.py          # GeminiTruckDiagnostic (Maintenance prédictive & Fleet Health Score)
-│   ├── management/commands/   # populate_camions.py (Données de démo flotte)
-│   ├── static/camions/css/    # camions.css (Design system dédié, KPI, gauges)
-│   └── templates/camions/     # Listes, détails, formulaires et suppressions
+├── chauffeurs/                # Module Gestion des Chauffeurs (Khalil Hlila)
+│   ├── models.py              # Chauffeur (Permis, Camion) et VisiteChauffeur
+│   ├── forms.py               # ChauffeurForm, VisiteChauffeurForm
+│   ├── views.py               # CRUD Chauffeurs, Portail Mobile, Export CSV
+│   ├── management/commands/   # populate_chauffeurs.py (6 profils, 5 visites)
+│   ├── static/chauffeurs/css/ # chauffeurs.css (Dark Mode, alertes permis, grid)
+│   └── templates/chauffeurs/  # Listes, détails 3-col, portail mobile responsive
 │
 ├── landing/                   # Vitrine publique & Layout commun
 │   ├── templates/landing/     # base.html (Header/Navbar, Footer), landing.html

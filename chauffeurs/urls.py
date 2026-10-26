@@ -1,0 +1,27 @@
+from django.urls import path
+from . import views
+
+app_name = 'chauffeurs'
+
+urlpatterns = [
+    # Dashboard & Liste des chauffeurs
+    path('', views.chauffeur_list, name='chauffeur_list'),
+    
+    # CRUD Chauffeur
+    path('nouveau/', views.chauffeur_create, name='chauffeur_create'),
+    path('<int:pk>/', views.chauffeur_detail, name='chauffeur_detail'),
+    path('<int:pk>/modifier/', views.chauffeur_update, name='chauffeur_update'),
+    path('<int:pk>/supprimer/', views.chauffeur_delete, name='chauffeur_delete'),
+    
+    # Actions rapides & Statut
+    path('<int:pk>/statut/', views.chauffeur_statut_update, name='chauffeur_statut_update'),
+    
+    # Historique des visites / passages
+    path('<int:chauffeur_pk>/visites/nouveau/', views.visite_create, name='visite_create'),
+    
+    # Portail Mobile Chauffeur (Slide 9 - Responsive smartphone)
+    path('portail-mobile/', views.chauffeur_portal_mobile, name='chauffeur_portal_mobile'),
+    
+    # Export CSV
+    path('export/', views.chauffeurs_export, name='chauffeurs_export'),
+]
