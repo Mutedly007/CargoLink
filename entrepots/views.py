@@ -7,6 +7,25 @@ from .forms import EntrepotForm, QuaiForm
 
 
 # ==============================================================================
+# CONTRÔLE D'ACCÈS & RÔLES
+# ==============================================================================
+
+def is_entrepot_manager(user):
+    """
+    Vérifie si l'utilisateur connecté est un Gestionnaire d'Entrepôt
+    (ou Administrateur / Superutilisateur).
+    """
+    if not user or not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    profile = getattr(user, 'profile', None)
+    if profile:
+        return profile.is_entrepot
+    return False
+
+
+# ==============================================================================
 # CRUD ENTREPÔTS
 # ==============================================================================
 
@@ -60,6 +79,7 @@ def entrepot_list(request):
         'quais_disponibles': quais_disponibles,
         'quais_occupes': quais_occupes,
         'capacite_globale': capacite_globale,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
         'page_title': "Gestion des Entrepôts & Quais • CargoLink",
     }
     return render(request, 'entrepots/entrepot_list.html', context)
@@ -75,6 +95,7 @@ def entrepot_detail(request, pk):
     context = {
         'entrepot': entrepot,
         'quais': quais,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
         'page_title': f"{entrepot.nom} • Détails Entrepôt",
     }
     return render(request, 'entrepots/entrepot_detail.html', context)
@@ -84,7 +105,16 @@ def entrepot_detail(request, pk):
 def entrepot_create(request):
     """
     C (Create) : Formulaire d'ajout d'un nouvel entrepôt.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à ajouter des entrepôts. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:entrepot_list')
+
     if request.method == 'POST':
         form = EntrepotForm(request.POST)
         if form.is_valid():
@@ -116,7 +146,16 @@ def entrepot_create(request):
 def entrepot_update(request, pk):
     """
     U (Update) : Modification des informations d'un entrepôt existant.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à modifier cet entrepôt. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:entrepot_detail', pk=pk)
+
     entrepot = get_object_or_404(Entrepot, pk=pk)
 
     if request.method == 'POST':
@@ -148,7 +187,16 @@ def entrepot_update(request, pk):
 def entrepot_delete(request, pk):
     """
     D (Delete) : Suppression d'un entrepôt avec avertissement des quais associés.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à supprimer cet entrepôt. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:entrepot_detail', pk=pk)
+
     entrepot = get_object_or_404(Entrepot, pk=pk)
 
     if request.method == 'POST':
@@ -194,6 +242,7 @@ def quai_list(request):
         'statut_filter': statut_filter,
         'type_filter': type_filter,
         'selected_entrepot_id': entrepot_id,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
         'page_title': "Régulation des Quais • CargoLink",
     }
     return render(request, 'entrepots/quai_list.html', context)
@@ -204,14 +253,30 @@ def quai_detail(request, pk):
     R (Read Detail) : Fiche technique et état opérationnel d'un quai.
     """
     quai = get_object_or_404(Quai.objects.select_related('entrepot'), pk=pk)
-    return render(request, 'entrepots/quai_detail.html', {'quai': quai, 'page_title': f"{quai.numero} • Fiche Quai"})
+    context = {
+        'quai': quai,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
+        'page_title': f"{quai.numero} • Fiche Quai",
+    }
+    return render(request, 'entrepots/quai_detail.html', context)
 
 
 @login_required
 def quai_create(request, entrepot_pk=None):
     """
     C (Create) : Ajout d'un quai, optionnellement pré-attaché à un entrepôt.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à ajouter des quais. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        if entrepot_pk:
+            return redirect('entrepots:entrepot_detail', pk=entrepot_pk)
+        return redirect('entrepots:quai_list')
+
     initial_data = {}
     preset_entrepot = None
     if entrepot_pk:
@@ -251,7 +316,16 @@ def quai_create(request, entrepot_pk=None):
 def quai_update(request, pk):
     """
     U (Update) : Modification des paramètres d'un quai.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à modifier ce quai. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:quai_detail', pk=pk)
+
     quai = get_object_or_404(Quai, pk=pk)
 
     if request.method == 'POST':
@@ -280,7 +354,16 @@ def quai_update(request, pk):
 def quai_delete(request, pk):
     """
     D (Delete) : Suppression d'un quai.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à supprimer ce quai. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:quai_detail', pk=pk)
+
     quai = get_object_or_404(Quai, pk=pk)
     entrepot_pk = quai.entrepot.pk
 
@@ -302,7 +385,15 @@ def quai_toggle_status(request, pk):
     """
     Action rapide (Live Demo) : Bascule instantanément le statut d'un quai
     entre 'DISPONIBLE' et 'OCCUPE', permettant au jury de constater la mise à jour en direct.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à modifier l'état opérationnel d'un quai."
+        )
+        return redirect('entrepots:quai_detail', pk=pk)
+
     quai = get_object_or_404(Quai, pk=pk)
     if quai.statut == 'DISPONIBLE':
         quai.occuper()
