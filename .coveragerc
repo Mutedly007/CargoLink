@@ -1,0 +1,15 @@
+[run]
+source = camions
+omit =
+    */migrations/*
+    */tests.py
+    manage.py
+
+[report]
+show_missing = True
+skip_covered = False
+precision = 1
+
+[html]
+directory = htmlcov
+title = CargoLink – Module Camions (Rahma) – Rapport de Couverture
