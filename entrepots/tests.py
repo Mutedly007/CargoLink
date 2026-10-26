@@ -476,3 +476,143 @@ class SmartCapacityOptimizerTests(TestCase):
         )
         self.assertEqual(res2.status_code, 200)
         self.assertTrue(res2.json()['is_dismissed'])
+
+
+class EntrepotRolePermissionTests(TestCase):
+    def setUp(self):
+        # 1. Gestionnaire d'entrepôt
+        self.entrepot_user = User.objects.create_user(
+            username='entrepot_boss',
+            password='Password123!',
+            email='entrepot@cargolink.tn'
+        )
+        self.entrepot_user.profile.role = 'ENTREPOT'
+        self.entrepot_user.profile.save()
+
+        # 2. Transporteur
+        self.transporteur_user = User.objects.create_user(
+            username='transporteur_guy',
+            password='Password123!',
+            email='trans@cargolink.tn'
+        )
+        self.transporteur_user.profile.role = 'TRANSPORTEUR'
+        self.transporteur_user.profile.save()
+
+        # 3. Planificateur
+        self.planificateur_user = User.objects.create_user(
+            username='planner_guy',
+            password='Password123!',
+            email='plan@cargolink.tn'
+        )
+        self.planificateur_user.profile.role = 'PLANIFICATEUR'
+        self.planificateur_user.profile.save()
+
+        self.entrepot = Entrepot.objects.create(
+            nom="Hub Sfax Sud",
+            code="ENT-SFAX-02",
+            ville="Sfax",
+            capacite_palettes=1500,
+            superficie_m2=5000,
+            statut="ACTIF"
+        )
+        self.quai = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai S-01",
+            type_quai="STANDARD",
+            statut="DISPONIBLE"
+        )
+
+    def test_other_roles_can_view_entrepots_and_quais(self):
+        """Les autres rôles (ex: Transporteur) peuvent consulter sans restriction de lecture ni badges intrusifs."""
+        self.client.force_login(self.transporteur_user)
+
+        res_list = self.client.get(reverse('entrepots:entrepot_list'))
+        self.assertEqual(res_list.status_code, 200)
+        self.assertNotContains(res_list, "Mode Consultation")
+        # Ne doit pas contenir les boutons d'action réservés
+        self.assertNotContains(res_list, 'Ajouter un Entrepôt')
+        self.assertNotContains(res_list, 'title="Modifier l\'entrepôt"')
+        self.assertNotContains(res_list, 'title="Supprimer l\'entrepôt"')
+        self.assertNotContains(res_list, 'title="Ajouter un quai à cet entrepôt"')
+
+        res_detail = self.client.get(reverse('entrepots:entrepot_detail', kwargs={'pk': self.entrepot.pk}))
+        self.assertEqual(res_detail.status_code, 200)
+        self.assertNotContains(res_detail, "Mode Consultation")
+        self.assertNotContains(res_detail, 'Nouveau Quai')
+        self.assertNotContains(res_detail, 'Modifier le quai')
+        self.assertNotContains(res_detail, 'Supprimer le quai')
+
+        res_quais = self.client.get(reverse('entrepots:quai_list'))
+        self.assertEqual(res_quais.status_code, 200)
+        self.assertNotContains(res_quais, "Mode Consultation")
+        self.assertNotContains(res_quais, 'Ajouter un Quai')
+
+        res_quai_detail = self.client.get(reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_quai_detail.status_code, 200)
+        self.assertNotContains(res_quai_detail, "Mode Consultation")
+
+    def test_other_roles_cannot_create_update_delete_entrepot(self):
+        """Les autres rôles ne peuvent pas créer, modifier ni supprimer un entrepôt."""
+        self.client.force_login(self.transporteur_user)
+
+        # Create
+        res_create = self.client.get(reverse('entrepots:entrepot_create'))
+        self.assertEqual(res_create.status_code, 302)
+        self.assertRedirects(res_create, reverse('entrepots:entrepot_list'))
+
+        # Update
+        res_update = self.client.get(reverse('entrepots:entrepot_update', kwargs={'pk': self.entrepot.pk}))
+        self.assertEqual(res_update.status_code, 302)
+        self.assertRedirects(res_update, reverse('entrepots:entrepot_detail', kwargs={'pk': self.entrepot.pk}))
+
+        # Delete
+        res_del = self.client.post(reverse('entrepots:entrepot_delete', kwargs={'pk': self.entrepot.pk}))
+        self.assertEqual(res_del.status_code, 302)
+        self.assertRedirects(res_del, reverse('entrepots:entrepot_detail', kwargs={'pk': self.entrepot.pk}))
+        # Verify entrepot was not deleted
+        self.assertTrue(Entrepot.objects.filter(pk=self.entrepot.pk).exists())
+
+    def test_other_roles_cannot_manage_quais(self):
+        """Les autres rôles ne peuvent pas créer, modifier, supprimer ou basculer l'état d'un quai."""
+        self.client.force_login(self.planificateur_user)
+
+        # Quai Create
+        res_create = self.client.get(reverse('entrepots:quai_create'))
+        self.assertEqual(res_create.status_code, 302)
+        self.assertRedirects(res_create, reverse('entrepots:quai_list'))
+
+        # Quai Update
+        res_update = self.client.get(reverse('entrepots:quai_update', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_update.status_code, 302)
+        self.assertRedirects(res_update, reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+
+        # Quai Delete
+        res_del = self.client.post(reverse('entrepots:quai_delete', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_del.status_code, 302)
+        self.assertRedirects(res_del, reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+        self.assertTrue(Quai.objects.filter(pk=self.quai.pk).exists())
+
+        # Quai Toggle Status
+        res_toggle = self.client.get(reverse('entrepots:quai_toggle_status', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_toggle.status_code, 302)
+        self.assertRedirects(res_toggle, reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+        self.quai.refresh_from_db()
+        self.assertEqual(self.quai.statut, 'DISPONIBLE')
+
+    def test_entrepot_role_can_manage_everything(self):
+        """Le rôle ENTREPOT a accès complet pour créer, modifier, supprimer et réguler les quais."""
+        self.client.force_login(self.entrepot_user)
+
+        # Check forms load with 200 OK
+        res_create_form = self.client.get(reverse('entrepots:entrepot_create'))
+        self.assertEqual(res_create_form.status_code, 200)
+
+        res_quai_form = self.client.get(reverse('entrepots:quai_create'))
+        self.assertEqual(res_quai_form.status_code, 200)
+
+        # Quai toggle status works
+        res_toggle = self.client.get(reverse('entrepots:quai_toggle_status', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_toggle.status_code, 302)
+        self.quai.refresh_from_db()
+        self.assertEqual(self.quai.statut, 'OCCUPE')
+
