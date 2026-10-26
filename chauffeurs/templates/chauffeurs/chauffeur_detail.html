@@ -15,10 +15,13 @@
 
 {% block content %}
 <div class="chauffeurs-container">
-    <!-- Breadcrumb / Back button -->
-    <div style="margin-bottom: 1.5rem;">
+    <!-- Breadcrumb / Back button & AI Assistant -->
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <a href="{% url 'chauffeurs:chauffeur_list' %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
             &larr; Retour à la liste des chauffeurs
+        </a>
+        <a href="{% url 'chauffeurs:chauffeur_ai_assistant' %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem; border-color: rgba(139, 92, 246, 0.5); color: #c4b5fd; background: rgba(139, 92, 246, 0.1);" title="Interroger l'IA sur ce chauffeur">
+            🤖 Assistant IA Chauffeurs
         </a>
     </div>
 

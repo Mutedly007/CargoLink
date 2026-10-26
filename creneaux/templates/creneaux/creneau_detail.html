@@ -11,19 +11,19 @@
 <div class="creneaux-container">
     <!-- Navigation retour & actions rapides -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;" data-i18n="detail_back_link">
             ◀ Retour à la liste des créneaux
         </a>
         <div style="display: flex; gap: 0.75rem;">
-            <button onclick="window.print();" class="btn btn-outline" style="font-size: 0.85rem;">
+            <button onclick="window.print();" class="btn btn-outline" style="font-size: 0.85rem;" data-i18n="btn_print_voucher">
                 🖨️ Imprimer Bon de Passage
             </button>
             {% if creneau.statut != 'ANNULE' and creneau.statut != 'TERMINE' %}
                 {% if not is_entrepot_role %}
-                <a href="{% url 'creneaux:creneau_update' creneau.pk %}" class="btn btn-outline" style="font-size: 0.85rem;">
+                <a href="{% url 'creneaux:creneau_update' creneau.pk %}" class="btn btn-outline" style="font-size: 0.85rem;" data-i18n="btn_edit_slot">
                     ✏️ Modifier
                 </a>
-                <a href="{% url 'creneaux:creneau_cancel' creneau.pk %}" class="btn btn-outline" style="font-size: 0.85rem; border-color: rgba(239,68,68,0.4); color: #f87171;">
+                <a href="{% url 'creneaux:creneau_cancel' creneau.pk %}" class="btn btn-outline" style="font-size: 0.85rem; border-color: rgba(239,68,68,0.4); color: #f87171;" data-i18n="btn_cancel_slot">
                     ❌ Annuler
                 </a>
                 {% endif %}
@@ -49,7 +49,7 @@
             <!-- Entête du créneau -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;" data-i18n="detail_voucher_tag">
                         Bon de passage à quai
                     </span>
                     <h1 style="font-size: 2.2rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-top: 0.2rem;">

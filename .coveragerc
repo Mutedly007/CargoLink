@@ -1,0 +1,27 @@
+[run]
+source =
+    accounts
+    camions
+    chauffeurs
+    creneaux
+    entrepots
+    landing
+    livraisons
+omit =
+    */migrations/*
+    */tests.py
+    */tests/*
+    manage.py
+    cargolink/wsgi.py
+    cargolink/asgi.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __str__
+    def __repr__
+    if settings.DEBUG:
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+show_missing = True

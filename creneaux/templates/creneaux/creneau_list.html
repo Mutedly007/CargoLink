@@ -12,8 +12,8 @@
     <!-- Top Bar -->
     <div class="page-top-bar">
         <div class="page-title-box">
-            <h1>Régulation & Créneaux des Quais</h1>
-            <p>Planification horaire des réceptions et expéditions, vérification des disponibilités et prévention des conflits.</p>
+            <h1 data-i18n="slots_page_title">Régulation & Créneaux des Quais</h1>
+            <p data-i18n="slots_page_sub">Planification horaire des réceptions et expéditions, vérification des disponibilités et prévention des conflits.</p>
         </div>
 
         <div class="top-actions-group">
@@ -24,7 +24,7 @@
                     <line x1="8" y1="2" x2="8" y2="6"/>
                     <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                Vue Planning Graphique
+                <span data-i18n="btn_planning_view">Vue Planning Graphique</span>
             </a>
             <a href="{% url 'creneaux:creneau_export_csv' %}" class="btn btn-outline" style="font-size: 0.875rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -32,15 +32,15 @@
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Export CSV
+                <span data-i18n="btn_export_csv">Export CSV</span>
             </a>
             {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:demande_creneau' %}" class="btn btn-outline" style="font-size: 0.875rem; border-color: #3b82f6; color: #60a5fa;">
-                📋 Demande de Créneau
+                <span data-i18n="btn_slot_request">📋 Demande de Créneau</span>
             </a>
             {% endif %}
             <a href="{% url 'creneaux:assistant_creneaux' %}" class="btn-ai-magic" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;">
-                ✨ Copilot IA Gemini
+                <span data-i18n="btn_copilot_ai">✨ Copilot IA Gemini</span>
             </a>
             {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
@@ -48,7 +48,7 @@
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
-                Planifier un Créneau
+                <span data-i18n="btn_new_slot">Planifier un Créneau</span>
             </a>
             {% endif %}
         </div>
@@ -78,7 +78,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ total_creneaux }}</span>
-                <span class="kpi-label">Total Créneaux Enregistrés</span>
+                <span class="kpi-label" data-i18n="kpi_total_slots">Total Créneaux Enregistrés</span>
             </div>
         </div>
 
@@ -91,7 +91,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ total_aujourdhui }}</span>
-                <span class="kpi-label">Prévus Aujourd'hui</span>
+                <span class="kpi-label" data-i18n="kpi_today_slots">Prévus Aujourd'hui</span>
             </div>
         </div>
 
@@ -105,7 +105,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ en_attente_count }}</span>
-                <span class="kpi-label">En Attente de Validation</span>
+                <span class="kpi-label" data-i18n="kpi_pending_slots">En Attente de Validation</span>
             </div>
         </div>
 
@@ -117,7 +117,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ en_cours_count }}</span>
-                <span class="kpi-label">À Quai (Opérations en cours)</span>
+                <span class="kpi-label" data-i18n="kpi_at_dock_slots">À Quai (Opérations en cours)</span>
             </div>
         </div>
 
@@ -129,7 +129,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ termines_count }}</span>
-                <span class="kpi-label">Opérations Terminées</span>
+                <span class="kpi-label" data-i18n="kpi_completed_slots">Opérations Terminées</span>
             </div>
         </div>
     </div>
@@ -142,35 +142,35 @@
                     <circle cx="11" cy="11" r="8"/>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
-                <input type="text" name="q" value="{{ query }}" placeholder="Réf, transporteur, immatriculation, chauffeur..." class="search-input-field">
+                <input type="text" name="q" value="{{ query }}" placeholder="Réf, transporteur, immatriculation, chauffeur..." data-i18n-placeholder="filter_search_ph" class="search-input-field">
             </div>
 
             <input type="date" name="date" value="{{ date_filter }}" class="filter-date-input" title="Filtrer par date">
 
             <select name="entrepot" class="filter-select">
-                <option value="">Tous les entrepôts</option>
+                <option value="" data-i18n="filter_all_wh">Tous les entrepôts</option>
                 {% for ent in entrepots %}
                     <option value="{{ ent.id }}" {% if entrepot_filter == ent.id|stringformat:"s" %}selected{% endif %}>{{ ent.nom }}</option>
                 {% endfor %}
             </select>
 
             <select name="statut" class="filter-select">
-                <option value="">Tous les statuts</option>
+                <option value="" data-i18n="filter_all_status">Tous les statuts</option>
                 {% for val, label in statut_choices %}
                     <option value="{{ val }}" {% if statut_filter == val %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
 
             <select name="type_op" class="filter-select">
-                <option value="">Tous types</option>
+                <option value="" data-i18n="filter_all_types">Tous types</option>
                 {% for val, label in type_op_choices %}
                     <option value="{{ val }}" {% if type_op_filter == val %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
 
-            <button type="submit" class="btn btn-outline" style="padding: 0.65rem 1rem;">Filtrer</button>
+            <button type="submit" class="btn btn-outline" style="padding: 0.65rem 1rem;" data-i18n="filter_btn">Filtrer</button>
             {% if query or date_filter or statut_filter or entrepot_filter or type_op_filter %}
-                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline" style="padding: 0.65rem 0.85rem; color: #f87171;">Réinitialiser</a>
+                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline" style="padding: 0.65rem 0.85rem; color: #f87171;" data-i18n="filter_reset">Réinitialiser</a>
             {% endif %}
         </form>
     </div>
@@ -181,14 +181,14 @@
             <table class="creneaux-table">
                 <thead>
                     <tr>
-                        <th>Référence & Date</th>
-                        <th>Plage Horaire</th>
-                        <th>Entrepôt & Quai</th>
-                        <th>Opération</th>
-                        <th>Transporteur & Véhicule</th>
-                        <th>Chauffeur</th>
-                        <th>Statut</th>
-                        <th style="text-align: right;">Action</th>
+                        <th data-i18n="th_ref_date">Référence & Date</th>
+                        <th data-i18n="th_time_range">Plage Horaire</th>
+                        <th data-i18n="th_wh_dock">Entrepôt & Quai</th>
+                        <th data-i18n="th_operation">Opération</th>
+                        <th data-i18n="th_carrier_truck">Transporteur & Véhicule</th>
+                        <th data-i18n="th_driver">Chauffeur</th>
+                        <th data-i18n="th_status">Statut</th>
+                        <th style="text-align: right;" data-i18n="th_actions">Action</th>
                     </tr>
                 </thead>
                 <tbody>
