@@ -27,4 +27,11 @@ staticfiles/
 # Binaries & Installers
 *.exe
 
+# Test Coverage
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+
+
 
