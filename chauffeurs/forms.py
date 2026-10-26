@@ -56,6 +56,17 @@ class ChauffeurForm(forms.ModelForm):
 
     def clean_immatriculation_camion(self):
         immat = self.cleaned_data.get('immatriculation_camion', '').strip().upper()
+        if immat:
+            from camions.models import Camion
+            camion = Camion.objects.filter(immatriculation__iexact=immat).first()
+            if camion:
+                current_immat = (getattr(self.instance, 'immatriculation_camion', '') or '').strip().upper()
+                # Si c'est un camion différent ou une nouvelle affectation, vérifier qu'il est DISPONIBLE
+                if immat != current_immat and camion.etat != 'DISPONIBLE':
+                    raise forms.ValidationError(
+                        f"Le camion « {immat} » ({camion.marque} {camion.modele}) n'est pas disponible actuellement "
+                        f"(État actuel : {camion.get_etat_display()}). Seul un camion disponible peut être affecté."
+                    )
         return immat
 
     def clean(self):

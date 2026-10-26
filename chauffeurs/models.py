@@ -183,6 +183,30 @@ class Chauffeur(models.Model):
     def derniere_visite(self):
         return self.visites.order_by('-date_visite', '-heure_arrivee').first()
 
+    @property
+    def camion_associe_obj(self):
+        """Récupère l'objet Camion du module camions correspondant à l'immatriculation."""
+        from camions.models import Camion
+        if not self.immatriculation_camion:
+            return None
+        return Camion.objects.filter(immatriculation__iexact=self.immatriculation_camion.strip()).first()
+
+    @property
+    def mission_en_cours(self):
+        """Récupère le créneau actif auquel le chauffeur est affecté."""
+        from creneaux.models import Creneau
+        from django.db.models import Q
+        return Creneau.objects.filter(
+            Q(chauffeur_nom__icontains=self.nom) |
+            Q(immatriculation_camion__iexact=self.immatriculation_camion),
+            statut__in=['CONFIRME', 'ARRIVE', 'EN_COURS', 'EN_ATTENTE']
+        ).select_related('quai', 'quai__entrepot').order_by('-date_creneau').first()
+
+    @property
+    def est_affecte_mission(self):
+        """Indique si le chauffeur dispose d'un camion et d'une mission active."""
+        return bool(self.immatriculation_camion and self.mission_en_cours)
+
 
 class VisiteChauffeur(models.Model):
     """
