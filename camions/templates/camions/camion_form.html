@@ -1,0 +1,166 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'camions/css/camions.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="camions-container">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'camions:camion_list' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+            &larr; Retour à la liste des camions
+        </a>
+    </div>
+
+    <div class="form-box-card">
+        <header style="margin-bottom: 1.75rem; text-align: center;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(249, 115, 22, 0.15); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+            </div>
+            <h1 style="font-size: 1.6rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">{{ title }}</h1>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
+                Renseignez les spécifications techniques et l'état opérationnel du véhicule.
+            </p>
+        </header>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-error" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 0.85rem 1rem; color: #f87171; margin-bottom: 1.5rem; font-size: 0.85rem;">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" novalidate>
+            {% csrf_token %}
+
+            <!-- Section 1 : Identification -->
+            <fieldset style="border: none; margin-bottom: 1.5rem;">
+                <legend style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.4rem; width: 100%;">
+                    1. Identification & Gabarit
+                </legend>
+
+                <div class="form-group">
+                    <label for="{{ form.immatriculation.id_for_label }}">
+                        Immatriculation <span style="color: #f87171;">*</span>
+                    </label>
+                    {{ form.immatriculation }}
+                    {% if form.immatriculation.errors %}
+                        <span class="form-error-msg">{{ form.immatriculation.errors.0 }}</span>
+                    {% endif %}
+                    <span class="form-help" id="id_immatriculation_help">Format libre (ex: 234 TUN 5678 ou AA-123-BB).</span>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="{{ form.marque.id_for_label }}">Marque <span style="color: #f87171;">*</span></label>
+                        {{ form.marque }}
+                        {% if form.marque.errors %}<span class="form-error-msg">{{ form.marque.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.modele.id_for_label }}">Modèle <span style="color: #f87171;">*</span></label>
+                        {{ form.modele }}
+                        {% if form.modele.errors %}<span class="form-error-msg">{{ form.modele.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="{{ form.annee_fabrication.id_for_label }}">Année de mise en service</label>
+                        {{ form.annee_fabrication }}
+                        {% if form.annee_fabrication.errors %}<span class="form-error-msg">{{ form.annee_fabrication.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.type_camion.id_for_label }}">Type / Silhouette de camion</label>
+                        {{ form.type_camion }}
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Section 2 : Capacités Fret -->
+            <fieldset style="border: none; margin-bottom: 1.5rem;">
+                <legend style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.4rem; width: 100%;">
+                    2. Capacités de Chargement
+                </legend>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label for="{{ form.capacite_tonnage.id_for_label }}">Charge utile (Tonnes)</label>
+                        {{ form.capacite_tonnage }}
+                        {% if form.capacite_tonnage.errors %}<span class="form-error-msg">{{ form.capacite_tonnage.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.volume_m3.id_for_label }}">Volume utile (m³)</label>
+                        {{ form.volume_m3 }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.capacite_palettes.id_for_label }}">Max Palettes Euro</label>
+                        {{ form.capacite_palettes }}
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Section 3 : Exploitation & Maintenance -->
+            <fieldset style="border: none; margin-bottom: 1.5rem;">
+                <legend style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.4rem; width: 100%;">
+                    3. Exploitation & Maintenance Préventive
+                </legend>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="{{ form.etat.id_for_label }}">État Opérationnel</label>
+                        {{ form.etat }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.norme_anti_pollution.id_for_label }}">Norme Écologique / Émission</label>
+                        {{ form.norme_anti_pollution }}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="{{ form.kilometrage.id_for_label }}">Kilométrage Actuel (km)</label>
+                        {{ form.kilometrage }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.societe_transport.id_for_label }}">Société de Transport</label>
+                        {{ form.societe_transport }}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="{{ form.date_derniere_maintenance.id_for_label }}">Dernière Révision</label>
+                        {{ form.date_derniere_maintenance }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.date_prochain_controle.id_for_label }}">Prochain Contrôle Technique</label>
+                        {{ form.date_prochain_controle }}
+                        {% if form.date_prochain_controle.errors %}<span class="form-error-msg">{{ form.date_prochain_controle.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+            </fieldset>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem;">
+                <a href="{% url 'camions:camion_list' %}" class="btn btn-secondary">Annuler</a>
+                <button type="submit" class="btn btn-accent" id="btn-submit-truck">{{ btn_text }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

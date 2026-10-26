@@ -1,0 +1,891 @@
+/* ===================================================
+   CARGOLINK PROFILE & ACCOUNT SETTINGS STYLES
+   =================================================== */
+
+.profile-page {
+    min-height: calc(100vh - 180px);
+    padding: 3rem 1.5rem 5rem;
+    position: relative;
+}
+
+.profile-container {
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* ---------------------------------------------------
+   1. HERO PROFILE CARD
+   --------------------------------------------------- */
+.profile-hero-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+    transition: all 0.3s ease;
+}
+
+.profile-hero-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f97316, #3b82f6, #10b981);
+}
+
+.profile-hero-left {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    flex-wrap: wrap;
+}
+
+.profile-avatar-large {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f97316 0%, #2563eb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.25rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(249, 115, 22, 0.35);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-avatar-status {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+    z-index: 2;
+}
+
+.profile-hero-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.profile-hero-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    line-height: 1.2;
+}
+
+.profile-hero-username {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.profile-hero-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    margin-top: 0.4rem;
+}
+
+.profile-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.role-pill-entrepot {
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    color: #fdba74;
+}
+
+.role-pill-transporteur {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #93c5fd;
+}
+
+.role-pill-planificateur {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #6ee7b7;
+}
+
+.role-pill-admin {
+    background: rgba(234, 179, 8, 0.15);
+    border: 1px solid rgba(234, 179, 8, 0.4);
+    color: #fde047;
+}
+
+.profile-hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    flex-wrap: wrap;
+}
+
+.profile-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* ---------------------------------------------------
+   2. PROFILE FORM CONTAINER & SECTIONS
+   --------------------------------------------------- */
+.profile-form-wrapper {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+    transition: all 0.3s ease;
+}
+
+.profile-section {
+    margin-bottom: 2.75rem;
+}
+
+.profile-section:last-of-type {
+    margin-bottom: 2rem;
+}
+
+.section-header-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.section-header-icon {
+    font-size: 1.35rem;
+}
+
+.section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.profile-divider {
+    height: 1px;
+    background: var(--card-border);
+    margin: 2.5rem 0;
+}
+
+/* ---------------------------------------------------
+   2.1 AVATAR UPLOAD CARD
+   --------------------------------------------------- */
+.avatar-upload-card {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    transition: all 0.25s ease;
+}
+
+.avatar-preview-box {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f97316 0%, #2563eb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.avatar-preview-box:hover .avatar-preview-overlay {
+    opacity: 1;
+}
+
+.avatar-preview-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    color: #ffffff;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.avatar-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.avatar-details-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 240px;
+}
+
+.avatar-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.avatar-subtext {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.avatar-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-top: 0.35rem;
+}
+
+.btn-choose-avatar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    color: #fdba74;
+    padding: 0.55rem 1.15rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-choose-avatar:hover {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.btn-delete-avatar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    padding: 0.55rem 1.15rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-delete-avatar:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+    transform: translateY(-1px);
+}
+
+.avatar-file-input {
+    display: none;
+}
+
+/* ---------------------------------------------------
+   3. FORM INPUTS & LAYOUT
+   --------------------------------------------------- */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    position: relative;
+}
+
+.form-label {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    padding: 0.8rem 1rem;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.92rem;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.field-error {
+    font-size: 0.78rem;
+    color: #f87171;
+    font-weight: 500;
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.form-errors-banner {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* ---------------------------------------------------
+   4. ROLE SELECTION CARDS
+   --------------------------------------------------- */
+.role-cards-grid-profile {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.15rem;
+}
+
+.role-cards-grid-profile.has-admin {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.role-card-option {
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 1.4rem 1.1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.role-card-option:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(249, 115, 22, 0.4);
+    transform: translateY(-3px);
+}
+
+.role-card-option.active {
+    background: rgba(249, 115, 22, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 0 25px rgba(249, 115, 22, 0.25);
+}
+
+.role-card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.65rem;
+}
+
+.role-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.35rem;
+}
+
+.role-card-desc {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.role-check-indicator {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    color: transparent;
+    transition: all 0.2s ease;
+}
+
+.role-card-option.active .role-check-indicator {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+/* ---------------------------------------------------
+   5. SECURITY / PASSWORD CHANGE SECTION
+   --------------------------------------------------- */
+.security-card-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    position: relative;
+}
+
+.security-tip-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: var(--radius-sm);
+    color: #93c5fd;
+    font-size: 0.82rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ---------------------------------------------------
+   6. ACTIONS & SUBMIT BAR
+   --------------------------------------------------- */
+.profile-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.25rem;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.btn-profile-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--accent);
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.98rem;
+    padding: 0.9rem 2rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    transition: all 0.25s ease;
+}
+
+.btn-profile-submit:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+}
+
+.btn-profile-cancel {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.btn-profile-cancel:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ---------------------------------------------------
+   7. LIGHT MODE COMPATIBILITY
+   --------------------------------------------------- */
+[data-theme="light"] .profile-hero-card,
+[data-theme="light"] .profile-form-wrapper {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .profile-avatar-status {
+    border-color: #ffffff;
+}
+
+[data-theme="light"] .profile-hero-name,
+[data-theme="light"] .section-title {
+    color: #0f172a;
+}
+
+[data-theme="light"] .profile-hero-username {
+    color: #64748b;
+}
+
+[data-theme="light"] .role-pill-entrepot {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #c2410c;
+}
+
+[data-theme="light"] .role-pill-transporteur {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+[data-theme="light"] .role-pill-planificateur {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+}
+
+[data-theme="light"] .role-pill-admin {
+    background: #fefce8;
+    border-color: #fef08a;
+    color: #a16207;
+}
+
+[data-theme="light"] .profile-hero-meta,
+[data-theme="light"] .section-subtitle {
+    color: #64748b;
+}
+
+[data-theme="light"] .form-label {
+    color: #334155;
+}
+
+[data-theme="light"] .form-input {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+[data-theme="light"] .form-input:focus {
+    background: #ffffff;
+    border-color: var(--accent);
+}
+
+[data-theme="light"] .role-card-option {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .role-card-option:hover {
+    background: #ffffff;
+    border-color: var(--accent);
+}
+
+[data-theme="light"] .role-card-option.active {
+    background: #fff7ed;
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+}
+
+[data-theme="light"] .role-card-title {
+    color: #0f172a;
+}
+
+[data-theme="light"] .role-card-desc {
+    color: #64748b;
+}
+
+[data-theme="light"] .role-check-indicator {
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .security-card-box {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .security-tip-strip {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+[data-theme="light"] .profile-divider,
+[data-theme="light"] .profile-actions-bar {
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .avatar-upload-card {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .avatar-title {
+    color: #0f172a;
+}
+
+[data-theme="light"] .btn-choose-avatar {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #c2410c;
+}
+
+[data-theme="light"] .btn-choose-avatar:hover {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+[data-theme="light"] .btn-delete-avatar {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+[data-theme="light"] .btn-delete-avatar:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+[data-theme="light"] .btn-profile-cancel:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* ---------------------------------------------------
+   7.1 ACCESSIBILITY PROFILE CARD
+   --------------------------------------------------- */
+.a11y-profile-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    flex-wrap: wrap;
+    transition: all 0.25s ease;
+}
+
+.a11y-profile-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: 1;
+    min-width: 250px;
+}
+
+.a11y-profile-icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(249, 115, 22, 0.12);
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.45rem;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.a11y-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.a11y-profile-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.a11y-profile-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+.btn-a11y-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    color: #fdba74;
+    padding: 0.7rem 1.4rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-a11y-toggle:hover {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+}
+
+[data-text-size="large"] .btn-a11y-toggle {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+}
+
+[data-theme="light"] .a11y-profile-card {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .a11y-profile-title {
+    color: #0f172a;
+}
+
+[data-theme="light"] .btn-a11y-toggle {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #c2410c;
+}
+
+[data-theme="light"] .btn-a11y-toggle:hover {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+/* ---------------------------------------------------
+   8. RESPONSIVE DESIGN
+   --------------------------------------------------- */
+@media (max-width: 850px) {
+    .role-cards-grid-profile,
+    .role-cards-grid-profile.has-admin {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid-2,
+    .form-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-hero-card {
+        padding: 1.75rem;
+    }
+
+    .profile-form-wrapper {
+        padding: 2rem 1.25rem;
+    }
+
+    .profile-avatar-large {
+        width: 72px;
+        height: 72px;
+        font-size: 1.8rem;
+    }
+
+    .profile-hero-name {
+        font-size: 1.45rem;
+    }
+}

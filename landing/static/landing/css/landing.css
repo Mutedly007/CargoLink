@@ -52,6 +52,7 @@
 .hero-title span.gradient-text {
     background: linear-gradient(135deg, #f97316 20%, #60a5fa 90%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 

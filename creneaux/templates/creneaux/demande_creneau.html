@@ -1,0 +1,326 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Demande de Créneau &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="creneaux-container">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+            ◀ Retour à la liste des créneaux
+        </a>
+    </div>
+
+    <div class="form-card" style="border-top: 4px solid #3b82f6;">
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.75rem;">📋</span>
+                <h1 style="font-size: 1.75rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin: 0;">
+                    Demande de Créneau de Quai
+                </h1>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem;">
+                Module Gestion des Créneaux : enregistrez une demande de créneau horaire sur quai logistique. La demande sera soumise au contrôle de disponibilité et de non-conflit horaire.
+            </p>
+        </div>
+
+        {% if form.errors %}
+        <div style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.75rem; color: #fca5a5;">
+            <strong style="display: block; margin-bottom: 0.5rem; font-size: 0.95rem;">⚠️ Attention aux erreurs :</strong>
+            <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.88rem;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}</strong> : {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" id="demandeCreneauForm">
+            {% csrf_token %}
+
+            <!-- SECTION 1: SITE & HORAIRES -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.1rem; color: #60a5fa; margin-bottom: 1rem;">
+                    📍 1. Site Logistique & Plage Horaire Souhaitée
+                </h3>
+                
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.entrepot.id_for_label }}">Entrepôt cible *</label>
+                        {{ form.entrepot }}
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                            <label class="form-label" for="{{ form.quai.id_for_label }}" style="margin: 0;">Quai demandé *</label>
+                            <button type="button" id="btnAiRecommendDemande" class="btn-ai-magic" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+                                ✨ Optimisation Quai (IA)
+                            </button>
+                        </div>
+                        {{ form.quai }}
+                        <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;">
+                            Sélectionnez un quai ou utilisez l'IA pour attribuer le quai optimal
+                        </small>
+                        <div id="aiRecommendPanelDemande" class="ai-recommend-panel" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="form-grid-2" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.date_creneau.id_for_label }}">Date d'intervention *</label>
+                        {{ form.date_creneau }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.heure_debut.id_for_label }}">Heure de début *</label>
+                        {{ form.heure_debut }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.heure_fin.id_for_label }}">Heure de fin estimée *</label>
+                        {{ form.heure_fin }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.type_operation.id_for_label }}">Type d'intervention sur quai *</label>
+                    {{ form.type_operation }}
+                </div>
+            </div>
+
+            <!-- SECTION 2: RÉFÉRENCES DE LIVRAISON -->
+            <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
+                <h3 style="font-size: 1.1rem; color: #4ade80; margin-bottom: 1rem;">
+                    🚚 2. Transport & Véhicule Associé
+                </h3>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.transporteur_nom.id_for_label }}">Société de transport / Transporteur *</label>
+                        {{ form.transporteur_nom }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.immatriculation_camion.id_for_label }}">Immatriculation véhicule *</label>
+                        {{ form.immatriculation_camion }}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.chauffeur_nom.id_for_label }}">Nom du chauffeur *</label>
+                        {{ form.chauffeur_nom }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.chauffeur_telephone.id_for_label }}">Téléphone chauffeur</label>
+                        {{ form.chauffeur_telephone }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.type_camion.id_for_label }}">Gabarit du véhicule *</label>
+                    {{ form.type_camion }}
+                </div>
+            </div>
+
+            <!-- SECTION 3: FRET & MARCHANDISE -->
+            <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
+                <h3 style="font-size: 1.1rem; color: #fb923c; margin-bottom: 1rem;">
+                    📦 3. Marchandise & Consignes
+                </h3>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.type_marchandise.id_for_label }}">Nature de la marchandise *</label>
+                        {{ form.type_marchandise }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.nb_palettes.id_for_label }}">Volume estimé (palettes) *</label>
+                        {{ form.nb_palettes }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.numero_bl.id_for_label }}">N° BL / CMR / Document transport</label>
+                    {{ form.numero_bl }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.consignes.id_for_label }}">Consignes spécifiques d'accès</label>
+                    {{ form.consignes }}
+                </div>
+            </div>
+
+            <div class="form-actions-row">
+                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline">Annuler</a>
+                <button type="submit" class="btn btn-accent" style="font-weight: 700; padding: 0.85rem 1.75rem;">
+                    Soumettre la Demande de Créneau
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const entrepotSelect = document.getElementById('id_demande_entrepot');
+        const quaiSelect = document.getElementById('id_demande_quai');
+        const btnAi = document.getElementById('btnAiRecommendDemande');
+        const aiPanel = document.getElementById('aiRecommendPanelDemande');
+
+        function loadQuais(entrepotId, selectedQuaiId = null) {
+            if (!entrepotId) return Promise.resolve();
+            quaiSelect.innerHTML = '<option value="">Chargement des quais...</option>';
+
+            return fetch(`/creneaux/api/quais/${entrepotId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    quaiSelect.innerHTML = '<option value="">-- Sélectionner un quai --</option>';
+                    data.quais.forEach(q => {
+                        const opt = document.createElement('option');
+                        opt.value = q.id;
+                        opt.textContent = `${q.numero} (${q.type_quai}) - ${q.statut}`;
+                        if (selectedQuaiId && parseInt(selectedQuaiId) === q.id) {
+                            opt.selected = true;
+                        }
+                        quaiSelect.appendChild(opt);
+                    });
+                })
+                .catch(err => {
+                    console.error('Erreur chargement quais:', err);
+                });
+        }
+
+        if (entrepotSelect && quaiSelect) {
+            entrepotSelect.addEventListener('change', function() {
+                loadQuais(this.value);
+            });
+        }
+
+        // Action IA : Recommandation du Quai Optimal
+        if (btnAi && aiPanel) {
+            btnAi.addEventListener('click', function() {
+                const entrepotId = entrepotSelect ? entrepotSelect.value : '';
+                const dateVal = document.getElementById('id_date_creneau') ? document.getElementById('id_date_creneau').value : '';
+                const hDebVal = document.getElementById('id_heure_debut') ? document.getElementById('id_heure_debut').value : '';
+                const hFinVal = document.getElementById('id_heure_fin') ? document.getElementById('id_heure_fin').value : '';
+                const marchVal = document.getElementById('id_type_marchandise') ? document.getElementById('id_type_marchandise').value : 'STANDARD';
+                const camVal = document.getElementById('id_type_camion') ? document.getElementById('id_type_camion').value : 'SEMI_REMORQUE';
+                const palVal = document.getElementById('id_nb_palettes') ? document.getElementById('id_nb_palettes').value : '10';
+
+                if (!entrepotId || !dateVal || !hDebVal || !hFinVal) {
+                    aiPanel.style.display = 'block';
+                    aiPanel.innerHTML = `
+                        <div style="color: #fcd34d; font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>⚠️</span>
+                            <span>Veuillez renseigner l'<strong>Entrepôt</strong>, la <strong>Date</strong> et les <strong>Horaires</strong> avant de lancer l'analyse IA.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                btnAi.disabled = true;
+                btnAi.innerHTML = '⏳ Calcul IA en cours...';
+
+                const params = new URLSearchParams({
+                    entrepot_id: entrepotId,
+                    date: dateVal,
+                    heure_debut: hDebVal,
+                    heure_fin: hFinVal,
+                    type_marchandise: marchVal,
+                    type_camion: camVal,
+                    nb_palettes: palVal
+                });
+
+                fetch(`/creneaux/api/ai-recommend-dock/?${params.toString()}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        btnAi.disabled = false;
+                        btnAi.innerHTML = '✨ Optimisation Quai (IA)';
+                        aiPanel.style.display = 'block';
+
+                        if (!data.success) {
+                            aiPanel.innerHTML = `
+                                <div style="color: #f87171; font-size: 0.88rem;">
+                                    <strong>❌ Aucun quai disponible :</strong> ${data.message}
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        // Sélection automatique du quai recommandé
+                        loadQuais(entrepotId, data.meilleur_quai_id).then(() => {
+                            quaiSelect.value = data.meilleur_quai_id;
+                        });
+
+                        let criteresHtml = '';
+                        data.criteres_valides.forEach(c => {
+                            criteresHtml += `<div class="ai-criterion-item"><span>✅</span><span>${c}</span></div>`;
+                        });
+
+                        let alternativesRows = '';
+                        data.quais_analyses.forEach(q => {
+                            const badge = q.eligible 
+                                ? `<span style="color: #4ade80; font-weight: 700;">${Math.round(q.score)}%</span>` 
+                                : `<span style="color: #f87171; font-size: 0.72rem;">${q.motif_rejet}</span>`;
+                            const isSelected = q.quai_id === data.meilleur_quai_id ? 'style="background: rgba(124, 58, 237, 0.2); font-weight: 700;"' : '';
+                            alternativesRows += `
+                                <tr ${isSelected}>
+                                    <td>${q.numero}</td>
+                                    <td>${q.type_quai}</td>
+                                    <td>${badge}</td>
+                                </tr>
+                            `;
+                        });
+
+                        aiPanel.innerHTML = `
+                            <div class="ai-panel-header">
+                                <div class="ai-badge-title">
+                                    <span>🤖</span>
+                                    <span>Quai Recommandé par l'IA : <strong>${data.meilleur_quai_numero}</strong></span>
+                                </div>
+                                <span class="ai-score-pill">
+                                    <span>🎯</span> Score IA : ${data.score_optimal}%
+                                </span>
+                            </div>
+                            <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.75rem;">
+                                Choix optimal selon le débit horaire, les équipements et la charge du site :
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                ${criteresHtml}
+                            </div>
+                            <details style="font-size: 0.78rem; color: var(--text-muted); cursor: pointer;">
+                                <summary style="color: #c4b5fd; font-weight: 600; margin-bottom: 0.4rem;">
+                                    📊 Voir l'évaluation comparative des ${data.total_quais} quais
+                                </summary>
+                                <table class="ai-alternatives-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Quai</th>
+                                            <th>Type</th>
+                                            <th>Indice IA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${alternativesRows}
+                                    </tbody>
+                                </table>
+                            </details>
+                        `;
+                    })
+                    .catch(err => {
+                        btnAi.disabled = false;
+                        btnAi.innerHTML = '✨ Optimisation Quai (IA)';
+                        aiPanel.style.display = 'block';
+                        aiPanel.innerHTML = `<div style="color: #f87171;">Erreur lors du calcul IA : ${err}</div>`;
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -3,6 +3,8 @@
 env/
 venv/
 ENV/
+.env
+.env.local
 
 # Environment Variables & Secrets
 .env
