@@ -94,6 +94,7 @@ header.site-header {
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, #ffffff 60%, #93c5fd);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -610,6 +611,184 @@ footer.site-footer {
 
 
 /* ==============================================================================
+   CARGOLINK - ACCESSIBILITY TEXT SIZE TOGGLE (GRAND TEXTE POUR MALVOYANTS)
+   ============================================================================== */
+
+.text-size-toggle-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.text-size-toggle-btn:hover {
+    transform: scale(1.06);
+}
+
+.text-size-track {
+    position: relative;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.text-size-icon {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: -0.02em;
+    transition: color 0.25s ease;
+}
+
+.text-size-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-sub);
+    letter-spacing: 0.02em;
+    transition: all 0.25s ease;
+}
+
+/* Active State (Mode Grand Texte Actif) */
+[data-text-size="large"] .text-size-track {
+    background: rgba(249, 115, 22, 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.4), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-text-size="large"] .text-size-icon {
+    color: var(--accent);
+}
+
+[data-text-size="large"] .text-size-badge {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.5);
+}
+
+/* ==============================================================================
+   ACCESSIBILITY: MODE GRAND TEXTE (POUR OUVRIERS & MALVOYANTS)
+   Élévation de l'échelle typographique, contraste renforcé et ergonomie tactile
+   ============================================================================== */
+
+[data-text-size="large"] {
+    font-size: 118%; /* Root scaling: 1rem becomes ~18.9px */
+}
+
+[data-text-size="large"] body {
+    line-height: 1.7;
+    letter-spacing: 0.015em;
+}
+
+/* Enhance text contrast in dark mode */
+[data-text-size="large"] {
+    --text-muted: #cbd5e1;
+    --text-sub: #f1f5f9;
+}
+
+/* Tables readability enhancement (quais, créneaux, entrepôts) */
+[data-text-size="large"] table th,
+[data-text-size="large"] table td {
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+    font-size: 1.02rem;
+}
+
+[data-text-size="large"] .creneaux-table th,
+[data-text-size="large"] .creneaux-table td {
+    padding: 1.15rem 1.25rem;
+}
+
+/* Form inputs & buttons for warehouse gloves & easy clicking */
+[data-text-size="large"] .form-input,
+[data-text-size="large"] select.form-input {
+    font-size: 1.05rem;
+    padding: 0.95rem 1.15rem;
+}
+
+[data-text-size="large"] .form-label {
+    font-size: 0.96rem;
+    font-weight: 700;
+}
+
+[data-text-size="large"] .btn {
+    font-size: 1.05rem;
+    padding: 0.85rem 1.6rem;
+    font-weight: 700;
+}
+
+/* Badges readability */
+[data-text-size="large"] .status-badge,
+[data-text-size="large"] .badge,
+[data-text-size="large"] .profile-role-pill,
+[data-text-size="large"] .kpi-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+/* Headings crispness */
+[data-text-size="large"] h1,
+[data-text-size="large"] h2,
+[data-text-size="large"] h3 {
+    letter-spacing: -0.01em;
+}
+
+/* Accessibility Toast */
+.a11y-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(15, 23, 42, 0.96);
+    border: 2px solid var(--accent);
+    color: #ffffff;
+    padding: 0.95rem 1.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(249, 115, 22, 0.35);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    font-size: 0.98rem;
+    font-weight: 700;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.a11y-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+[data-theme="light"] .a11y-toast {
+    background: #ffffff;
+    border-color: var(--accent);
+    color: #0f172a;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 0 20px rgba(249, 115, 22, 0.25);
+}
+
+
+/* ==============================================================================
    CARGOLINK - INTERACTIVE THEME TOGGLE SWITCH COMPONENT
    ============================================================================== */
 
@@ -717,6 +896,42 @@ footer.site-footer {
     transform: scale(0.85);
 }
 
+/* Light Mode Text Size Switcher State */
+[data-theme="light"] .text-size-track {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .text-size-icon {
+    color: #475569;
+}
+
+[data-theme="light"] .text-size-badge {
+    background: #cbd5e1;
+    color: #0f172a;
+}
+
+[data-theme="light"][data-text-size="large"] .text-size-track {
+    background: #fff7ed;
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
+}
+
+[data-theme="light"][data-text-size="large"] .text-size-icon {
+    color: #c2410c;
+}
+
+[data-theme="light"][data-text-size="large"] .text-size-badge {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+[data-theme="light"][data-text-size="large"] {
+    --text-muted: #334155;
+    --text-sub: #0f172a;
+}
+
 [data-theme="light"] .theme-toggle-thumb {
     right: calc(100% - 28px);
     background: linear-gradient(135deg, #f59e0b, #eab308);
@@ -746,6 +961,7 @@ footer.site-footer {
 [data-theme="light"] .brand-name {
     background: linear-gradient(135deg, #0f172a 60%, #1e40af);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 

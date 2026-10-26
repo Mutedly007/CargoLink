@@ -139,6 +139,9 @@ uv run python manage.py test chauffeurs.tests --keepdb
 # Tests d'authentification et de contrôle d'accès
 uv run python manage.py test accounts.tests --keepdb
 
+# Tests du module Flotte & Camions (Rahma)
+uv run python manage.py test camions.tests --keepdb
+
 # Tests de la landing page
 uv run python manage.py test landing.tests --keepdb
 ```
