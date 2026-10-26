@@ -1,0 +1,199 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}{{ action_title }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chauffeur-form-container">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+            &larr; Annuler et retourner
+        </a>
+    </div>
+
+    <div class="form-card-box">
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;">
+            {{ action_title }}
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+            Renseignez les données administratives, les catégories de permis et le véhicule attitré du conducteur.
+        </p>
+
+        {% if form.errors %}
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5; font-size: 0.9rem;">
+                <strong>Erreurs détectées :</strong>
+                <ul style="margin: 0.5rem 0 0 1.25rem;">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field|title }} : {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Section 1: Informations Personnelles -->
+            <div class="form-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa;">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                1. Informations Personnelles & Contact
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label">Prénom *</label>
+                    {{ form.prenom }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nom de famille *</label>
+                    {{ form.nom }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Numéro CIN / Passeport</label>
+                    {{ form.cin }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Adresse Email</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Téléphone principal *</label>
+                    {{ form.telephone }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Téléphone d'urgence</label>
+                    {{ form.telephone_urgence }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date de naissance</label>
+                    {{ form.date_naissance }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date d'embauche</label>
+                    {{ form.date_embauche }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ville de résidence</label>
+                    {{ form.ville_residence }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Photo du chauffeur</label>
+                    {{ form.photo }}
+                </div>
+            </div>
+
+            <!-- Section 2: Permis de Conduire -->
+            <div class="form-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fbbf24;">
+                    <rect x="3" y="4" width="18" height="16" rx="2"/>
+                    <line x1="7" y1="8" x2="17" y2="8"/>
+                    <line x1="7" y1="12" x2="13" y2="12"/>
+                </svg>
+                2. Permis de Conduire & Validité
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label">Numéro de Permis *</label>
+                    {{ form.numero_permis }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Catégorie de Permis *</label>
+                    {{ form.categorie_permis }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date de délivrance</label>
+                    {{ form.date_delivrance_permis }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date d'expiration / Validité *</label>
+                    {{ form.date_expiration_permis }}
+                </div>
+            </div>
+
+            <!-- Section 3: Entreprise de Transport & Camion -->
+            <div class="form-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #34d399;">
+                    <rect x="1" y="3" width="15" height="13"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+                3. Entreprise de Transport & Véhicule Associé
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label">Société / Entreprise de Transport *</label>
+                    {{ form.entreprise_transport }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Compte Utilisateur Transporteur</label>
+                    {{ form.transporteur_user }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Immatriculation du Camion</label>
+                    {{ form.immatriculation_camion }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Marque / Modèle</label>
+                    {{ form.marque_camion }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type de gabarit</label>
+                    {{ form.type_camion }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Capacité (Tonnes)</label>
+                    {{ form.capacite_camion_tonnes }}
+                </div>
+            </div>
+
+            <!-- Section 4: Statut Opérationnel & Sécurité -->
+            <div class="form-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #c084fc;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                4. Statut Opérationnel & Sécurité
+            </div>
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label">Statut Opérationnel *</label>
+                    {{ form.statut }}
+                </div>
+                <div class="form-group" style="justify-content: center;">
+                    <label style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
+                        {{ form.badge_acces_portuaire }}
+                        <span>Badge d'accès portuaire / sécurisé actif</span>
+                    </label>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="form-label">Remarques & Habilitations particulières</label>
+                    {{ form.observations }}
+                </div>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="form-actions-bottom">
+                <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-accent" style="padding: 0.75rem 2rem;">
+                    {{ button_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

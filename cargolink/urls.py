@@ -11,6 +11,7 @@ urlpatterns = [
     path('accounts/login/', RedirectView.as_view(pattern_name='login', permanent=False, query_string=True)),
     path('entrepots/', include('entrepots.urls')),
     path('creneaux/', include('creneaux.urls')),
+    path('chauffeurs/', include('chauffeurs.urls')),
 ]
 
 if settings.DEBUG:

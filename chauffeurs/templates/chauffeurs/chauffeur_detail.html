@@ -1,0 +1,379 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}{{ chauffeur.nom_complet }} &bull; Fiche Chauffeur CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chauffeurs-container">
+    <!-- Breadcrumb / Back button -->
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'chauffeurs:chauffeur_list' %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+            &larr; Retour à la liste des chauffeurs
+        </a>
+    </div>
+
+    <!-- Hero Profile Header -->
+    <div class="chauffeur-detail-hero">
+        <div class="detail-hero-left">
+            <div class="detail-avatar-large">
+                {% if chauffeur.photo %}
+                    <img src="{{ chauffeur.photo.url }}" alt="{{ chauffeur.nom_complet }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <span>{{ chauffeur.initiales }}</span>
+                {% endif %}
+            </div>
+
+            <div class="detail-hero-info">
+                <h1>{{ chauffeur.nom_complet }}</h1>
+                <div class="detail-sub-meta">
+                    <span>🏢 {{ chauffeur.entreprise_transport }}</span>
+                    <span>&bull;</span>
+                    <span>📍 {{ chauffeur.ville_residence }}</span>
+                    <span>&bull;</span>
+                    <span class="status-pill {{ chauffeur.badge_statut_css }}">
+                        <span class="status-dot-pulse"></span>
+                        {{ chauffeur.get_statut_display }}
+                    </span>
+                    {% if chauffeur.badge_acces_portuaire %}
+                        <span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 9999px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                            🛡️ Badge Portuaire Actif
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Status Change & Edit Actions -->
+        <div class="status-change-dropdown-box">
+            <form method="post" action="{% url 'chauffeurs:chauffeur_statut_update' chauffeur.pk %}" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="chauffeurs:chauffeur_detail">
+                
+                <button type="submit" name="nouveau_statut" value="DISPONIBLE" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.8rem; {% if chauffeur.statut == 'DISPONIBLE' %}border-color: #34d399; color: #34d399;{% endif %}" title="Passer en statut Disponible">
+                    🟢 Disponible
+                </button>
+                <button type="submit" name="nouveau_statut" value="EN_MISSION" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.8rem; {% if chauffeur.statut == 'EN_MISSION' %}border-color: #60a5fa; color: #60a5fa;{% endif %}" title="Passer en mission">
+                    🚚 En Mission
+                </button>
+                <button type="submit" name="nouveau_statut" value="A_QUAI" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.8rem; {% if chauffeur.statut == 'A_QUAI' %}border-color: #fb923c; color: #fb923c;{% endif %}" title="Indiquer à quai">
+                    ⚓ À Quai
+                </button>
+                <button type="submit" name="nouveau_statut" value="EN_REPOS" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.45rem 0.8rem; {% if chauffeur.statut == 'EN_REPOS' %}border-color: #c084fc; color: #c084fc;{% endif %}" title="Passer en repos">
+                    ☕ En Repos
+                </button>
+            </form>
+
+            <div style="display: flex; gap: 0.6rem; margin-top: 0.75rem;">
+                <a href="{% url 'chauffeurs:chauffeur_update' chauffeur.pk %}" class="btn btn-outline" style="font-size: 0.85rem;">
+                    ✏️ Modifier Fiche
+                </a>
+                <a href="{% url 'chauffeurs:visite_create' chauffeur.pk %}" class="btn btn-accent" style="font-size: 0.85rem;">
+                    + Enregistrer Visite
+                </a>
+                <a href="{% url 'chauffeurs:chauffeur_delete' chauffeur.pk %}" class="btn btn-outline" style="font-size: 0.85rem; color: #f87171; border-color: rgba(239, 68, 68, 0.4);" title="Supprimer ce chauffeur">
+                    🗑️
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3-Column Specifications Grid -->
+    <div class="detail-grid-3col">
+        <!-- Panel 1: Informations Personnelles -->
+        <div class="detail-card-panel">
+            <div class="panel-header-line">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa;">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Identité & Coordonnées
+            </div>
+
+            <div class="data-list-row">
+                <span class="data-row-label">Prénom & Nom</span>
+                <span class="data-row-value">{{ chauffeur.nom_complet }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Numéro CIN / Passeport</span>
+                <span class="data-row-value">{{ chauffeur.cin|default:"Non renseigné" }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Téléphone principal</span>
+                <span class="data-row-value">
+                    <a href="tel:{{ chauffeur.telephone }}" style="color: #60a5fa; text-decoration: none;">
+                        📞 {{ chauffeur.telephone }}
+                    </a>
+                </span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Contact d'urgence</span>
+                <span class="data-row-value">{{ chauffeur.telephone_urgence|default:"Non spécifié" }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Adresse Email</span>
+                <span class="data-row-value">{{ chauffeur.email|default:"Non renseigné" }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Résidence</span>
+                <span class="data-row-value">{{ chauffeur.ville_residence }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Date d'embauche</span>
+                <span class="data-row-value">{{ chauffeur.date_embauche|date:"d F Y" }}</span>
+            </div>
+        </div>
+
+        <!-- Panel 2: Permis & Sécurité Routière -->
+        <div class="detail-card-panel">
+            <div class="panel-header-line">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fbbf24;">
+                    <rect x="3" y="4" width="18" height="16" rx="2"/>
+                    <line x1="7" y1="8" x2="17" y2="8"/>
+                    <line x1="7" y1="12" x2="13" y2="12"/>
+                    <line x1="7" y1="16" x2="10" y2="16"/>
+                </svg>
+                Permis de Conduire & Conformité
+            </div>
+
+            <div class="data-list-row">
+                <span class="data-row-label">Numéro de permis</span>
+                <span class="data-row-value" style="font-family: monospace; letter-spacing: 0.05em;">{{ chauffeur.numero_permis }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Catégorie</span>
+                <span class="data-row-value" style="color: #60a5fa;">{{ chauffeur.get_categorie_permis_display }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Délivré le</span>
+                <span class="data-row-value">{{ chauffeur.date_delivrance_permis|date:"d/m/Y"|default:"N/A" }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Date d'expiration</span>
+                <span class="data-row-value">{{ chauffeur.date_expiration_permis|date:"d F Y" }}</span>
+            </div>
+
+            <!-- Warning Card -->
+            {% if chauffeur.est_permis_expire %}
+                <div class="license-alert-box alert-danger">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <div>
+                        <strong>Permis Expiré !</strong> Ce chauffeur n'est plus autorisé à circuler. Renouvellement urgent requis.
+                    </div>
+                </div>
+            {% elif chauffeur.expire_bientot %}
+                <div class="license-alert-box alert-warning">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <div>
+                        <strong>Expiration proche ({{ chauffeur.jours_avant_expiration }} jours) !</strong> Penser au renouvellement de la visite médicale et de la carte conducteur.
+                    </div>
+                </div>
+            {% else %}
+                <div class="license-alert-box alert-success">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <div>
+                        <strong>Permis en règle.</strong> Valide pour encore {{ chauffeur.jours_avant_expiration }} jours.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Panel 3: Camion Associé -->
+        <div class="detail-card-panel">
+            <div class="panel-header-line">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #34d399;">
+                    <rect x="1" y="3" width="15" height="13"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+                Camion Habituel & Fret
+            </div>
+
+            <div class="data-list-row">
+                <span class="data-row-label">Immatriculation</span>
+                <span class="data-row-value" style="color: #f59e0b; font-family: monospace; font-size: 1rem;">
+                    {{ chauffeur.immatriculation_camion|default:"Aucun véhicule attitré" }}
+                </span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Modèle / Marque</span>
+                <span class="data-row-value">{{ chauffeur.marque_camion }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Gabarit / Type</span>
+                <span class="data-row-value">{{ chauffeur.get_type_camion_display }}</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Capacité de charge</span>
+                <span class="data-row-value">{{ chauffeur.capacite_camion_tonnes }} Tonnes</span>
+            </div>
+            <div class="data-list-row">
+                <span class="data-row-label">Entreprise</span>
+                <span class="data-row-value">{{ chauffeur.entreprise_transport }}</span>
+            </div>
+
+            {% if chauffeur.observations %}
+                <div style="margin-top: 1rem; padding: 0.85rem; background: rgba(10, 19, 36, 0.6); border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-sub);">
+                    <strong style="color: #ffffff; display: block; margin-bottom: 0.25rem;">Remarques :</strong>
+                    {{ chauffeur.observations }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Section Historique des Visites / Passages aux Entrepôts -->
+    <div class="visits-section">
+        <div class="visits-section-top">
+            <div>
+                <h2 style="font-size: 1.4rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif;">
+                    Historique des Visites & Passages aux Entrepôts
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Traçabilité complète des déchargements, chargements et contrôles effectués par {{ chauffeur.nom_complet }}.
+                </p>
+            </div>
+
+            <a href="{% url 'chauffeurs:visite_create' chauffeur.pk %}" class="btn btn-accent" style="font-size: 0.875rem;">
+                + Ajouter une Visite
+            </a>
+        </div>
+
+        {% if visites %}
+            <div class="visits-table-wrapper">
+                <table class="cargolink-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Horaires</th>
+                            <th>Entrepôt & Quai</th>
+                            <th>N° Bon / CMR</th>
+                            <th>Opération</th>
+                            <th>Durée</th>
+                            <th>Statut</th>
+                            <th>Émargement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in visites %}
+                            <tr>
+                                <td>
+                                    <strong>{{ v.date_visite|date:"d/m/Y" }}</strong>
+                                    {% if v.heure_arrivee %}
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                            {{ v.heure_arrivee|time:"H:i" }}{% if v.heure_depart %} &rarr; {{ v.heure_depart|time:"H:i" }}{% endif %}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if v.entrepot %}
+                                        <a href="{% url 'entrepots:entrepot_detail' v.entrepot.pk %}" style="color: #60a5fa; font-weight: 600; text-decoration: none;">
+                                            {{ v.entrepot.nom }}
+                                        </a>
+                                    {% else %}
+                                        <span>Site Externe</span>
+                                    {% endif %}
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                        {{ v.quai_numero }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <code style="color: #fb923c;">{{ v.numero_bl|default:"-" }}</code>
+                                </td>
+                                <td>
+                                    <span style="font-size: 0.85rem;">{{ v.get_type_operation_display }}</span>
+                                </td>
+                                <td>
+                                    {{ v.duree_minutes }} min
+                                </td>
+                                <td>
+                                    <span class="status-pill {% if v.statut == 'TERMINE' %}status-badge-disponible{% elif v.statut == 'A_QUAI' %}status-badge-quai{% else %}status-badge-mission{% endif %}">
+                                        {{ v.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if v.emargement_valide %}
+                                        <span style="color: #34d399; font-size: 0.85rem;">✅ Validé</span>
+                                    {% else %}
+                                        <span style="color: #f59e0b; font-size: 0.85rem;">⏳ En attente</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 2.5rem 1rem; background: rgba(10, 19, 36, 0.4); border-radius: var(--radius-sm);">
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    Aucune visite ni passage enregistré pour l'instant pour ce chauffeur.
+                </p>
+                <a href="{% url 'chauffeurs:visite_create' chauffeur.pk %}" class="btn btn-outline" style="font-size: 0.85rem;">
+                    Enregistrer la première visite
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Section Créneaux Récents liés -->
+    {% if creneaux_associes %}
+        <div class="visits-section" style="border-top: 2px solid rgba(59, 130, 246, 0.2);">
+            <div class="visits-section-top">
+                <div>
+                    <h2 style="font-size: 1.3rem; font-weight: 700; color: #ffffff; font-family: 'Outfit', sans-serif;">
+                        Créneaux & Réservations Récentes Associées
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">
+                        Synchronisé en temps réel avec le module Créneaux & Régulation des Quais.
+                    </p>
+                </div>
+                <a href="{% url 'creneaux:creneau_list' %}?q={{ chauffeur.nom }}" class="btn btn-outline" style="font-size: 0.85rem;">
+                    Voir tous les créneaux &rarr;
+                </a>
+            </div>
+
+            <div class="visits-table-wrapper">
+                <table class="cargolink-table">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Date & Créneau</th>
+                            <th>Quai & Entrepôt</th>
+                            <th>Opération</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in creneaux_associes %}
+                            <tr>
+                                <td><code style="color: #60a5fa;">{{ c.reference }}</code></td>
+                                <td>{{ c.date_creneau|date:"d/m/Y" }} ({{ c.heure_debut|time:"H:i" }} - {{ c.heure_fin|time:"H:i" }})</td>
+                                <td>{{ c.quai.entrepot.nom }} &bull; {{ c.quai.numero }}</td>
+                                <td>{{ c.get_type_operation_display }}</td>
+                                <td>
+                                    <span class="status-pill status-badge-quai">{{ c.get_statut_display }}</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'creneaux:creneau_detail' c.pk %}" class="btn btn-outline" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">
+                                        Détails
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
