@@ -24,6 +24,7 @@ urlpatterns = [
     # Export & Rapports
     path('export/csv/', views.creneau_export_csv, name='creneau_export_csv'),
 
-    # Helper AJAX
+    # Helper AJAX & IA
     path('api/quais/<int:entrepot_id>/', views.api_quais_by_entrepot, name='api_quais_by_entrepot'),
+    path('api/ai-recommend-dock/', views.api_ai_recommend_dock, name='api_ai_recommend_dock'),
 ]

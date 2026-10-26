@@ -175,3 +175,37 @@ class CreneauxModuleTests(TestCase):
         res = self.client.get(reverse('creneaux:creneau_export_csv'))
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res['Content-Type'], 'text/csv; charset=utf-8')
+
+    def test_ai_smart_dock_allocator(self):
+        """Vérifie le moteur IA d'optimisation et d'attribution du meilleur quai (Volet IA - Kacem)."""
+        from .ai_optimizer import SmartDockAllocator
+
+        allocator = SmartDockAllocator()
+        # Test 1 : Recommandation pour de la marchandise standard
+        rec = allocator.recommend_best_dock(
+            entrepot_id=self.entrepot.id,
+            date_creneau=self.today,
+            heure_debut=time(11, 0),
+            heure_fin=time(12, 30),
+            type_marchandise='STANDARD',
+            type_camion='SEMI_REMORQUE',
+            nb_palettes=20
+        )
+        self.assertTrue(rec['success'])
+        self.assertIn('meilleur_quai_id', rec)
+        self.assertGreaterEqual(rec['score_optimal'], 50)
+
+        # Test 2 : Requête AJAX API
+        api_res = self.client.get(reverse('creneaux:api_ai_recommend_dock'), {
+            'entrepot_id': self.entrepot.id,
+            'date': self.today.strftime('%Y-%m-%d'),
+            'heure_debut': '11:00',
+            'heure_fin': '12:30',
+            'type_marchandise': 'STANDARD',
+            'type_camion': 'SEMI_REMORQUE',
+            'nb_palettes': 15
+        })
+        self.assertEqual(api_res.status_code, 200)
+        json_data = api_res.json()
+        self.assertTrue(json_data['success'])
+        self.assertEqual(json_data['meilleur_quai_id'], rec['meilleur_quai_id'])

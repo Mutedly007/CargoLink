@@ -378,3 +378,49 @@ def api_quais_by_entrepot(request, entrepot_id):
     """
     quais = Quai.objects.filter(entrepot_id=entrepot_id).values('id', 'numero', 'type_quai', 'statut')
     return JsonResponse({'quais': list(quais)})
+
+
+def api_ai_recommend_dock(request):
+    """
+    Endpoint AJAX d'Attribution Intelligente des Quais par IA (Module Kacem - Volet IA).
+    Calcule le quai optimal en fonction du débit, du gabarit, de la marchandise et de l'équilibrage de charge.
+    """
+    from .ai_optimizer import SmartDockAllocator
+
+    entrepot_id = request.GET.get('entrepot_id') or request.POST.get('entrepot_id')
+    date_str = request.GET.get('date') or request.POST.get('date')
+    heure_debut_str = request.GET.get('heure_debut') or request.POST.get('heure_debut')
+    heure_fin_str = request.GET.get('heure_fin') or request.POST.get('heure_fin')
+    type_marchandise = request.GET.get('type_marchandise') or request.POST.get('type_marchandise') or 'STANDARD'
+    type_camion = request.GET.get('type_camion') or request.POST.get('type_camion') or 'SEMI_REMORQUE'
+    nb_palettes = request.GET.get('nb_palettes') or request.POST.get('nb_palettes') or 10
+
+    if not entrepot_id or not date_str or not heure_debut_str or not heure_fin_str:
+        return JsonResponse({
+            'success': False,
+            'message': "Veuillez d'abord sélectionner l'entrepôt, la date et les horaires pour permettre à l'IA d'analyser la disponibilité des quais."
+        })
+
+    try:
+        date_creneau = datetime.strptime(date_str, '%Y-%m-%d').date()
+        h1 = datetime.strptime(heure_debut_str, '%H:%M').time()
+        h2 = datetime.strptime(heure_fin_str, '%H:%M').time()
+        nb_pal = int(nb_palettes)
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'message': f"Format de données invalide : {str(e)}"
+        })
+
+    allocator = SmartDockAllocator()
+    result = allocator.recommend_best_dock(
+        entrepot_id=int(entrepot_id),
+        date_creneau=date_creneau,
+        heure_debut=h1,
+        heure_fin=h2,
+        type_marchandise=type_marchandise,
+        type_camion=type_camion,
+        nb_palettes=nb_pal
+    )
+
+    return JsonResponse(result)
