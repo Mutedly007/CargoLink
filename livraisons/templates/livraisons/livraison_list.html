@@ -1,0 +1,234 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}Livraisons &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'livraisons/css/livraisons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="liv-container">
+    <header class="liv-top-bar">
+        <div class="liv-title">
+            <h1>{% include "livraisons/_icone.html" with nom="route" %} Gestion des Livraisons</h1>
+            <p>Du chargement à quai jusqu'à la preuve de livraison : suivi, affectation intelligente et traçabilité.</p>
+        </div>
+        <div class="liv-actions">
+            {% if est_planificateur %}
+            <a href="{% url 'livraisons:livraison_create' %}" class="btn btn-accent">
+                {% include "livraisons/_icone.html" with nom="plus" %} Nouvelle livraison
+            </a>
+            {% endif %}
+            <a href="{% url 'livraisons:mes_missions' %}" class="btn btn-outline">
+                {% include "livraisons/_icone.html" with nom="navigation" %} Missions en cours
+            </a>
+            <a href="{% url 'livraisons:livraison_export_csv' %}?{{ querystring }}" class="btn btn-outline">
+                {% include "livraisons/_icone.html" with nom="download" %} Export CSV
+            </a>
+        </div>
+    </header>
+
+    <!-- Indicateurs clés -->
+    <section class="liv-kpi-grid" aria-label="Indicateurs clés">
+        <a class="liv-kpi" href="?date_du={% now 'Y-m-d' %}&date_au={% now 'Y-m-d' %}">
+            <div class="liv-kpi-icon k-blue">{% include "livraisons/_icone.html" with nom="calendar" %}</div>
+            <div><div class="liv-kpi-value">{{ kpi.du_jour }}</div><div class="liv-kpi-label">Départs aujourd'hui</div></div>
+        </a>
+        <a class="liv-kpi" href="?statut=EN_CHARGEMENT&statut=EN_TRANSIT&statut=ARRIVEE">
+            <div class="liv-kpi-icon k-orange">{% include "livraisons/_icone.html" with nom="truck" %}</div>
+            <div><div class="liv-kpi-value">{{ kpi.en_cours }}</div><div class="liv-kpi-label">En cours d'exécution</div></div>
+        </a>
+        <a class="liv-kpi" href="?statut=BROUILLON">
+            <div class="liv-kpi-icon k-violet">{% include "livraisons/_icone.html" with nom="file" %}</div>
+            <div><div class="liv-kpi-value">{{ kpi.a_planifier }}</div><div class="liv-kpi-label">À planifier</div></div>
+        </a>
+        <a class="liv-kpi" href="?en_retard=1">
+            <div class="liv-kpi-icon k-red">{% include "livraisons/_icone.html" with nom="clock" %}</div>
+            <div><div class="liv-kpi-value">{{ kpi.en_retard }}</div><div class="liv-kpi-label">En retard</div></div>
+        </a>
+        <a class="liv-kpi" href="?statut=LIVREE">
+            <div class="liv-kpi-icon k-green">{% include "livraisons/_icone.html" with nom="check" %}</div>
+            <div><div class="liv-kpi-value">{% if kpi.taux_a_l_heure is not None %}{{ kpi.taux_a_l_heure }} %{% else %}—{% endif %}</div><div class="liv-kpi-label">Livrées à l'heure</div></div>
+        </a>
+        <a class="liv-kpi" href="?avec_incident=1">
+            <div class="liv-kpi-icon k-amber">{% include "livraisons/_icone.html" with nom="alert" %}</div>
+            <div><div class="liv-kpi-value">{{ kpi.incidents_ouverts }}</div><div class="liv-kpi-label">Incidents ouverts</div></div>
+        </a>
+    </section>
+
+    <!-- Recherche en langage naturel (DeepSeek ou moteur local) -->
+    <form class="liv-ai-search" id="aiSearchForm" data-url="{% url 'livraisons:api_recherche_ia' %}">
+        {% csrf_token %}
+        {% include "livraisons/_icone.html" with nom="sparkles" classe="liv-icon-lg" %}
+        <input type="text" name="texte" id="aiSearchInput" autocomplete="off"
+               placeholder="Ex : livraisons urgentes en retard vers Sfax cette semaine" aria-label="Recherche en langage naturel">
+        <button type="submit" class="btn btn-ai btn-sm">{% include "livraisons/_icone.html" with nom="search" %} Rechercher</button>
+    </form>
+    <p class="liv-ai-hint">
+        Recherche intelligente {% if ia_disponible %}propulsée par DeepSeek{% else %}(moteur local — ajoutez DEEPSEEK_API_KEY pour l'IA){% endif %} :
+        décrivez simplement ce que vous cherchez.
+    </p>
+    {% if explication_ia %}
+    <div class="liv-ai-explication">{% include "livraisons/_icone.html" with nom="sparkles" %} {{ explication_ia }}</div>
+    {% endif %}
+
+    <!-- Recherche avancée multi-critères -->
+    <details class="liv-filters" {% if nb_filtres_actifs %}open{% endif %}>
+        <summary>
+            {% include "livraisons/_icone.html" with nom="filter" %} Recherche avancée
+            {% if nb_filtres_actifs %}<span class="liv-pill-count">{{ nb_filtres_actifs }} filtre{{ nb_filtres_actifs|pluralize }}</span>{% endif %}
+        </summary>
+        <form method="get" class="liv-filters-body">
+            <div class="liv-filter-grid">
+                <div>
+                    <label class="liv-label" for="f_q">Texte libre</label>
+                    <input class="liv-input" id="f_q" type="search" name="q" value="{{ filtres.q }}" placeholder="Réf., BL, client, immatriculation, chauffeur…">
+                </div>
+                <div>
+                    <label class="liv-label" for="f_entrepot">Entrepôt (départ ou arrivée)</label>
+                    <select class="liv-input" id="f_entrepot" name="entrepot">
+                        <option value="">Tous</option>
+                        {% for e in entrepots %}<option value="{{ e.id }}" {% if filtres.entrepot == e.id|stringformat:"s" %}selected{% endif %}>{{ e.nom }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="liv-label" for="f_ville">Ville</label>
+                    <input class="liv-input" id="f_ville" name="ville" value="{{ filtres.ville }}" placeholder="Ex : Sousse">
+                </div>
+                <div>
+                    <label class="liv-label" for="f_type">Type</label>
+                    <select class="liv-input" id="f_type" name="type_livraison">
+                        <option value="">Tous</option>
+                        {% for code, libelle in type_choices %}<option value="{{ code }}" {% if filtres.type_livraison == code %}selected{% endif %}>{{ libelle }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="liv-label" for="f_priorite">Priorité</label>
+                    <select class="liv-input" id="f_priorite" name="priorite">
+                        <option value="">Toutes</option>
+                        {% for code, libelle in priorite_choices %}<option value="{{ code }}" {% if filtres.priorite == code %}selected{% endif %}>{{ libelle }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="liv-label" for="f_marchandise">Marchandise</label>
+                    <select class="liv-input" id="f_marchandise" name="type_marchandise">
+                        <option value="">Toutes</option>
+                        {% for code, libelle in marchandise_choices %}<option value="{{ code }}" {% if filtres.type_marchandise == code %}selected{% endif %}>{{ libelle }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="liv-label" for="f_chauffeur">Chauffeur</label>
+                    <select class="liv-input" id="f_chauffeur" name="chauffeur">
+                        <option value="">Tous</option>
+                        {% for c in chauffeurs %}<option value="{{ c.id }}" {% if filtres.chauffeur == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nom_complet }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="liv-label" for="f_camion">Camion</label>
+                    <select class="liv-input" id="f_camion" name="camion">
+                        <option value="">Tous</option>
+                        {% for c in camions %}<option value="{{ c.id }}" {% if filtres.camion == c.id|stringformat:"s" %}selected{% endif %}>{{ c.immatriculation }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="liv-label" for="f_du">Départ du</label>
+                    <input class="liv-input" id="f_du" type="date" name="date_du" value="{{ filtres.date_du }}">
+                </div>
+                <div>
+                    <label class="liv-label" for="f_au">Départ au</label>
+                    <input class="liv-input" id="f_au" type="date" name="date_au" value="{{ filtres.date_au }}">
+                </div>
+                <div>
+                    <label class="liv-label" for="f_tri">Trier par</label>
+                    <select class="liv-input" id="f_tri" name="tri">
+                        {% for cle, libelle in tris %}<option value="{{ cle }}" {% if filtres.tri == cle %}selected{% endif %}>{{ libelle }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 0.9rem;">
+                <span class="liv-label">Statuts</span>
+                <div class="liv-statut-checks">
+                    {% for code, libelle in statut_choices %}
+                    <label><input type="checkbox" name="statut" value="{{ code }}" {% if code in filtres.statut %}checked{% endif %}> {{ libelle }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="liv-check-row">
+                <label><input type="checkbox" name="en_retard" value="1" {% if filtres.en_retard %}checked{% endif %}> En retard uniquement</label>
+                <label><input type="checkbox" name="avec_incident" value="1" {% if filtres.avec_incident %}checked{% endif %}> Avec incident ouvert</label>
+            </div>
+            <div class="liv-form-actions">
+                <a href="{% url 'livraisons:livraison_list' %}" class="btn btn-outline btn-sm">Réinitialiser</a>
+                <button type="submit" class="btn btn-accent btn-sm">{% include "livraisons/_icone.html" with nom="search" %} Appliquer</button>
+            </div>
+        </form>
+    </details>
+
+    <!-- Résultats -->
+    <div class="liv-table-card">
+        <div class="liv-table-wrap">
+            <table class="liv-table">
+                <thead>
+                    <tr>
+                        <th>Référence</th>
+                        <th>Trajet</th>
+                        <th>Statut</th>
+                        <th>Départ / Échéance</th>
+                        <th>Camion &amp; chauffeur</th>
+                        <th>Marchandise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in livraisons %}
+                    <tr>
+                        <td>
+                            <a class="liv-ref" href="{% url 'livraisons:livraison_detail' l.pk %}">{{ l.reference }}</a>
+                            <span class="liv-sub">{{ l.get_type_livraison_display }}</span>
+                        </td>
+                        <td>
+                            <span class="liv-route">{{ l.ville_depart }} {% include "livraisons/_icone.html" with nom="arrow-right" %} {{ l.ville_arrivee|default:"—" }}</span>
+                            <span class="liv-sub">{{ l.libelle_destination|truncatechars:40 }}</span>
+                        </td>
+                        <td>
+                            {% include "livraisons/_statut_badge.html" with l=l %}
+                            {% if l.priorite == 'URGENTE' %}<span class="liv-badge badge-urgent">Urgente</span>{% endif %}
+                        </td>
+                        <td>
+                            {{ l.date_depart_prevue|date:"d/m H:i" }}
+                            <span class="liv-sub">Échéance {{ l.date_livraison_prevue|date:"d/m H:i" }}</span>
+                        </td>
+                        <td>
+                            {% if l.camion %}<span class="liv-mono">{{ l.camion.immatriculation }}</span>{% else %}<span class="liv-muted">À affecter</span>{% endif %}
+                            <span class="liv-sub">{{ l.chauffeur.nom_complet|default:"Chauffeur à affecter" }}</span>
+                        </td>
+                        <td>
+                            {{ l.nb_palettes }} pal.{% if l.poids_kg %} • {{ l.poids_kg }} kg{% endif %}
+                            <span class="liv-sub">{{ l.get_type_marchandise_display|truncatechars:28 }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="liv-empty">
+                        Aucune livraison ne correspond à cette recherche.
+                        {% if est_planificateur %}<br><a href="{% url 'livraisons:livraison_create' %}" class="liv-ref">Créer une livraison</a>{% endif %}
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="liv-pagination" aria-label="Pagination">
+            <span>Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} • {{ page_obj.paginator.count }} livraisons</span>
+            <span class="liv-actions">
+                {% if page_obj.has_previous %}<a class="btn btn-outline btn-sm" href="?{{ querystring }}&page={{ page_obj.previous_page_number }}">Précédente</a>{% endif %}
+                {% if page_obj.has_next %}<a class="btn btn-outline btn-sm" href="?{{ querystring }}&page={{ page_obj.next_page_number }}">Suivante</a>{% endif %}
+            </span>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'livraisons/js/livraisons.js' %}"></script>
+{% endblock %}

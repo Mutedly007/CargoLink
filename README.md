@@ -92,7 +92,16 @@ Une commande permet de générer 6 chauffeurs réalistes, camions associés et l
 uv run python manage.py populate_chauffeurs
 ```
 
-### C. Créer un compte super-administrateur
+### C. Livraisons de démonstration (Module Eya)
+Génère 6 livraisons (tous les statuts) à partir des entrepôts, camions et chauffeurs existants, sans modifier leurs données :
+```bash
+uv run python manage.py populate_livraisons          # --clear pour les supprimer
+uv run python manage.py check_retards_livraisons     # détection des retards (--dry-run pour simuler)
+```
+L'IA du module utilise DeepSeek si `DEEPSEEK_API_KEY` est défini dans `.env`, sinon un moteur de règles local.
+Plan d'intégration complet : [`docs/MODULE_LIVRAISONS.md`](docs/MODULE_LIVRAISONS.md).
+
+### D. Créer un compte super-administrateur
 Pour créer votre compte administrateur Django et plateforme :
 ```bash
 uv run python manage.py createsuperuser
@@ -144,6 +153,14 @@ uv run python manage.py test camions.tests --keepdb
 
 # Tests de la landing page
 uv run python manage.py test landing.tests --keepdb
+
+# Tests du module Gestion des Livraisons (Eya)
+uv run python manage.py test livraisons.tests --keepdb
+```
+
+### Exécuter les tests sans toucher à la base Supabase partagée (SQLite locale) :
+```bash
+uv run python manage.py test --settings=cargolink.settings_test
 ```
 
 ---
@@ -174,6 +191,16 @@ CargoLink/
 │   ├── management/commands/   # populate_chauffeurs.py (6 profils, 5 visites)
 │   ├── static/chauffeurs/css/ # chauffeurs.css (Dark Mode, alertes permis, grid)
 │   └── templates/chauffeurs/  # Listes, détails 3-col, portail mobile responsive
+│
+├── livraisons/                # Module Gestion des Livraisons (Eya)
+│   ├── models.py              # Livraison, SuiviLivraison, IncidentLivraison
+│   ├── regles.py              # Règles de gestion (capacité, permis, ADR, froid, conflits)
+│   ├── services.py            # Cycle de vie + synchronisation Créneaux / Quais / Camions / Chauffeurs
+│   ├── smart_assign.py        # Affectation intelligente camion + chauffeur
+│   ├── ai_service.py          # Copilote IA DeepSeek (prompt engineering) + repli local
+│   ├── search.py, geo.py      # Recherche avancée, ETA / distance / CO2
+│   ├── management/commands/   # populate_livraisons.py, check_retards_livraisons.py
+│   └── templates/livraisons/  # Tableau de bord, détail, POD mobile, suivi public, bon de livraison
 │
 ├── landing/                   # Vitrine publique & Layout commun
 │   ├── templates/landing/     # base.html (Header/Navbar, Footer), landing.html

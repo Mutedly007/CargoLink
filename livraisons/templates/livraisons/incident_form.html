@@ -1,0 +1,35 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}Déclarer un incident &bull; {{ livraison.reference }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'livraisons/css/livraisons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="liv-container liv-container-narrow">
+    <a class="liv-back-link" href="{% url 'livraisons:livraison_detail' livraison.pk %}">{% include "livraisons/_icone.html" with nom="arrow-left" %} {{ livraison.reference }}</a>
+    <header class="liv-top-bar">
+        <div class="liv-title">
+            <h1>{% include "livraisons/_icone.html" with nom="alert" %} Déclarer un incident</h1>
+            <p>{{ livraison.ville_depart }} → {{ livraison.ville_arrivee }} • {{ livraison.get_statut_display }}</p>
+        </div>
+    </header>
+
+    <form method="post" enctype="multipart/form-data" class="liv-card">
+        {% csrf_token %}
+        <div class="liv-form-grid">
+            {% include "livraisons/_champ.html" with champ=form.type_incident %}
+            {% include "livraisons/_champ.html" with champ=form.gravite %}
+            {% include "livraisons/_champ.html" with champ=form.description classe="liv-span-2" %}
+            {% include "livraisons/_champ.html" with champ=form.photo classe="liv-span-2" %}
+        </div>
+        <p class="liv-help">En cas de panne, le planificateur pourra réaffecter un autre camion directement depuis la livraison.</p>
+        <div class="liv-form-actions">
+            <a class="btn btn-outline" href="{% url 'livraisons:livraison_detail' livraison.pk %}">Annuler</a>
+            <button type="submit" class="btn btn-accent">{% include "livraisons/_icone.html" with nom="alert" %} Envoyer l'alerte</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

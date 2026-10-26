@@ -1,0 +1,391 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}{{ livraison.reference }} &bull; Livraisons &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'livraisons/css/livraisons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="liv-container">
+    <div class="liv-top-bar" style="margin-bottom: 1rem;">
+        <a class="liv-back-link" href="{% url 'livraisons:livraison_list' %}">{% include "livraisons/_icone.html" with nom="arrow-left" %} Toutes les livraisons</a>
+        <div class="liv-actions">
+            <a href="{% url 'livraisons:bon_livraison' livraison.pk %}" target="_blank" class="btn btn-outline btn-sm">
+                {% include "livraisons/_icone.html" with nom="printer" %} Bon de livraison
+            </a>
+            {% if 'modifier' in actions %}
+            <a href="{% url 'livraisons:livraison_update' livraison.pk %}" class="btn btn-outline btn-sm">
+                {% include "livraisons/_icone.html" with nom="pen" %} Modifier
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- En-tête & suivi visuel -->
+    <section class="liv-card">
+        <div class="liv-detail-head">
+            <div>
+                <div class="liv-kicker">{{ livraison.get_type_livraison_display }} • Code de suivi <span class="liv-mono">{{ livraison.code_suivi }}</span></div>
+                <h1>{{ livraison.reference }}</h1>
+                <div class="liv-route">
+                    {% include "livraisons/_icone.html" with nom="warehouse" %} {{ livraison.entrepot_origine.nom }}
+                    {% include "livraisons/_icone.html" with nom="arrow-right" %}
+                    {% include "livraisons/_icone.html" with nom="pin" %} {{ livraison.libelle_destination }}{% if livraison.ville_arrivee %} ({{ livraison.ville_arrivee }}){% endif %}
+                </div>
+            </div>
+            <div class="liv-head-badges">
+                {% include "livraisons/_statut_badge.html" with l=livraison %}
+                {% if livraison.priorite == 'URGENTE' %}<span class="liv-badge badge-urgent">Urgente</span>{% endif %}
+                {% if livraison.nb_incidents_ouverts %}<span class="liv-badge badge-warning">{{ livraison.nb_incidents_ouverts }} incident{{ livraison.nb_incidents_ouverts|pluralize }}</span>{% endif %}
+            </div>
+        </div>
+
+        {% if livraison.statut != 'ANNULEE' %}
+        <div class="liv-tracker {% if livraison.statut == 'ECHEC' %}echec{% endif %}">
+            {% for etape in livraison.etapes %}
+            <div class="liv-step {{ etape.etat }}">
+                <div class="liv-step-dot">{% if etape.etat == 'fait' %}&#10003;{% else %}{{ forloop.counter }}{% endif %}</div>
+                <span class="liv-step-label">{{ etape.libelle }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="liv-danger-text" style="margin-bottom: 1rem;">Livraison annulée : {{ livraison.motif_annulation }}</p>
+        {% endif %}
+
+        <!-- Actions disponibles selon le rôle et l'état -->
+        {% if actions %}
+        <div class="liv-action-bar">
+            <div>
+                <strong>Prochaine étape</strong>
+                <span class="liv-muted liv-small">Chaque action met à jour le quai, le camion, le chauffeur et les historiques.</span>
+            </div>
+            <div class="liv-inline-forms">
+                {% if 'planifier' in actions %}
+                <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'planifier' %}">{% csrf_token %}
+                    <button class="btn btn-accent btn-sm">{% include "livraisons/_icone.html" with nom="check" %} Planifier la livraison</button>
+                </form>
+                {% endif %}
+                {% if 'charger' in actions %}
+                <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'charger' %}">{% csrf_token %}
+                    <button class="btn btn-accent btn-sm">{% include "livraisons/_icone.html" with nom="warehouse" %} Camion à quai : démarrer le chargement</button>
+                </form>
+                {% endif %}
+                {% if 'partir' in actions %}
+                <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'partir' %}">{% csrf_token %}
+                    <button class="btn btn-accent btn-sm">{% include "livraisons/_icone.html" with nom="truck" %} Valider le départ</button>
+                </form>
+                {% endif %}
+                {% if 'arriver' in actions %}
+                <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'arriver' %}">{% csrf_token %}
+                    <button class="btn btn-accent btn-sm">{% include "livraisons/_icone.html" with nom="pin" %} Déclarer l'arrivée</button>
+                </form>
+                {% endif %}
+                {% if 'livrer' in actions %}
+                <a href="{% url 'livraisons:livraison_pod' livraison.pk %}" class="btn btn-success btn-sm">{% include "livraisons/_icone.html" with nom="pen" %} Preuve de livraison</a>
+                {% endif %}
+                {% if 'incident' in actions %}
+                <a href="{% url 'livraisons:incident_create' livraison.pk %}" class="btn btn-outline btn-sm">{% include "livraisons/_icone.html" with nom="alert" %} Déclarer un incident</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if 'modifier' in actions %}
+        {% if not livraison.creneau_chargement or livraison.type_livraison == 'INTER_ENTREPOT' and not livraison.creneau_dechargement %}
+        <div class="liv-inline-forms" style="margin-bottom: 1rem;">
+            {% if not livraison.creneau_chargement %}
+            <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'reserver_creneau' %}">{% csrf_token %}
+                <input type="hidden" name="sens" value="chargement">
+                <button class="btn btn-ai btn-sm">{% include "livraisons/_icone.html" with nom="sparkles" %} Réserver automatiquement le créneau de chargement</button>
+            </form>
+            {% endif %}
+            {% if livraison.type_livraison == 'INTER_ENTREPOT' and not livraison.creneau_dechargement %}
+            <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'reserver_creneau' %}">{% csrf_token %}
+                <input type="hidden" name="sens" value="dechargement">
+                <button class="btn btn-ai btn-sm">{% include "livraisons/_icone.html" with nom="sparkles" %} Réserver automatiquement le créneau de déchargement</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+
+        {% if 'reaffecter' in actions or 'annuler' in actions or 'echouer' in actions %}
+        <div class="liv-grid-2">
+            {% if 'reaffecter' in actions %}
+            <details class="liv-collapse">
+                <summary>{% include "livraisons/_icone.html" with nom="refresh" %} Réaffecter (panne, indisponibilité)</summary>
+                <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'reaffecter' %}" class="liv-collapse-body">{% csrf_token %}
+                    {% include "livraisons/_champ.html" with champ=reaffectation_form.camion %}
+                    {% include "livraisons/_champ.html" with champ=reaffectation_form.chauffeur %}
+                    <label class="liv-small" style="display:flex; gap:0.4rem; align-items:center; color: var(--text-main);">{{ reaffectation_form.ancien_camion_en_panne }} {{ reaffectation_form.ancien_camion_en_panne.label }}</label>
+                    {% include "livraisons/_champ.html" with champ=reaffectation_form.commentaire %}
+                    <button class="btn btn-accent btn-sm">Confirmer la réaffectation</button>
+                </form>
+            </details>
+            {% endif %}
+            {% if 'echouer' in actions %}
+            <details class="liv-collapse">
+                <summary>{% include "livraisons/_icone.html" with nom="x" %} Déclarer un échec de livraison</summary>
+                <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'echouer' %}" class="liv-collapse-body">{% csrf_token %}
+                    {% include "livraisons/_champ.html" with champ=echec_form.type_incident %}
+                    {% include "livraisons/_champ.html" with champ=echec_form.motif %}
+                    <button class="btn btn-outline btn-sm btn-danger-outline">Confirmer l'échec</button>
+                </form>
+            </details>
+            {% endif %}
+            {% if 'annuler' in actions %}
+            <details class="liv-collapse">
+                <summary>{% include "livraisons/_icone.html" with nom="x" %} Annuler la livraison</summary>
+                <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'annuler' %}" class="liv-collapse-body">{% csrf_token %}
+                    {% include "livraisons/_champ.html" with champ=motif_form.motif %}
+                    <button class="btn btn-outline btn-sm btn-danger-outline">Confirmer l'annulation</button>
+                </form>
+            </details>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+    </section>
+
+    <div class="liv-layout" style="margin-top: 1.25rem;">
+        <!-- COLONNE PRINCIPALE -->
+        <div>
+            <div class="liv-grid-2">
+                <section class="liv-card">
+                    <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="clock" %} Planning</span></div>
+                    <dl class="liv-kv">
+                        <div><dt>Départ prévu</dt><dd>{{ livraison.date_depart_prevue|date:"d/m/Y H:i" }}</dd></div>
+                        <div><dt>Échéance</dt><dd>{{ livraison.date_livraison_prevue|date:"d/m/Y H:i" }}</dd></div>
+                        <div><dt>Arrivée estimée (ETA)</dt><dd {% if livraison.retard_minutes and not livraison.est_cloturee %}class="liv-danger-text"{% endif %}>{{ livraison.eta|date:"d/m/Y H:i" }}</dd></div>
+                        <div class="sep"><dt>Départ réel</dt><dd>{{ livraison.date_depart_reelle|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+                        <div><dt>Arrivée réelle</dt><dd>{{ livraison.date_arrivee_reelle|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+                        <div><dt>Livrée le</dt><dd>{{ livraison.date_livraison_reelle|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+                        {% if livraison.retard_minutes and livraison.statut != 'BROUILLON' %}
+                        <div class="sep"><dt>Retard {% if livraison.est_cloturee %}constaté{% else %}projeté{% endif %}</dt><dd class="liv-danger-text">{{ livraison.retard_minutes }} min</dd></div>
+                        {% elif livraison.livree_a_l_heure %}
+                        <div class="sep"><dt>Ponctualité</dt><dd class="liv-success-text">Livrée à l'heure</dd></div>
+                        {% endif %}
+                    </dl>
+                </section>
+
+                <section class="liv-card">
+                    <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="package" %} Marchandise</span></div>
+                    <dl class="liv-kv">
+                        <div><dt>Nature</dt><dd>{{ livraison.get_type_marchandise_display }}</dd></div>
+                        <div><dt>Description</dt><dd>{{ livraison.description_marchandise|default:"—" }}</dd></div>
+                        <div><dt>Palettes</dt><dd>{{ livraison.nb_palettes }}</dd></div>
+                        <div><dt>Poids</dt><dd>{% if livraison.poids_kg %}{{ livraison.poids_kg }} kg{% else %}—{% endif %}</dd></div>
+                        <div><dt>N° BL / CMR</dt><dd>{{ livraison.numero_bl|default:"—" }}</dd></div>
+                        {% if livraison.utilisation_capacite is not None %}
+                        <div class="sep"><dt>Remplissage du camion</dt><dd>{{ livraison.utilisation_capacite }} %</dd></div>
+                        {% endif %}
+                    </dl>
+                    {% if livraison.consignes %}<p class="liv-small liv-muted" style="margin-top:0.75rem;">{{ livraison.consignes|linebreaksbr }}</p>{% endif %}
+                </section>
+
+                <section class="liv-card">
+                    <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="truck" %} Camion</span></div>
+                    {% if livraison.camion %}
+                    <dl class="liv-kv">
+                        <div><dt>Immatriculation</dt><dd><a class="liv-ref" href="{% url 'camions:camion_detail' livraison.camion.pk %}">{{ livraison.camion.immatriculation }}</a></dd></div>
+                        <div><dt>Véhicule</dt><dd>{{ livraison.camion.marque }} {{ livraison.camion.modele }}</dd></div>
+                        <div><dt>Gabarit</dt><dd>{{ livraison.camion.get_type_camion_display }}</dd></div>
+                        <div><dt>Capacité</dt><dd>{{ livraison.camion.capacite_tonnage|floatformat:"-2" }} t • {{ livraison.camion.capacite_palettes }} pal.</dd></div>
+                        <div><dt>État actuel</dt><dd>{{ livraison.camion.get_etat_display }}</dd></div>
+                    </dl>
+                    {% else %}<p class="liv-muted">Aucun camion affecté.</p>{% endif %}
+                </section>
+
+                <section class="liv-card">
+                    <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="user" %} Chauffeur</span></div>
+                    {% if livraison.chauffeur %}
+                    <dl class="liv-kv">
+                        <div><dt>Nom</dt><dd>{{ livraison.chauffeur.nom_complet }}</dd></div>
+                        <div><dt>Téléphone</dt><dd>{{ livraison.chauffeur.telephone }}</dd></div>
+                        <div><dt>Permis</dt><dd>{{ livraison.chauffeur.get_categorie_permis_display }}</dd></div>
+                        <div><dt>Validité</dt><dd>{{ livraison.chauffeur.date_expiration_permis|date:"d/m/Y" }}</dd></div>
+                        <div><dt>Statut actuel</dt><dd>{{ livraison.chauffeur.get_statut_display }}</dd></div>
+                    </dl>
+                    {% else %}<p class="liv-muted">Aucun chauffeur affecté.</p>{% endif %}
+                </section>
+            </div>
+
+            <!-- Créneaux (module Kacem) -->
+            <section class="liv-card" style="margin-top: 1.25rem;">
+                <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="calendar" %} Créneaux de quai</span></div>
+                <div class="liv-grid-2">
+                    <dl class="liv-kv">
+                        <div><dt>Chargement ({{ livraison.entrepot_origine.ville }})</dt>
+                            <dd>{% if livraison.creneau_chargement %}{% if est_planificateur %}<a class="liv-ref" href="{% url 'creneaux:creneau_detail' livraison.creneau_chargement.pk %}">{{ livraison.creneau_chargement.reference }}</a>{% else %}{{ livraison.creneau_chargement.reference }}{% endif %}{% else %}<span class="liv-muted">Non réservé</span>{% endif %}</dd></div>
+                        {% if livraison.creneau_chargement %}
+                        <div><dt>Quai</dt><dd>{{ livraison.creneau_chargement.quai.numero }}</dd></div>
+                        <div><dt>Horaire</dt><dd>{{ livraison.creneau_chargement.date_creneau|date:"d/m" }} {{ livraison.creneau_chargement.heure_debut|time:"H:i" }}-{{ livraison.creneau_chargement.heure_fin|time:"H:i" }}</dd></div>
+                        <div><dt>Statut</dt><dd>{{ livraison.creneau_chargement.get_statut_display }}</dd></div>
+                        {% endif %}
+                    </dl>
+                    {% if livraison.type_livraison == 'INTER_ENTREPOT' %}
+                    <dl class="liv-kv">
+                        <div><dt>Déchargement ({{ livraison.entrepot_destination.ville }})</dt>
+                            <dd>{% if livraison.creneau_dechargement %}{% if est_planificateur %}<a class="liv-ref" href="{% url 'creneaux:creneau_detail' livraison.creneau_dechargement.pk %}">{{ livraison.creneau_dechargement.reference }}</a>{% else %}{{ livraison.creneau_dechargement.reference }}{% endif %}{% else %}<span class="liv-muted">Non réservé</span>{% endif %}</dd></div>
+                        {% if livraison.creneau_dechargement %}
+                        <div><dt>Quai</dt><dd>{{ livraison.creneau_dechargement.quai.numero }}</dd></div>
+                        <div><dt>Horaire</dt><dd>{{ livraison.creneau_dechargement.date_creneau|date:"d/m" }} {{ livraison.creneau_dechargement.heure_debut|time:"H:i" }}-{{ livraison.creneau_dechargement.heure_fin|time:"H:i" }}</dd></div>
+                        <div><dt>Statut</dt><dd>{{ livraison.creneau_dechargement.get_statut_display }}</dd></div>
+                        {% endif %}
+                    </dl>
+                    {% else %}
+                    <dl class="liv-kv">
+                        <div><dt>Destinataire</dt><dd>{{ livraison.destinataire_nom }}</dd></div>
+                        <div><dt>Adresse</dt><dd>{{ livraison.adresse_livraison }}, {{ livraison.ville_livraison }}</dd></div>
+                        <div><dt>Téléphone</dt><dd>{{ livraison.destinataire_telephone|default:"—" }}</dd></div>
+                    </dl>
+                    {% endif %}
+                </div>
+            </section>
+
+            {% if livraison.statut == 'LIVREE' %}
+            <section class="liv-card">
+                <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="shield" %} Preuve de livraison</span></div>
+                <div class="liv-grid-2">
+                    <dl class="liv-kv">
+                        <div><dt>Réceptionnaire</dt><dd>{{ livraison.receptionnaire_nom }}</dd></div>
+                        <div><dt>Conformité</dt><dd>{% if livraison.livraison_conforme %}<span class="liv-success-text">Conforme</span>{% else %}<span class="liv-danger-text">Non conforme</span>{% endif %}</dd></div>
+                        <div><dt>Réserves</dt><dd>{{ livraison.reserves|default:"Aucune" }}</dd></div>
+                        {% if livraison.note_satisfaction %}<div><dt>Satisfaction</dt><dd>{{ livraison.note_satisfaction }} / 5</dd></div>{% endif %}
+                    </dl>
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                        {% if livraison.signature %}<img class="liv-pod-img" src="{{ livraison.signature.url }}" alt="Signature du réceptionnaire">{% endif %}
+                        {% if livraison.photo_preuve %}<img class="liv-pod-img" src="{{ livraison.photo_preuve.url }}" alt="Photo de preuve">{% endif %}
+                    </div>
+                </div>
+            </section>
+            {% elif livraison.statut == 'ECHEC' %}
+            <section class="liv-card">
+                <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="x" %} Échec de livraison</span></div>
+                <p class="liv-danger-text">{{ livraison.motif_echec }}</p>
+            </section>
+            {% endif %}
+
+            <!-- Incidents -->
+            <section class="liv-card">
+                <div class="liv-card-title">
+                    <span>{% include "livraisons/_icone.html" with nom="alert" %} Incidents</span>
+                    {% if 'incident' in actions %}<a class="btn btn-outline btn-sm" href="{% url 'livraisons:incident_create' livraison.pk %}">Déclarer</a>{% endif %}
+                </div>
+                {% for incident in incidents %}
+                <div class="liv-incident {% if incident.resolu %}resolu{% elif incident.gravite == 'CRITIQUE' %}critique{% endif %}">
+                    <h5><span>{{ incident.get_type_incident_display }} • {{ incident.get_gravite_display }}</span><span class="liv-muted liv-small">{{ incident.date|date:"d/m H:i" }}</span></h5>
+                    <p class="liv-small" style="color: var(--text-sub);">{{ incident.description }}</p>
+                    {% if incident.photo %}<img class="liv-pod-img" src="{{ incident.photo.url }}" alt="Photo de l'incident" style="margin-top:0.5rem;">{% endif %}
+                    {% if incident.resolu %}
+                    <p class="liv-small liv-success-text">Résolu : {{ incident.resolution }}</p>
+                    {% elif est_planificateur %}
+                    <form method="post" action="{% url 'livraisons:incident_resoudre' incident.pk %}" class="liv-inline-forms" style="margin-top:0.5rem;">{% csrf_token %}
+                        <input class="liv-input" name="resolution" placeholder="Solution apportée" style="flex:1; min-width: 180px;">
+                        <button class="btn btn-outline btn-sm">Marquer résolu</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="liv-muted liv-small">Aucun incident déclaré.</p>
+                {% endfor %}
+            </section>
+
+            <!-- Historique -->
+            <section class="liv-card">
+                <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="activity" %} Historique &amp; traçabilité</span></div>
+                <ul class="liv-timeline">
+                    {% for s in suivis %}
+                    <li class="{% if not s.visible_public %}prive{% endif %}">
+                        <div class="when">{{ s.date|date:"d/m/Y H:i" }}{% if s.auteur %} • {{ s.auteur.get_full_name|default:s.auteur.username }}{% endif %}{% if s.localisation %} • {{ s.localisation }}{% endif %}</div>
+                        <div class="what">{{ s.get_statut_display }}</div>
+                        {% if s.commentaire %}<div class="comment">{{ s.commentaire }}</div>{% endif %}
+                    </li>
+                    {% empty %}
+                    <li><div class="comment">Aucun événement.</div></li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+
+        <!-- COLONNE LATÉRALE : IA, communication, suivi public, environnement -->
+        <aside>
+            <section class="liv-card" id="risquePanel" data-url="{% url 'livraisons:api_analyse_risque' livraison.pk %}">
+                <div class="liv-card-title">
+                    <span>{% include "livraisons/_icone.html" with nom="shield" %} Analyse de risque</span>
+                    <span class="liv-source" data-role="source">{% if risque.source == 'deepseek' %}DeepSeek{% else %}Moteur local{% endif %}</span>
+                </div>
+                <div class="liv-risk {{ risque.niveau }}" data-role="risque">
+                    <div class="liv-risk-gauge" style="--score: {{ risque.score }};"><span data-role="score">{{ risque.score }}</span></div>
+                    <div>
+                        <h4 data-role="niveau">Risque {% if risque.niveau == 'eleve' %}élevé{% else %}{{ risque.niveau }}{% endif %}</h4>
+                        <p class="liv-small liv-muted" data-role="resume">{{ risque.resume }}</p>
+                    </div>
+                </div>
+                <div class="liv-list-title">Facteurs</div>
+                <ul class="liv-list" data-role="facteurs">{% for f in risque.facteurs %}<li>{{ f }}</li>{% endfor %}</ul>
+                <div class="liv-list-title">Recommandations</div>
+                <ul class="liv-list" data-role="recommandations">{% for r in risque.recommandations %}<li>{{ r }}</li>{% empty %}<li>Aucune action requise.</li>{% endfor %}</ul>
+                {% csrf_token %}
+                <button type="button" class="btn btn-ai btn-sm" id="btnAnalyseIA" style="width:100%; justify-content:center;">
+                    {% include "livraisons/_icone.html" with nom="sparkles" %} {% if ia_disponible %}Analyse approfondie DeepSeek{% else %}Relancer l'analyse{% endif %}
+                </button>
+            </section>
+
+            <section class="liv-card" id="messagePanel" data-url="{% url 'livraisons:api_message_destinataire' livraison.pk %}">
+                <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="message" %} Message au destinataire</span></div>
+                <div class="liv-form-grid" style="margin-bottom: 0.75rem;">
+                    <select class="liv-input" id="msgLangue" aria-label="Langue">
+                        <option value="fr">Français</option>
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                    <select class="liv-input" id="msgObjectif" aria-label="Objectif">
+                        <option value="information" {% if not livraison.est_en_retard and livraison.statut != 'LIVREE' %}selected{% endif %}>Information / ETA</option>
+                        <option value="retard" {% if livraison.est_en_retard and livraison.statut != 'LIVREE' %}selected{% endif %}>Retard</option>
+                        <option value="livree" {% if livraison.statut == 'LIVREE' %}selected{% endif %}>Livrée</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-ai btn-sm" id="btnMessageIA" style="width:100%; justify-content:center;">
+                    {% include "livraisons/_icone.html" with nom="sparkles" %} Rédiger le message
+                </button>
+                <div id="msgResultat" hidden style="margin-top: 0.75rem;">
+                    <input class="liv-input" id="msgObjet" style="margin-bottom: 0.5rem;" aria-label="Objet">
+                    <textarea class="liv-input liv-message-box" id="msgTexte" aria-label="Message"></textarea>
+                    <div class="liv-actions" style="margin-top: 0.5rem; justify-content: space-between;">
+                        <span class="liv-source" id="msgSource"></span>
+                        <button type="button" class="btn btn-outline btn-sm" data-copy="#msgTexte">{% include "livraisons/_icone.html" with nom="copy" %} Copier</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="liv-card">
+                <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="link" %} Suivi public</span></div>
+                <p class="liv-small liv-muted">Lien à transmettre au destinataire (aucune donnée personnelle affichée).</p>
+                <input class="liv-input" id="lienSuivi" readonly value="{{ url_suivi_public }}" style="margin: 0.6rem 0;">
+                <div class="liv-actions">
+                    <button type="button" class="btn btn-outline btn-sm" data-copy="#lienSuivi">{% include "livraisons/_icone.html" with nom="copy" %} Copier</button>
+                    <a class="btn btn-outline btn-sm" target="_blank" href="{% url 'livraisons:suivi_public' livraison.code_suivi %}">Ouvrir</a>
+                </div>
+            </section>
+
+            <section class="liv-card">
+                <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="leaf" %} Trajet &amp; environnement</span></div>
+                <dl class="liv-kv">
+                    <div><dt>Distance estimée</dt><dd>{% if livraison.distance_km %}{{ livraison.distance_km }} km{% else %}—{% endif %}</dd></div>
+                    <div><dt>Durée estimée</dt><dd>{{ livraison.duree_estimee_texte|default:"—" }}</dd></div>
+                    <div><dt>CO<sub>2</sub> estimé</dt><dd>{% if livraison.co2_estime_kg %}{{ livraison.co2_estime_kg }} kg{% else %}—{% endif %}</dd></div>
+                    {% if livraison.camion %}<div><dt>Norme du camion</dt><dd>{{ livraison.camion.get_norme_anti_pollution_display }}</dd></div>{% endif %}
+                </dl>
+                <p class="liv-help">Estimations indicatives (ODD 12 &amp; 13) : distance routière approchée et facteur d'émission selon la norme du camion.</p>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'livraisons/js/livraisons.js' %}"></script>
+{% endblock %}

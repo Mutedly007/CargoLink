@@ -28,3 +28,7 @@ staticfiles/
 *.exe
 
 
+
+# Tests locaux (module Livraisons)
+test_cargolink.sqlite3
+media_test/

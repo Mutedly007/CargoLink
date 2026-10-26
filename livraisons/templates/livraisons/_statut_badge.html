@@ -1,0 +1,1 @@
+<span class="liv-badge {{ l.badge_statut_css }}">{% if l.statut == 'EN_TRANSIT' or l.statut == 'EN_CHARGEMENT' %}<span class="status-dot pulse"></span>{% endif %}{{ l.statut_court }}</span>{% if l.est_en_retard and not l.est_cloturee %} <span class="liv-badge badge-danger">En retard</span>{% endif %}
