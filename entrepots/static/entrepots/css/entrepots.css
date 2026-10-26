@@ -767,6 +767,56 @@
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 
+/* Contrôle d'entité & Validation Styles */
+.form-input.is-invalid,
+.form-select.is-invalid,
+.form-textarea.is-invalid {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22) !important;
+}
+
+.form-input.is-valid,
+.form-select.is-valid,
+.form-textarea.is-valid {
+    border-color: #22c55e !important;
+    background: rgba(34, 197, 94, 0.04) !important;
+}
+
+.field-error-msg {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #f87171;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 0.4rem;
+    line-height: 1.35;
+    animation: fadeInFieldError 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.field-error-msg svg {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    color: #f87171;
+}
+
+.field-error-msg:empty {
+    display: none;
+}
+
+@keyframes fadeInFieldError {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .form-select option {
     background: #0f172a;
     color: #ffffff;
@@ -1069,5 +1119,76 @@
     background: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
     color: #475569 !important;
+}
+
+/* ==============================================================================
+   RTL (ARABIC) STYLES FOR ENTREPÔTS & QUAIS
+   ============================================================================== */
+html[dir="rtl"] .entrepots-container,
+.entrepots-container[dir="rtl"],
+html[dir="rtl"] .form-page-container,
+.form-page-container[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .page-title-box h1,
+.entrepots-container[dir="rtl"] .page-title-box h1,
+html[dir="rtl"] .page-title-box p,
+.entrepots-container[dir="rtl"] .page-title-box p {
+    text-align: right;
+}
+
+html[dir="rtl"] .search-input-box input,
+.entrepots-container[dir="rtl"] .search-input-box input {
+    padding-right: 2.5rem;
+    padding-left: 1rem;
+    text-align: right;
+}
+
+html[dir="rtl"] .search-input-box .search-icon,
+.entrepots-container[dir="rtl"] .search-input-box .search-icon {
+    right: 0.85rem;
+    left: auto;
+}
+
+html[dir="rtl"] .detail-back-link,
+.entrepots-container[dir="rtl"] .detail-back-link,
+html[dir="rtl"] .form-page-container .detail-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+html[dir="rtl"] .detail-back-link svg,
+.entrepots-container[dir="rtl"] .detail-back-link svg {
+    transform: rotate(180deg);
+}
+
+html[dir="rtl"] .btn-card-primary svg,
+.entrepots-container[dir="rtl"] .btn-card-primary svg {
+    transform: rotate(180deg);
+}
+
+html[dir="rtl"] .quai-specs,
+.entrepots-container[dir="rtl"] .quai-specs,
+html[dir="rtl"] .mini-stat,
+.entrepots-container[dir="rtl"] .mini-stat,
+html[dir="rtl"] .meta-block,
+.entrepots-container[dir="rtl"] .meta-block {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-label,
+html[dir="rtl"] .form-input,
+html[dir="rtl"] .form-select,
+html[dir="rtl"] .form-textarea {
+    text-align: right;
+}
+
+html[dir="rtl"] .field-error-msg,
+.form-page-container[dir="rtl"] .field-error-msg {
+    justify-content: flex-start;
+    text-align: right;
 }
 

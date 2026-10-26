@@ -10,7 +10,7 @@
 {% block content %}
 <div class="creneaux-container">
     <div style="margin-bottom: 1.5rem;">
-        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;" data-i18n="form_back_link">
             ◀ Retour au planning des créneaux
         </a>
     </div>
@@ -37,31 +37,37 @@
         </div>
         {% endif %}
 
-        <form method="post" id="creneauForm">
+        <form method="post" id="creneauForm" novalidate>
             {% csrf_token %}
 
             <!-- SECTION 1: INFRASTRUCTURE & HORAIRES -->
             <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.1rem; color: #60a5fa; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #60a5fa; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="form_sec1_title">
                     🏭 1. Infrastructure & Plage Horaire
                 </h3>
                 
                 <div class="form-grid-2">
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.entrepot.id_for_label }}">Entrepôt cible *</label>
+                    <div class="form-group {% if form.entrepot.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.entrepot.id_for_label }}" data-i18n="lbl_target_wh">Entrepôt cible *</label>
                         {{ form.entrepot }}
+                        {% if form.entrepot.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.entrepot.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
+                    <div class="form-group {% if form.quai.errors %}has-error{% endif %}">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
-                            <label class="form-label" for="{{ form.quai.id_for_label }}" style="margin: 0;">Quai de chargement / déchargement *</label>
-                            <button type="button" id="btnAiRecommend" class="btn-ai-magic" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+                            <label class="form-label" for="{{ form.quai.id_for_label }}" style="margin: 0;" data-i18n="lbl_target_dock">Quai de chargement / déchargement *</label>
+                            <button type="button" id="btnAiRecommend" class="btn-ai-magic" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" data-i18n="btn_ai_dock_opt">
                                 ✨ Optimisation Quai (IA)
                             </button>
                         </div>
                         {{ form.quai }}
-                        <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;">
+                        <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;" data-i18n="lbl_dock_help">
                             Sélectionnez un quai ou utilisez l'IA pour attribuer le quai optimal
                         </small>
+                        {% if form.quai.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.quai.errors.0 }}</div>
+                        {% endif %}
 
                         <!-- Panneau de Recommandation IA Dynamique -->
                         <div id="aiRecommendPanel" class="ai-recommend-panel" style="display: none;"></div>
@@ -69,115 +75,280 @@
                 </div>
 
                 <div class="form-grid-2" style="grid-template-columns: 1fr 1fr 1fr;">
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.date_creneau.id_for_label }}">Date d'opération *</label>
+                    <div class="form-group {% if form.date_creneau.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.date_creneau.id_for_label }}" data-i18n="lbl_op_date">Date d'opération *</label>
                         {{ form.date_creneau }}
+                        {% if form.date_creneau.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.date_creneau.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.heure_debut.id_for_label }}">Heure de début *</label>
+                    <div class="form-group {% if form.heure_debut.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.heure_debut.id_for_label }}" data-i18n="lbl_start_time">Heure de début *</label>
                         {{ form.heure_debut }}
+                        {% if form.heure_debut.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.heure_debut.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.heure_fin.id_for_label }}">Heure de fin *</label>
+                    <div class="form-group {% if form.heure_fin.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.heure_fin.id_for_label }}" data-i18n="lbl_end_time">Heure de fin *</label>
                         {{ form.heure_fin }}
+                        {% if form.heure_fin.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.heure_fin.errors.0 }}</div>
+                        {% endif %}
+                        <div id="timeWarningMsg" class="field-error-msg" style="display: none;"></div>
                     </div>
                 </div>
 
                 <div class="form-grid-2">
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.type_operation.id_for_label }}">Type d'opération *</label>
+                    <div class="form-group {% if form.type_operation.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.type_operation.id_for_label }}" data-i18n="lbl_op_type">Type d'opération *</label>
                         {{ form.type_operation }}
+                        {% if form.type_operation.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.type_operation.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.priorite.id_for_label }}">Priorité opérationnelle *</label>
+                    <div class="form-group {% if form.priorite.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.priorite.id_for_label }}" data-i18n="lbl_priority">Priorité opérationnelle *</label>
                         {{ form.priorite }}
+                        {% if form.priorite.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.priorite.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 2: TRANSPORTEUR & VÉHICULE -->
             <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                <h3 style="font-size: 1.1rem; color: #4ade80; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #4ade80; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="form_sec2_title">
                     🚛 2. Transporteur & Véhicule
                 </h3>
 
                 <div class="form-grid-2">
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.transporteur_nom.id_for_label }}">Société de transport / Transporteur *</label>
+                    <div class="form-group {% if form.transporteur_nom.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.transporteur_nom.id_for_label }}" data-i18n="lbl_carrier_co">Société de transport / Transporteur *</label>
                         {{ form.transporteur_nom }}
+                        {% if form.transporteur_nom.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.transporteur_nom.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.type_camion.id_for_label }}">Gabarit du véhicule *</label>
+                    <div class="form-group {% if form.type_camion.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.type_camion.id_for_label }}" data-i18n="lbl_truck_opt">Gabarit du véhicule *</label>
                         {{ form.type_camion }}
+                        {% if form.type_camion.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.type_camion.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
 
                 <div class="form-grid-2">
-                    <div class="form-group">
+                    <div class="form-group {% if form.immatriculation_camion.errors %}has-error{% endif %}">
                         <label class="form-label" for="{{ form.immatriculation_camion.id_for_label }}">Immatriculation véhicule *</label>
                         {{ form.immatriculation_camion }}
+                        <small class="field-hint">Ex: 123-TN-4567 ou AA-123-BB</small>
+                        {% if form.immatriculation_camion.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.immatriculation_camion.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.chauffeur_nom.id_for_label }}">Nom complet du chauffeur *</label>
+                    <div class="form-group {% if form.chauffeur_nom.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.chauffeur_nom.id_for_label }}" data-i18n="lbl_driver_opt">Nom complet du chauffeur *</label>
                         {{ form.chauffeur_nom }}
+                        {% if form.chauffeur_nom.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.chauffeur_nom.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group {% if form.chauffeur_telephone.errors %}has-error{% endif %}">
                     <label class="form-label" for="{{ form.chauffeur_telephone.id_for_label }}">Numéro de téléphone du chauffeur</label>
                     {{ form.chauffeur_telephone }}
+                    <small class="field-hint">Ex: +216 98 123 456 ou 06 12 34 56 78</small>
+                    {% if form.chauffeur_telephone.errors %}
+                        <div class="field-error-msg">⚠️ {{ form.chauffeur_telephone.errors.0 }}</div>
+                    {% endif %}
                 </div>
             </div>
 
             <!-- SECTION 3: MARCHANDISE & LOGISTIQUE -->
             <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                <h3 style="font-size: 1.1rem; color: #fb923c; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #fb923c; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="form_sec3_title">
                     📦 3. Marchandise & Consignes
                 </h3>
 
                 <div class="form-grid-2">
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.type_marchandise.id_for_label }}">Type de marchandise *</label>
+                    <div class="form-group {% if form.type_marchandise.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.type_marchandise.id_for_label }}" data-i18n="lbl_goods_type">Type de marchandise *</label>
                         {{ form.type_marchandise }}
+                        {% if form.type_marchandise.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.type_marchandise.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
+                    <div class="form-group {% if form.nb_palettes.errors %}has-error{% endif %}">
                         <label class="form-label" for="{{ form.nb_palettes.id_for_label }}">Nombre de palettes *</label>
                         {{ form.nb_palettes }}
+                        <small class="field-hint">Capacité max : 120 palettes</small>
+                        {% if form.nb_palettes.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.nb_palettes.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
 
                 <div class="form-grid-2">
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.poids_kg.id_for_label }}">Poids total estimé (kg)</label>
+                    <div class="form-group {% if form.poids_kg.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ form.poids_kg.id_for_label }}" data-i18n="lbl_weight">Poids total estimé (kg)</label>
                         {{ form.poids_kg }}
+                        <small class="field-hint">Optionnel (max : 35 000 kg)</small>
+                        {% if form.poids_kg.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.poids_kg.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <div class="form-group">
+                    <div class="form-group {% if form.numero_bl.errors %}has-error{% endif %}">
                         <label class="form-label" for="{{ form.numero_bl.id_for_label }}">N° BL / CMR / Document transport</label>
                         {{ form.numero_bl }}
+                        {% if form.numero_bl.errors %}
+                            <div class="field-error-msg">⚠️ {{ form.numero_bl.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="{{ form.consignes.id_for_label }}">Consignes particulières d'accès ou de manutention</label>
+                <div class="form-group {% if form.consignes.errors %}has-error{% endif %}">
+                    <label class="form-label" for="{{ form.consignes.id_for_label }}" data-i18n="lbl_notes">Consignes particulières d'accès ou de manutention</label>
                     {{ form.consignes }}
+                    {% if form.consignes.errors %}
+                        <div class="field-error-msg">⚠️ {{ form.consignes.errors.0 }}</div>
+                    {% endif %}
                 </div>
             </div>
 
             <div class="form-actions-row">
-                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline">Annuler</a>
-                <button type="submit" class="btn btn-accent">{{ action_label }}</button>
+                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline" data-i18n="btn_cancel_link">Annuler</a>
+                <button type="submit" class="btn btn-accent" data-i18n="btn_save_slot">{{ action_label }}</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // Dynamisation des quais selon l'entrepôt choisi via AJAX
+    // Dynamisation des quais selon l'entrepôt choisi via AJAX & Contrôle de saisie interactif
     document.addEventListener('DOMContentLoaded', function() {
         const entrepotSelect = document.getElementById('id_entrepot');
         const quaiSelect = document.getElementById('id_quai');
         const btnAi = document.getElementById('btnAiRecommend');
         const aiPanel = document.getElementById('aiRecommendPanel');
+        const creneauForm = document.getElementById('creneauForm');
+
+        const dateInput = document.getElementById('id_date_creneau');
+        const hDebInput = document.getElementById('id_heure_debut');
+        const hFinInput = document.getElementById('id_heure_fin');
+        const timeWarning = document.getElementById('timeWarningMsg');
+        const immatInput = document.getElementById('id_immatriculation_camion');
+        const blInput = document.getElementById('id_numero_bl');
+        const palettesInput = document.getElementById('id_nb_palettes');
+        const poidsInput = document.getElementById('id_poids_kg');
+        const telInput = document.getElementById('id_chauffeur_telephone');
+
+        // 1. Définir dynamiquement la date minimale autorisée à aujourd'hui
+        if (dateInput) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (!dateInput.getAttribute('min')) {
+                dateInput.setAttribute('min', todayStr);
+            }
+        }
+
+        // 2. Formatage automatique en majuscules pour l'immatriculation et le BL
+        if (immatInput) {
+            immatInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+        if (blInput) {
+            blInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+
+        // 3. Validation interactive de la plage horaire (Début < Fin)
+        function checkTimeConsistency() {
+            if (!hDebInput || !hFinInput) return true;
+            const deb = hDebInput.value;
+            const fin = hFinInput.value;
+
+            if (deb && fin) {
+                if (deb >= fin) {
+                    hFinInput.classList.add('is-invalid');
+                    if (timeWarning) {
+                        timeWarning.style.display = 'flex';
+                        timeWarning.textContent = "⚠️ L'heure de fin estimée doit être strictement postérieure à l'heure de début.";
+                    }
+                    return false;
+                } else {
+                    hFinInput.classList.remove('is-invalid');
+                    if (timeWarning) {
+                        timeWarning.style.display = 'none';
+                        timeWarning.textContent = '';
+                    }
+                    return true;
+                }
+            }
+            return true;
+        }
+
+        if (hDebInput) {
+            hDebInput.addEventListener('change', function() {
+                if (this.value && hFinInput && !hFinInput.value) {
+                    // Pré-remplir automatiquement +1 heure
+                    const parts = this.value.split(':');
+                    let hour = parseInt(parts[0], 10) + 1;
+                    let mins = parts[1];
+                    if (hour < 24) {
+                        hFinInput.value = `${String(hour).padStart(2, '0')}:${mins}`;
+                    }
+                }
+                checkTimeConsistency();
+            });
+        }
+
+        if (hFinInput) {
+            hFinInput.addEventListener('change', checkTimeConsistency);
+        }
+
+        // 4. Validation à la soumission du formulaire
+        if (creneauForm) {
+            creneauForm.addEventListener('submit', function(e) {
+                let valid = true;
+
+                // Vérifier la cohérence temporelle
+                if (!checkTimeConsistency()) {
+                    valid = false;
+                    hFinInput.focus();
+                }
+
+                // Vérifier les palettes
+                if (palettesInput && palettesInput.value) {
+                    const nb = parseInt(palettesInput.value, 10);
+                    if (nb < 1 || nb > 120) {
+                        palettesInput.classList.add('is-invalid');
+                        valid = false;
+                    } else {
+                        palettesInput.classList.remove('is-invalid');
+                    }
+                }
+
+                // Vérifier le poids si renseigné
+                if (poidsInput && poidsInput.value) {
+                    const p = parseFloat(poidsInput.value);
+                    if (p <= 0 || p > 35000) {
+                        poidsInput.classList.add('is-invalid');
+                        valid = false;
+                    } else {
+                        poidsInput.classList.remove('is-invalid');
+                    }
+                }
+
+                if (!valid) {
+                    e.preventDefault();
+                }
+            });
+        }
 
         function loadQuaisForEntrepot(entrepotId, selectedQuaiId = null) {
             if (!entrepotId) return Promise.resolve();

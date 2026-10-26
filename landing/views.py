@@ -17,3 +17,19 @@ def landing_page(request):
     }
     return render(request, 'landing/landing.html', context)
 
+
+def custom_404_view(request, exception=None):
+    """Page d'erreur 404 personnalisée."""
+    return render(request, '404.html', status=404)
+
+
+def custom_500_view(request):
+    """Page d'erreur 500 personnalisée."""
+    return render(request, '500.html', status=500)
+
+
+def custom_403_view(request, exception=None):
+    """Page d'erreur 403 personnalisée."""
+    return render(request, '403.html', status=403)
+
+

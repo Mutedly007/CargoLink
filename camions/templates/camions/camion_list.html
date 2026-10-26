@@ -20,9 +20,9 @@
                     <circle cx="17" cy="18" r="2"/>
                     <circle cx="7" cy="18" r="2"/>
                 </svg>
-                Gestion de la Flotte &bull; Camions
+                <span data-i18n="truck_page_title">Gestion de la Flotte &bull; Camions</span>
             </h1>
-            <p>Supervision des véhicules de transport, disponibilités opérationnelles, charges utiles et maintenance prédictive</p>
+            <p data-i18n="truck_page_sub">Supervision des véhicules de transport, disponibilités opérationnelles, charges utiles et maintenance prédictive</p>
         </div>
 
         <div class="top-actions-group">
@@ -31,7 +31,7 @@
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                Ajouter un Camion
+                <span data-i18n="truck_btn_add">Ajouter un Camion</span>
             </a>
         </div>
     </header>
@@ -42,14 +42,14 @@
             <div class="kpi-icon-wrap orange">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="1" y="3" width="15" height="13"></rect>
-                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
                     <circle cx="5.5" cy="18.5" r="2.5"></circle>
                     <circle cx="18.5" cy="18.5" r="2.5"></circle>
                 </svg>
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ kpi_total }}</span>
-                <span class="kpi-label">Total Véhicules</span>
+                <span class="kpi-label" data-i18n="truck_kpi_total">Total Véhicules</span>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ kpi_disponible }}</span>
-                <span class="kpi-label">Disponibles / Prêts</span>
+                <span class="kpi-label" data-i18n="truck_kpi_available">Disponibles / Prêts</span>
             </div>
         </div>
 
@@ -75,7 +75,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ kpi_transit }}</span>
-                <span class="kpi-label">En Transit / Route</span>
+                <span class="kpi-label" data-i18n="truck_kpi_transit">En Transit / Route</span>
             </div>
         </div>
 
@@ -88,7 +88,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ kpi_quai }}</span>
-                <span class="kpi-label">À Quai (En cours)</span>
+                <span class="kpi-label" data-i18n="truck_kpi_dock">À Quai (En cours)</span>
             </div>
         </div>
 
@@ -100,7 +100,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ kpi_maintenance }}</span>
-                <span class="kpi-label">En Maintenance</span>
+                <span class="kpi-label" data-i18n="truck_kpi_maintenance">En Maintenance</span>
             </div>
         </div>
 
@@ -114,7 +114,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ kpi_alertes_ct }}</span>
-                <span class="kpi-label">Contrôles Urgents (&le;15j)</span>
+                <span class="kpi-label" data-i18n="truck_kpi_urgent_ct">Contrôles Urgents (&le;15j)</span>
             </div>
         </div>
     </section>
@@ -132,35 +132,36 @@
                     name="q" 
                     value="{{ current_q }}" 
                     placeholder="Recherche par immatriculation, marque, modèle, transporteur..." 
+                    data-i18n-placeholder="truck_search_placeholder"
                     aria-label="Rechercher un camion"
                 >
             </div>
 
             <select name="etat" class="filter-select" aria-label="Filtrer par état opérationnel">
-                <option value="">Tous les états</option>
+                <option value="" data-i18n="truck_filter_all_status">Tous les états</option>
                 {% for code, label in etat_choices %}
                     <option value="{{ code }}" {% if current_etat == code %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
 
             <select name="type_camion" class="filter-select" aria-label="Filtrer par type de camion">
-                <option value="">Tous les gabarits</option>
+                <option value="" data-i18n="truck_filter_all_types">Tous les gabarits</option>
                 {% for code, label in type_choices %}
                     <option value="{{ code }}" {% if current_type == code %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
 
             <select name="norme" class="filter-select" aria-label="Filtrer par norme environnementale">
-                <option value="">Toutes les normes</option>
+                <option value="" data-i18n="truck_filter_all_norms">Toutes les normes</option>
                 {% for code, label in norme_choices %}
                     <option value="{{ code }}" {% if current_norme == code %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
 
-            <button type="submit" class="btn btn-outline" style="padding: 0.65rem 1.15rem;">Filtrer</button>
+            <button type="submit" class="btn btn-outline" style="padding: 0.65rem 1.15rem;" data-i18n="btn_filter">Filtrer</button>
             
             {% if current_q or current_etat or current_type or current_norme %}
-                <a href="{% url 'camions:camion_list' %}" class="btn btn-secondary" style="padding: 0.65rem 1rem;">Réinitialiser</a>
+                <a href="{% url 'camions:camion_list' %}" class="btn btn-secondary" style="padding: 0.65rem 1rem;" data-i18n="btn_reset">Réinitialiser</a>
             {% endif %}
         </form>
     </div>
@@ -186,19 +187,19 @@
                 <!-- Specs Matrix -->
                 <div class="specs-matrix">
                     <div class="spec-cell">
-                        <span class="spec-cell-label">Type / Gabarit</span>
+                        <span class="spec-cell-label" data-i18n="truck_spec_type">Type / Gabarit</span>
                         <span class="spec-cell-val">{{ camion.get_type_camion_display|truncatechars:22 }}</span>
                     </div>
                     <div class="spec-cell">
-                        <span class="spec-cell-label">Charge Utile</span>
+                        <span class="spec-cell-label" data-i18n="truck_spec_payload">Charge Utile</span>
                         <span class="spec-cell-val" style="color: #fb923c;">{{ camion.capacite_tonnage }} t</span>
                     </div>
                     <div class="spec-cell">
-                        <span class="spec-cell-label">Capacité palettes</span>
+                        <span class="spec-cell-label" data-i18n="truck_spec_pallets">Capacité palettes</span>
                         <span class="spec-cell-val">{{ camion.capacite_palettes }} palettes</span>
                     </div>
                     <div class="spec-cell">
-                        <span class="spec-cell-label">Kilométrage</span>
+                        <span class="spec-cell-label" data-i18n="truck_spec_mileage">Kilométrage</span>
                         <span class="spec-cell-val">{{ camion.kilometrage }} km</span>
                     </div>
                 </div>
@@ -223,14 +224,14 @@
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                     </svg>
-                    Fiche Véhicule &bull; IA
+                    <span data-i18n="truck_btn_view_ai">Fiche Véhicule &bull; IA</span>
                 </a>
                 <a href="{% url 'camions:camion_update' camion.pk %}" class="btn-card btn-card-secondary" id="btn-edit-{{ camion.pk }}" aria-label="Modifier le camion {{ camion.immatriculation }}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>
-                    Modifier
+                    <span data-i18n="btn_edit">Modifier</span>
                 </a>
             </div>
         </article>
@@ -240,13 +241,13 @@
     <div class="empty-state-box">
         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <rect x="1" y="3" width="15" height="13"></rect>
-            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
             <circle cx="5.5" cy="18.5" r="2.5"></circle>
             <circle cx="18.5" cy="18.5" r="2.5"></circle>
         </svg>
-        <h3>Aucun camion ne correspond à vos critères</h3>
-        <p>Vérifiez les filtres de recherche ou enregistrez un premier véhicule pour commencer la gestion de votre flotte.</p>
-        <a href="{% url 'camions:camion_create' %}" class="btn btn-accent">Ajouter un Camion</a>
+        <h3 data-i18n="truck_empty_title">Aucun camion ne correspond à vos critères</h3>
+        <p data-i18n="truck_empty_desc">Vérifiez les filtres de recherche ou enregistrez un premier véhicule pour commencer la gestion de votre flotte.</p>
+        <a href="{% url 'camions:camion_create' %}" class="btn btn-accent" data-i18n="truck_btn_add_first">Ajouter un Camion</a>
     </div>
     {% endif %}
 </div>

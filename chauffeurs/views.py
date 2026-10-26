@@ -3,13 +3,16 @@ from datetime import date, timedelta
 from functools import wraps
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q, Count
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from django.utils import timezone
 
 from .models import Chauffeur, VisiteChauffeur
 from .forms import ChauffeurForm, VisiteChauffeurForm
+from .ai_assistant import GeminiChauffeurAssistant
 from creneaux.models import Creneau
 from camions.models import Camion
 from entrepots.models import Entrepot, Quai
@@ -135,6 +138,7 @@ def chauffeur_list(request):
         'permis_expires_count': permis_expires_count,
         'permis_bientot_count': permis_bientot_count,
         'total_visites': total_visites,
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_list.html', context)
 
@@ -169,6 +173,7 @@ def chauffeur_detail(request, pk):
         'quais_disponibles': quais_disponibles,
         'creneaux_disponibles': creneaux_disponibles,
         'camion_actif': chauffeur.camion_associe_obj,
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_detail.html', context)
 
@@ -196,6 +201,7 @@ def chauffeur_create(request):
         'form': form,
         'action_title': "Nouveau Chauffeur",
         'button_text': "Enregistrer le Chauffeur",
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_form.html', context)
 
@@ -223,6 +229,7 @@ def chauffeur_update(request, pk):
         'chauffeur': chauffeur,
         'action_title': f"Modifier {chauffeur.nom_complet}",
         'button_text': "Enregistrer les Modifications",
+        'current_lang': request.GET.get('lang', '').strip() or 'fr',
     }
     return render(request, 'chauffeurs/chauffeur_form.html', context)
 
@@ -566,3 +573,54 @@ def chauffeurs_export(request):
         ])
 
     return response
+
+
+@chauffeur_session_required
+def chauffeur_ai_assistant(request):
+    """
+    Interface visuelle de l'Assistant Conversationnel IA pour les Chauffeurs (Option 4).
+    Recherche en langage naturel, gestion des permis et historique multi-langues (FR, AR, EN).
+    """
+    api_key_configured = bool(getattr(settings, 'GEMINI_API_KEY', ''))
+
+    chauffeurs = Chauffeur.objects.annotate(visites_count=Count('visites')).all()
+    total_chauffeurs = chauffeurs.count()
+    chauffeurs_disponibles_count = chauffeurs.filter(statut='DISPONIBLE').count()
+    permis_expires_count = len([c for c in chauffeurs if c.est_permis_expire])
+    permis_expire_bientot_count = len([c for c in chauffeurs if c.expire_bientot])
+
+    top_chauffeur = chauffeurs.order_by('-visites_count').first()
+
+    context = {
+        'api_key_configured': api_key_configured,
+        'total_chauffeurs': total_chauffeurs,
+        'chauffeurs_disponibles_count': chauffeurs_disponibles_count,
+        'permis_expires_count': permis_expires_count,
+        'permis_expire_bientot_count': permis_expire_bientot_count,
+        'top_chauffeur': top_chauffeur,
+        'chauffeurs_list': chauffeurs.order_by('nom'),
+    }
+    return render(request, 'chauffeurs/ai_assistant.html', context)
+
+
+@csrf_exempt
+@chauffeur_session_required
+def chauffeur_ai_chat_api(request):
+    """
+    Endpoint AJAX pour l'Assistant Conversationnel IA des Chauffeurs.
+    Supporte les requêtes en français, arabe et anglais.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Méthode POST requise'}, status=405)
+
+    prompt = request.POST.get('prompt', '').strip()
+    lang = request.POST.get('lang', 'fr').strip() or 'fr'
+    api_key = request.POST.get('api_key', '').strip() or None
+
+    if not prompt:
+        return JsonResponse({'error': 'Veuillez saisir votre question.'}, status=400)
+
+    assistant = GeminiChauffeurAssistant(api_key=api_key)
+    result = assistant.ask(prompt, lang=lang, user=request.user)
+    return JsonResponse(result)
+

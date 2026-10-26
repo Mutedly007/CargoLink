@@ -287,6 +287,9 @@ def demande_creneau(request):
     if denied:
         return denied
 
+    entrepot_id = request.GET.get('entrepot') or None
+    quai_id = request.GET.get('quai') or None
+
     if request.method == 'POST':
         form = DemandeCreneauForm(request.POST)
         if form.is_valid():
@@ -303,7 +306,12 @@ def demande_creneau(request):
             )
             return redirect('creneaux:creneau_detail', pk=creneau.pk)
     else:
-        form = DemandeCreneauForm()
+        initial = {}
+        if entrepot_id:
+            initial['entrepot'] = entrepot_id
+        if quai_id:
+            initial['quai'] = quai_id
+        form = DemandeCreneauForm(initial=initial, entrepot_id=entrepot_id)
 
     return render(request, 'creneaux/demande_creneau.html', {
         'form': form,

@@ -414,3 +414,101 @@ class ChauffeurCRUDViewsTests(TestCase):
         self.assertRedirects(response, reverse('chauffeurs:chauffeur_detail', kwargs={'pk': self.chauffeur.pk}))
 
 
+class ChauffeurAIAssistantTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.today = date.today()
+
+        self.user = User.objects.create_user(
+            username="ai_test_user",
+            password="password123",
+            email="ai_test@cargolink.tn"
+        )
+        self.user.profile.role = "TRANSPORTEUR"
+        self.user.profile.save()
+        self.client.login(username="ai_test_user", password="password123")
+
+        self.chauffeur = Chauffeur.objects.create(
+            prenom="Slim",
+            nom="Bouazizi",
+            telephone="+216 20 111 222",
+            numero_permis="PERM-SLIM-01",
+            categorie_permis="CE",
+            date_delivrance_permis=self.today - timedelta(days=400),
+            date_expiration_permis=self.today + timedelta(days=20),
+            entreprise_transport="Bouazizi Transport",
+            immatriculation_camion="240-TN-1111",
+            statut="DISPONIBLE"
+        )
+
+    def test_ai_assistant_view_authenticated(self):
+        url = reverse('chauffeurs:chauffeur_ai_assistant')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "CargoLink Driver AI Copilot")
+        self.assertContains(response, "Slim Bouazizi")
+
+    def test_ai_assistant_view_unauthenticated_redirects(self):
+        self.client.logout()
+        url = reverse('chauffeurs:chauffeur_ai_assistant')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('landing'))
+
+    def test_ai_chat_api_french_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Quels chauffeurs ont un permis qui expire ce mois-ci ?",
+            'lang': "fr"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertIn('response', data)
+        self.assertTrue(len(data['response']) > 0)
+
+    def test_ai_chat_api_arabic_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "أعرض السائقين الأكثر زيارة",
+            'lang': "ar"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertEqual(data.get('language'), 'ar')
+
+    def test_ai_chat_api_english_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Show the drivers with the most visits.",
+            'lang': "en"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertEqual(data.get('language'), 'en')
+
+    def test_ai_chat_api_summary_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Résume l'historique du chauffeur Slim Bouazizi",
+            'lang': "fr"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertIn("Bouazizi", data['response'])
+
+    def test_ai_chat_api_guardrail(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Raconte-moi une blague sur les voyages dans l'espace",
+            'lang': "fr"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data.get('source'), 'guardrail')
+
+
+
