@@ -34,12 +34,15 @@
                 </svg>
                 Export CSV
             </a>
+            {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:demande_creneau' %}" class="btn btn-outline" style="font-size: 0.875rem; border-color: #3b82f6; color: #60a5fa;">
                 📋 Demande de Créneau
             </a>
+            {% endif %}
             <a href="{% url 'creneaux:assistant_creneaux' %}" class="btn-ai-magic" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;">
                 ✨ Copilot IA Gemini
             </a>
+            {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -47,6 +50,11 @@
                 </svg>
                 Planifier un Créneau
             </a>
+            {% else %}
+            <span style="display: inline-flex; align-items: center; gap: 0.45rem; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600;">
+                👁️ Mode Consultation Seule
+            </span>
+            {% endif %}
         </div>
     </div>
 
@@ -256,9 +264,15 @@
                             <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto;">
                                 Aucun créneau horaire ne correspond aux filtres actuels. Commencez par planifier un créneau ou effectuez une demande de livraison.
                             </p>
+                            {% if not is_entrepot_role %}
                             <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.9rem;">
                                 Planifier le Premier Créneau
                             </a>
+                            {% else %}
+                            <div style="color: #93c5fd; font-size: 0.85rem; font-weight: 500;">
+                                ℹ️ Vous êtes en mode consultation. La planification des créneaux est effectuée par les Planificateurs.
+                            </div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

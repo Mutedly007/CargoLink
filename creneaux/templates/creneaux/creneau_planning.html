@@ -28,9 +28,15 @@
                 </svg>
                 Vue Tableau / Liste
             </a>
+            {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
                 + Planifier un Créneau
             </a>
+            {% else %}
+            <span style="display: inline-flex; align-items: center; gap: 0.45rem; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600;">
+                👁️ Mode Consultation Seule
+            </span>
+            {% endif %}
         </div>
     </div>
 
@@ -114,9 +120,11 @@
                         <span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic; padding-left: 0.5rem;">
                             Aucun créneau réservé sur ce quai pour cette date.
                         </span>
+                        {% if not is_entrepot_role %}
                         <a href="{% url 'creneaux:creneau_create' %}?entrepot={{ current_entrepot.id }}&quai={{ qd.quai.id }}" style="margin-left: auto; font-size: 0.78rem; color: #60a5fa; text-decoration: none; padding: 0.25rem 0.6rem; border: 1px dashed rgba(96,165,250,0.5); border-radius: 6px;">
                             + Ajouter un slot
                         </a>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
