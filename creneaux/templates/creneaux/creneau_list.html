@@ -1,0 +1,267 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Planning & Créneaux de Quais &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="creneaux-container">
+    <!-- Top Bar -->
+    <div class="page-top-bar">
+        <div class="page-title-box">
+            <h1>Régulation & Créneaux des Quais</h1>
+            <p>Planification horaire des réceptions et expéditions, vérification des disponibilités et prévention des conflits.</p>
+        </div>
+
+        <div class="top-actions-group">
+            <a href="{% url 'creneaux:creneau_planning' %}" class="btn btn-outline" style="font-size: 0.875rem;">
+                <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Vue Planning Graphique
+            </a>
+            <a href="{% url 'creneaux:creneau_export_csv' %}" class="btn btn-outline" style="font-size: 0.875rem;">
+                <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export CSV
+            </a>
+            <a href="{% url 'creneaux:demande_creneau' %}" class="btn btn-outline" style="font-size: 0.875rem; border-color: #3b82f6; color: #60a5fa;">
+                📋 Demande de Créneau
+            </a>
+            <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
+                <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Planifier un Créneau
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages / Alertes -->
+    {% if messages %}
+    <div style="margin-bottom: 1.5rem;">
+        {% for message in messages %}
+        <div class="alert-box alert-{{ message.tags|default:'info' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- KPI Dashboard Metrics -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ total_creneaux }}</span>
+                <span class="kpi-label">Total Créneaux Enregistrés</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ total_aujourdhui }}</span>
+                <span class="kpi-label">Prévus Aujourd'hui</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ en_attente_count }}</span>
+                <span class="kpi-label">En Attente de Validation</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ en_cours_count }}</span>
+                <span class="kpi-label">À Quai (Opérations en cours)</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-box icon-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+            <div class="kpi-info">
+                <span class="kpi-value">{{ termines_count }}</span>
+                <span class="kpi-label">Opérations Terminées</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="filter-toolbar">
+        <form method="get" class="filter-form">
+            <div class="search-input-wrapper">
+                <svg class="search-icon-inside" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" name="q" value="{{ query }}" placeholder="Réf, transporteur, immatriculation, chauffeur..." class="search-input-field">
+            </div>
+
+            <input type="date" name="date" value="{{ date_filter }}" class="filter-date-input" title="Filtrer par date">
+
+            <select name="entrepot" class="filter-select">
+                <option value="">Tous les entrepôts</option>
+                {% for ent in entrepots %}
+                    <option value="{{ ent.id }}" {% if entrepot_filter == ent.id|stringformat:"s" %}selected{% endif %}>{{ ent.nom }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="statut" class="filter-select">
+                <option value="">Tous les statuts</option>
+                {% for val, label in statut_choices %}
+                    <option value="{{ val }}" {% if statut_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="type_op" class="filter-select">
+                <option value="">Tous types</option>
+                {% for val, label in type_op_choices %}
+                    <option value="{{ val }}" {% if type_op_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-outline" style="padding: 0.65rem 1rem;">Filtrer</button>
+            {% if query or date_filter or statut_filter or entrepot_filter or type_op_filter %}
+                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline" style="padding: 0.65rem 0.85rem; color: #f87171;">Réinitialiser</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Table des Créneaux -->
+    <div class="creneaux-table-card">
+        <div class="table-responsive">
+            <table class="creneaux-table">
+                <thead>
+                    <tr>
+                        <th>Référence & Date</th>
+                        <th>Plage Horaire</th>
+                        <th>Entrepôt & Quai</th>
+                        <th>Opération</th>
+                        <th>Transporteur & Véhicule</th>
+                        <th>Chauffeur</th>
+                        <th>Statut</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in creneaux %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'creneaux:creneau_detail' c.pk %}" class="creneau-ref-link">
+                                {{ c.reference }}
+                            </a>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                                📅 {{ c.date_creneau|date:"d/m/Y" }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="slot-time-badge">
+                                ⏱️ {{ c.heure_debut|time:"H:i" }} - {{ c.heure_fin|time:"H:i" }}
+                            </span>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 3px;">
+                                Durée : {{ c.duree_minutes }} min
+                            </div>
+                        </td>
+                        <td>
+                            <strong style="color: #ffffff;">{{ c.quai.numero }}</strong>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                                🏭 {{ c.entrepot.nom }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if c.type_operation == 'DECHARGEMENT' %}
+                                <span style="color: #60a5fa; font-weight: 600;">📥 Déchargement</span>
+                            {% else %}
+                                <span style="color: #f59e0b; font-weight: 600;">📤 Chargement</span>
+                            {% endif %}
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                {{ c.nb_palettes }} palettes ({{ c.get_type_marchandise_display }})
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: #ffffff;">{{ c.transporteur_nom }}</div>
+                            <div style="font-family: monospace; font-size: 0.8rem; color: #94a3b8; background: rgba(255,255,255,0.06); display: inline-block; padding: 1px 6px; border-radius: 4px; margin-top: 2px;">
+                                🚛 {{ c.immatriculation_camion }}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="color: #ffffff;">{{ c.chauffeur_nom }}</div>
+                            {% if c.chauffeur_telephone %}
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">
+                                📞 {{ c.chauffeur_telephone }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge-slot {{ c.badge_statut_css }}">
+                                {% if c.statut == 'EN_COURS' %}<span class="pulse-dot"></span>{% endif %}
+                                {{ c.get_statut_display }}
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="{% url 'creneaux:creneau_detail' c.pk %}" class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+                                Suivre ➔
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 4rem 2rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                            <h3 style="color: #ffffff; margin-bottom: 0.5rem;">Aucun créneau planifié</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto;">
+                                Aucun créneau horaire ne correspond aux filtres actuels. Commencez par planifier un créneau ou effectuez une demande de livraison.
+                            </p>
+                            <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.9rem;">
+                                Planifier le Premier Créneau
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Planning Graphique des Quais &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="creneaux-container">
+    <!-- Top Bar -->
+    <div class="page-top-bar">
+        <div class="page-title-box">
+            <h1>Planning Graphique d'Occupation des Quais</h1>
+            <p>Vue temporelle synchronisée pour superviser l'occupation des quais, éviter les goulots d'étranglement et détecter les conflits.</p>
+        </div>
+
+        <div class="top-actions-group">
+            <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline" style="font-size: 0.875rem;">
+                <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+                Vue Tableau / Liste
+            </a>
+            <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
+                + Planifier un Créneau
+            </a>
+        </div>
+    </div>
+
+    <!-- Planning Header Navigator -->
+    <div class="planning-header-bar">
+        <!-- Sélecteur Entrepôt -->
+        <form method="get" id="planningFilterForm" style="display: flex; align-items: center; gap: 0.75rem;">
+            <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Site Logistique :</label>
+            <select name="entrepot" onchange="document.getElementById('planningFilterForm').submit();" class="filter-select" style="min-width: 220px;">
+                {% for ent in entrepots %}
+                    <option value="{{ ent.id }}" {% if current_entrepot and current_entrepot.id == ent.id %}selected{% endif %}>
+                        🏭 {{ ent.nom }} ({{ ent.ville }})
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <!-- Sélecteur de Date -->
+        <div class="date-navigator">
+            <a href="?entrepot={{ current_entrepot.id }}&date={{ prev_date|date:'Y-m-d' }}" class="nav-day-btn" title="Jour précédent">
+                ◀ Hier
+            </a>
+            <span class="current-date-title">
+                📅 {{ selected_date|date:"l d F Y" }}
+            </span>
+            <a href="?entrepot={{ current_entrepot.id }}&date={{ next_date|date:'Y-m-d' }}" class="nav-day-btn" title="Jour suivant">
+                Demain ▶
+            </a>
+            <a href="?entrepot={{ current_entrepot.id }}" class="nav-day-btn" style="border-color: #3b82f6; color: #60a5fa;" title="Revenir à aujourd'hui">
+                Aujourd'hui
+            </a>
+        </div>
+    </div>
+
+    <!-- Timeline Grid Card -->
+    <div class="timeline-card">
+        <div class="timeline-grid">
+            <!-- Ligne des Heures (Entête) -->
+            <div class="timeline-hours-header">
+                <div style="text-align: left; padding-left: 0.5rem;">QUAI D'ACCÈS</div>
+                {% for h in heures %}
+                    <div>{{ h }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Lignes Quais -->
+            {% for qd in quais_data %}
+            <div class="timeline-quai-row">
+                <div class="quai-info-cell">
+                    <span class="quai-name-badge">{{ qd.quai.numero }}</span>
+                    <span class="quai-type-sub">{{ qd.quai.get_type_quai_display }}</span>
+                    <div style="margin-top: 4px;">
+                        {% if qd.quai.statut == 'DISPONIBLE' %}
+                            <span style="font-size: 0.72rem; color: #4ade80;">● Libre</span>
+                        {% elif qd.quai.statut == 'OCCUPE' %}
+                            <span style="font-size: 0.72rem; color: #f87171;">● Occupé</span>
+                        {% else %}
+                            <span style="font-size: 0.72rem; color: #fbbf24;">● {{ qd.quai.get_statut_display }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="timeline-slot-track">
+                    {% for c in qd.creneaux %}
+                        <a href="{% url 'creneaux:creneau_detail' c.pk %}" class="timeline-slot-item {% if c.statut == 'EN_COURS' %}slot-item-active{% endif %}" title="{{ c.reference }} : {{ c.transporteur_nom }} ({{ c.immatriculation_camion }})">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                                <strong style="font-size: 0.78rem;">{{ c.heure_debut|time:"H:i" }} - {{ c.heure_fin|time:"H:i" }}</strong>
+                                <span class="badge-slot {{ c.badge_statut_css }}" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;">
+                                    {{ c.get_statut_display }}
+                                </span>
+                            </div>
+                            <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">
+                                🚛 {{ c.transporteur_nom }} &bull; {{ c.immatriculation_camion }}
+                            </div>
+                            <div style="font-size: 0.72rem; opacity: 0.85;">
+                                {% if c.type_operation == 'DECHARGEMENT' %}📥 Déchargement{% else %}📤 Chargement{% endif %} &bull; {{ c.nb_palettes }} pal.
+                            </div>
+                        </a>
+                    {% empty %}
+                        <span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic; padding-left: 0.5rem;">
+                            Aucun créneau réservé sur ce quai pour cette date.
+                        </span>
+                        <a href="{% url 'creneaux:creneau_create' %}?entrepot={{ current_entrepot.id }}&quai={{ qd.quai.id }}" style="margin-left: auto; font-size: 0.78rem; color: #60a5fa; text-decoration: none; padding: 0.25rem 0.6rem; border: 1px dashed rgba(96,165,250,0.5); border-radius: 6px;">
+                            + Ajouter un slot
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                Aucun quai configuré pour cet entrepôt.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
