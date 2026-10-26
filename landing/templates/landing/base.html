@@ -9,13 +9,13 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Base Stylesheet -->
-    <link rel="stylesheet" href="{% static 'landing/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'landing/css/base.css' %}?v=2.4">
     {% block extra_css %}{% endblock %}
 
-    <!-- Prevent Theme and Accessibility Text Size Flash on Page Load -->
+    <!-- Prevent Theme, Lang (RTL), and Accessibility Flash on Page Load -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem('cargolink_theme') || 
@@ -26,52 +26,145 @@
             if (savedTextSize === 'large') {
                 document.documentElement.setAttribute('data-text-size', 'large');
             }
+
+            const savedLang = localStorage.getItem('cargolink_lang') || 'fr';
+            document.documentElement.setAttribute('data-lang', savedLang);
+            document.documentElement.setAttribute('lang', savedLang);
+            document.documentElement.setAttribute('dir', savedLang === 'ar' ? 'rtl' : 'ltr');
         })();
     </script>
 </head>
 <body>
     <header class="site-header">
         <div class="nav-container">
+            <!-- Brand Logo -->
             <a href="{% url 'landing' %}" class="brand-logo">
                 <div class="brand-icon-box">🚛</div>
                 <div class="brand-text">
                     <span class="brand-name">CargoLink</span>
-                    <span class="brand-tagline">LOGISTIQUE &bull; QUAIS &bull; FRET</span>
+                    <span class="brand-tagline">LOGISTIQUE &bull; QUAIS</span>
                 </div>
             </a>
 
             <!-- Functional Navigation Links -->
-            <ul class="nav-menu">
-                <li class="nav-item"><a href="{% url 'entrepots:entrepot_list' %}">Entrepôts & Quais</a></li>
-                <li class="nav-item"><a href="{% url 'creneaux:creneau_list' %}">Planning & Créneaux</a></li>
-                <li class="nav-item"><a href="{% url 'camions:camion_list' %}">Flotte & Camions</a></li>
-                <li class="nav-item"><a href="{% url 'chauffeurs:chauffeur_list' %}">Chauffeurs</a></li>
-            </ul>
+            <nav class="nav-menu-wrapper" aria-label="Navigation principale">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'entrepots:entrepot_list' %}" class="nav-link {% if request.resolver_match.app_name == 'entrepots' %}active{% endif %}" data-i18n="nav_warehouses">
+                            Entrepôts & Quais
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'creneaux:creneau_list' %}" class="nav-link {% if request.resolver_match.app_name == 'creneaux' %}active{% endif %}" data-i18n="nav_slots">
+                            Planning & Créneaux
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'camions:camion_list' %}" class="nav-link {% if request.resolver_match.app_name == 'camions' %}active{% endif %}" data-i18n="nav_fleet">
+                            Flotte & Camions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'chauffeurs:chauffeur_list' %}" class="nav-link {% if request.resolver_match.app_name == 'chauffeurs' %}active{% endif %}" data-i18n="nav_drivers">
+                            Chauffeurs
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
             <div class="nav-auth">
-                <!-- Accessibility Text Size Toggle (Grand Texte pour Malvoyants) -->
-                <button type="button" class="text-size-toggle-btn" id="textSizeToggleBtn" aria-label="Basculer le Mode Grand Texte pour Malvoyants" aria-pressed="false" title="Mode Grand Texte (Accessibilité Ouvriers / Malvoyants)">
-                    <span class="text-size-track">
-                        <span class="text-size-icon">Aa</span>
-                        <span class="text-size-badge" id="textSizeBadge">100%</span>
-                    </span>
-                </button>
+                <!-- Unified Quick Tools Capsule (Lang, Text Size, Theme) -->
+                <div class="nav-tools-group" role="toolbar" aria-label="Préférences d'affichage et langue">
+                    <!-- Flag Language Switcher Dropdown (FR / EN / AR) -->
+                    <div class="lang-dropdown-wrapper" id="langDropdownWrapper">
+                        <button type="button" class="lang-flag-btn" id="langMenuTrigger" aria-expanded="false" aria-haspopup="true" title="Changer de langue / Switch Language">
+                            <span class="lang-current-flag" id="langCurrentFlag">
+                                <svg class="flag-svg" width="20" height="14" viewBox="0 0 30 20" aria-hidden="true">
+                                    <rect width="10" height="20" fill="#002654"/>
+                                    <rect x="10" width="10" height="20" fill="#FFFFFF"/>
+                                    <rect x="20" width="10" height="20" fill="#CE1126"/>
+                                </svg>
+                            </span>
+                            <span class="lang-current-code" id="langCurrentCode">FR</span>
+                            <svg class="lang-chevron" width="10" height="10" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown-menu" id="langDropdownMenu" role="menu">
+                            <button type="button" class="lang-dropdown-option active" data-lang-choice="fr" role="menuitem">
+                                <span class="lang-opt-flag">
+                                    <svg class="flag-svg" width="20" height="14" viewBox="0 0 30 20" aria-hidden="true">
+                                        <rect width="10" height="20" fill="#002654"/>
+                                        <rect x="10" width="10" height="20" fill="#FFFFFF"/>
+                                        <rect x="20" width="10" height="20" fill="#CE1126"/>
+                                    </svg>
+                                </span>
+                                <span class="lang-opt-name">Français</span>
+                                <span class="lang-opt-check">✓</span>
+                            </button>
+                            <button type="button" class="lang-dropdown-option" data-lang-choice="en" role="menuitem">
+                                <span class="lang-opt-flag">
+                                    <svg class="flag-svg" width="20" height="14" viewBox="0 0 60 30" aria-hidden="true">
+                                        <clipPath id="uk-f"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
+                                        <clipPath id="uk-d"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+                                        <g clip-path="url(#uk-f)">
+                                            <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+                                            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+                                            <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-d)" stroke="#C8102E" stroke-width="4"/>
+                                            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+                                            <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+                                        </g>
+                                    </svg>
+                                </span>
+                                <span class="lang-opt-name">English</span>
+                                <span class="lang-opt-check">✓</span>
+                            </button>
+                            <button type="button" class="lang-dropdown-option" data-lang-choice="ar" role="menuitem">
+                                <span class="lang-opt-flag">
+                                    <svg class="flag-svg" width="20" height="14" viewBox="0 0 30 20" aria-hidden="true">
+                                        <rect width="30" height="20" fill="#006C35"/>
+                                        <path d="M5 14.2h16.5l2.5-1-2.5-1H5v2z M6.5 11.5v3.5h1.2v-3.5z" fill="#ffffff"/>
+                                        <path d="M6 6.2h2.2v2.5H6z M9 5.8h1.8v3H9z M11.5 5.2h2v3.8h-2z M14.5 5.5h2v3.3h-2z M17.5 5.8h2v2.8h-2z M20.5 6.2h2v2.2h-2z" fill="#ffffff" opacity="0.95"/>
+                                    </svg>
+                                </span>
+                                <span class="lang-opt-name">العربية</span>
+                                <span class="lang-opt-check">✓</span>
+                            </button>
+                        </div>
+                    </div>
 
-                <!-- Theme Switcher Button (Light / Dark Mode) -->
-                <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Basculer Mode Clair / Sombre" title="Basculer entre Mode Sombre et Mode Clair">
-                    <span class="theme-toggle-track">
-                        <span class="theme-icon icon-sun">☀️</span>
-                        <span class="theme-icon icon-moon">🌙</span>
-                        <span class="theme-toggle-thumb"></span>
-                    </span>
-                </button>
+                    <span class="nav-tool-separator" aria-hidden="true"></span>
+
+                    <!-- Accessibility Text Size Toggle (Grand Texte pour Malvoyants) -->
+                    <button type="button" class="text-size-toggle-btn" id="textSizeToggleBtn" aria-label="Basculer le Mode Grand Texte pour Malvoyants" aria-pressed="false" title="Mode Grand Texte (Accessibilité Ouvriers / Malvoyants)">
+                        <span class="text-size-track">
+                            <span class="text-size-icon">Aa</span>
+                            <span class="text-size-badge" id="textSizeBadge">100%</span>
+                        </span>
+                    </button>
+
+                    <span class="nav-tool-separator" aria-hidden="true"></span>
+
+                    <!-- Theme Switcher Button (Light / Dark Mode) -->
+                    <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Basculer Mode Clair / Sombre" title="Basculer entre Mode Sombre et Mode Clair">
+                        <span class="theme-toggle-track">
+                            <span class="theme-icon icon-sun">☀️</span>
+                            <span class="theme-icon icon-moon">🌙</span>
+                            <span class="theme-toggle-thumb"></span>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Vertical Section Divider -->
+                <div class="nav-section-divider" aria-hidden="true"></div>
 
                 {% if user.is_authenticated %}
                     <div class="user-dropdown-wrapper" id="userDropdownWrapper">
                         <button type="button" class="user-pill-btn" id="userMenuTrigger" aria-expanded="false" aria-haspopup="true">
                             <div class="user-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
                                 {% if user.profile.avatar %}
-                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-avatar-img">
+                                    <img src="{{ user.profile.avatar.url }}" alt="" class="user-avatar-img" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                    <span class="user-avatar-fallback" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">{% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:':1'|upper }}{% endif %}</span>
                                 {% elif user.profile.initials %}
                                     {{ user.profile.initials }}
                                 {% else %}
@@ -93,7 +186,7 @@
                                     {% endif %}
                                 </span>
                             </div>
-                            <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                            <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </button>
@@ -104,7 +197,8 @@
                             <div class="dropdown-header">
                                 <div class="dropdown-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
                                     {% if user.profile.avatar %}
-                                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="dropdown-avatar-img">
+                                        <img src="{{ user.profile.avatar.url }}" alt="" class="dropdown-avatar-img" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                        <span class="dropdown-avatar-fallback" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">{% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:':1'|upper }}{% endif %}</span>
                                     {% elif user.profile.initials %}
                                         {{ user.profile.initials }}
                                     {% else %}
@@ -317,6 +411,7 @@
                     a11yToast.classList.remove('show');
                 }, 2500);
             }
+            window.__cargoLinkShowToast = showA11yToast;
 
             function updateTextSizeUI(isLarge) {
                 if (textSizeBadge) {
@@ -361,6 +456,8 @@
         <span id="a11yToastMessage">Mode Grand Texte Activé</span>
     </div>
 
+    <!-- CargoLink i18n Engine (FR / EN / AR) -->
+    <script src="{% static 'landing/js/cargolink-i18n.js' %}?v=2.0"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

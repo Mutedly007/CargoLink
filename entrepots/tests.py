@@ -255,3 +255,364 @@ class QuaiCRUDTests(TestCase):
         response = self.client.post(reverse('entrepots:quai_delete', kwargs={'pk': pk}), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Quai.objects.filter(pk=pk).exists())
+
+
+class SmartCapacityOptimizerTests(TestCase):
+    """
+    Tests automatisés complets pour le module Smart Capacity Optimizer AI.
+    Périmètre STRICT : Entrepot et Quai uniquement.
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='optimizer_manager',
+            email='opt@cargolink.tn',
+            password='Password123!'
+        )
+        self.user.profile.role = 'ENTREPOT'
+        self.user.profile.save()
+
+        # Entrepôt 1 : Radès Port (Saturé)
+        self.ent1 = Entrepot.objects.create(
+            nom="Hub Logistique Rades Port",
+            code="ENT-RADES-OPT1",
+            adresse="Zone Portuaire",
+            ville="Rades",
+            code_postal="2040",
+            capacite_palettes=3000,
+            superficie_m2=10000,
+            statut="ACTIF",
+            gestionnaire=self.user
+        )
+        self.q1_1 = Quai.objects.create(
+            entrepot=self.ent1,
+            numero="Quai R-01",
+            type_quai="STANDARD",
+            statut="OCCUPE",
+            capacite_palettes_heure=30
+        )
+        self.q1_2 = Quai.objects.create(
+            entrepot=self.ent1,
+            numero="Quai R-02",
+            type_quai="STANDARD",
+            statut="OCCUPE",
+            capacite_palettes_heure=30
+        )
+
+        # Entrepôt 2 : Radès Express (Sous-utilisé dans la même ville)
+        self.ent2 = Entrepot.objects.create(
+            nom="Plateforme Rades Express",
+            code="ENT-RADES-OPT2",
+            adresse="Avenue Habib Bourguiba",
+            ville="Rades",
+            code_postal="2040",
+            capacite_palettes=2000,
+            superficie_m2=8000,
+            statut="ACTIF",
+            gestionnaire=self.user
+        )
+        self.q2_1 = Quai.objects.create(
+            entrepot=self.ent2,
+            numero="Quai EXP-01",
+            type_quai="STANDARD",
+            statut="DISPONIBLE",
+            capacite_palettes_heure=25
+        )
+        self.q2_2 = Quai.objects.create(
+            entrepot=self.ent2,
+            numero="Quai EXP-02",
+            type_quai="STANDARD",
+            statut="DISPONIBLE",
+            capacite_palettes_heure=25
+        )
+
+    def test_capacity_analyzer_deterministic_metrics(self):
+        """Vérifie l'exactitude des calculs déterministes de capacité et d'occupation."""
+        from entrepots.services import CapacityAnalyzer
+        analysis = CapacityAnalyzer.get_full_analysis()
+        metrics = analysis['metrics']
+
+        self.assertEqual(metrics['total_entrepots'], 2)
+        self.assertEqual(metrics['total_quais'], 4)
+        self.assertEqual(metrics['capacite_totale_palettes'], 5000)
+        self.assertEqual(metrics['quais_occupes'], 2)
+        self.assertEqual(metrics['quais_disponibles'], 2)
+        self.assertEqual(metrics['taux_utilisation_quais_global'], 50.0)
+
+        # Vérification des classifications
+        ent1_data = next(w for w in analysis['warehouses'] if w['id'] == self.ent1.id)
+        ent2_data = next(w for w in analysis['warehouses'] if w['id'] == self.ent2.id)
+
+        self.assertEqual(ent1_data['utilization_pct'], 100.0)
+        self.assertEqual(ent1_data['classification'], 'CRITIQUE')
+        self.assertEqual(ent2_data['utilization_pct'], 0.0)
+        self.assertEqual(ent2_data['classification'], 'SOUS_UTILISE')
+
+    def test_city_imbalance_and_redistribution_opportunity(self):
+        """Vérifie l'identification déterministe d'un déséquilibre dans la même ville."""
+        from entrepots.services import CapacityAnalyzer, CapacityOptimizer
+        analysis = CapacityAnalyzer.get_full_analysis()
+        self.assertEqual(len(analysis['city_imbalances']), 1)
+        self.assertEqual(analysis['city_imbalances'][0]['ville'], 'Rades')
+
+        opportunities = CapacityOptimizer.find_feasible_redistributions(analysis)
+        self.assertEqual(len(opportunities), 1)
+        opp = opportunities[0]
+        self.assertEqual(opp['source_id'], self.ent1.id)
+        self.assertEqual(opp['target_id'], self.ent2.id)
+        self.assertIn("Dévier 1 flux", opp['action_proposee'])
+
+    def test_what_if_simulator_never_modifies_database(self):
+        """Vérifie que le simulateur What-If calcule sans JAMAIS altérer la base de données."""
+        from entrepots.services import CapacityOptimizer
+        result = CapacityOptimizer.simulate_what_if(
+            entrepot_id=self.ent1.id,
+            proposed_capacite_palettes=4500,
+            hypothetical_occupied_docks=1
+        )
+        self.assertTrue(result['success'])
+        self.assertEqual(result['capacite_palettes']['actuelle'], 3000)
+        self.assertEqual(result['capacite_palettes']['proposee'], 4500)
+        self.assertEqual(result['capacite_palettes']['delta'], 1500)
+        self.assertEqual(result['capacite_palettes']['delta_pct'], 50.0)
+        self.assertEqual(result['quais']['occupes_actuels'], 2)
+        self.assertEqual(result['quais']['occupes_simules'], 1)
+        self.assertEqual(result['quais']['taux_utilisation_apres'], 50.0)
+        self.assertFalse(result['is_database_modified'])
+
+        # Vérification en base : strictement inchangée !
+        self.ent1.refresh_from_db()
+        self.assertEqual(self.ent1.capacite_palettes, 3000)
+
+    def test_what_if_simulator_handles_invalid_inputs(self):
+        """Vérifie la robustesse du simulateur face aux saisies invalides."""
+        from entrepots.services import CapacityOptimizer
+        result = CapacityOptimizer.simulate_what_if(
+            entrepot_id=self.ent1.id,
+            proposed_capacite_palettes=-500
+        )
+        self.assertTrue(result['success'])
+        self.assertEqual(result['faisabilite'], 'INVALIDE')
+        self.assertTrue(len(result['erreurs']) > 0)
+
+    def test_gemini_recommender_fallback_schema(self):
+        """Vérifie que le moteur déterministe de repli respecte rigoureusement le schéma JSON."""
+        from entrepots.services import CapacityAnalyzer, CapacityOptimizer, GeminiCapacityRecommender
+        analysis = CapacityAnalyzer.get_full_analysis()
+        opportunities = CapacityOptimizer.find_feasible_redistributions(analysis)
+
+        fallback_result = GeminiCapacityRecommender._generate_deterministic_fallback(
+            analysis, opportunities, reason="Test unitaire"
+        )
+        self.assertIn('summary', fallback_result)
+        self.assertIn('recommendations', fallback_result)
+        self.assertEqual(fallback_result['source'], 'deterministic_fallback')
+
+        for rec in fallback_result['recommendations']:
+            self.assertIn('id', rec)
+            self.assertIn('title', rec)
+            self.assertIn('description', rec)
+            self.assertIn('affected_entity', rec)
+            self.assertIn('detected_issue', rec)
+            self.assertIn('supporting_metrics', rec)
+            self.assertIn('recommended_action', rec)
+            self.assertIn('expected_benefit', rec)
+            self.assertIn('priority_level', rec)
+            self.assertIn('category', rec)
+            self.assertIn('is_actionable', rec)
+            self.assertIn('constraints_or_missing_data', rec)
+            self.assertIn('confidence_level', rec)
+
+    def test_optimizer_dashboard_view_authenticated(self):
+        """Vérifie l'accès au tableau de bord avec un utilisateur connecté."""
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('entrepots:capacity_optimizer'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Smart Capacity Optimizer")
+        self.assertContains(response, "État de Capacité par Entrepôt")
+        self.assertContains(response, "Simulateur d'Hypothèses de Capacité (What-If)")
+
+    def test_optimizer_simulate_api_post(self):
+        """Vérifie l'API AJAX de simulation What-If."""
+        self.client.force_login(self.user)
+        import json
+        payload = {
+            'entrepot_id': self.ent1.id,
+            'proposed_capacite_palettes': 4000,
+            'hypothetical_occupied_docks': 1
+        }
+        response = self.client.post(
+            reverse('entrepots:capacity_optimizer_simulate'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['capacite_palettes']['proposee'], 4000)
+
+    def test_optimizer_action_api_review_and_dismiss(self):
+        """Vérifie la gestion des recommandations via la session."""
+        self.client.force_login(self.user)
+        import json
+        payload = {
+            'rec_id': 'rec-1',
+            'action': 'review'
+        }
+        res = self.client.post(
+            reverse('entrepots:capacity_optimizer_action'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertTrue(data['success'])
+        self.assertTrue(data['is_reviewed'])
+
+        # Dismiss action
+        res2 = self.client.post(
+            reverse('entrepots:capacity_optimizer_action'),
+            data=json.dumps({'rec_id': 'rec-1', 'action': 'dismiss'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res2.status_code, 200)
+        self.assertTrue(res2.json()['is_dismissed'])
+
+
+class EntrepotRolePermissionTests(TestCase):
+    def setUp(self):
+        # 1. Gestionnaire d'entrepôt
+        self.entrepot_user = User.objects.create_user(
+            username='entrepot_boss',
+            password='Password123!',
+            email='entrepot@cargolink.tn'
+        )
+        self.entrepot_user.profile.role = 'ENTREPOT'
+        self.entrepot_user.profile.save()
+
+        # 2. Transporteur
+        self.transporteur_user = User.objects.create_user(
+            username='transporteur_guy',
+            password='Password123!',
+            email='trans@cargolink.tn'
+        )
+        self.transporteur_user.profile.role = 'TRANSPORTEUR'
+        self.transporteur_user.profile.save()
+
+        # 3. Planificateur
+        self.planificateur_user = User.objects.create_user(
+            username='planner_guy',
+            password='Password123!',
+            email='plan@cargolink.tn'
+        )
+        self.planificateur_user.profile.role = 'PLANIFICATEUR'
+        self.planificateur_user.profile.save()
+
+        self.entrepot = Entrepot.objects.create(
+            nom="Hub Sfax Sud",
+            code="ENT-SFAX-02",
+            ville="Sfax",
+            capacite_palettes=1500,
+            superficie_m2=5000,
+            statut="ACTIF"
+        )
+        self.quai = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai S-01",
+            type_quai="STANDARD",
+            statut="DISPONIBLE"
+        )
+
+    def test_other_roles_can_view_entrepots_and_quais(self):
+        """Les autres rôles (ex: Transporteur) peuvent consulter sans restriction de lecture ni badges intrusifs."""
+        self.client.force_login(self.transporteur_user)
+
+        res_list = self.client.get(reverse('entrepots:entrepot_list'))
+        self.assertEqual(res_list.status_code, 200)
+        self.assertNotContains(res_list, "Mode Consultation")
+        # Ne doit pas contenir les boutons d'action réservés
+        self.assertNotContains(res_list, 'Ajouter un Entrepôt')
+        self.assertNotContains(res_list, 'title="Modifier l\'entrepôt"')
+        self.assertNotContains(res_list, 'title="Supprimer l\'entrepôt"')
+        self.assertNotContains(res_list, 'title="Ajouter un quai à cet entrepôt"')
+
+        res_detail = self.client.get(reverse('entrepots:entrepot_detail', kwargs={'pk': self.entrepot.pk}))
+        self.assertEqual(res_detail.status_code, 200)
+        self.assertNotContains(res_detail, "Mode Consultation")
+        self.assertNotContains(res_detail, 'Nouveau Quai')
+        self.assertNotContains(res_detail, 'Modifier le quai')
+        self.assertNotContains(res_detail, 'Supprimer le quai')
+
+        res_quais = self.client.get(reverse('entrepots:quai_list'))
+        self.assertEqual(res_quais.status_code, 200)
+        self.assertNotContains(res_quais, "Mode Consultation")
+        self.assertNotContains(res_quais, 'Ajouter un Quai')
+
+        res_quai_detail = self.client.get(reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_quai_detail.status_code, 200)
+        self.assertNotContains(res_quai_detail, "Mode Consultation")
+
+    def test_other_roles_cannot_create_update_delete_entrepot(self):
+        """Les autres rôles ne peuvent pas créer, modifier ni supprimer un entrepôt."""
+        self.client.force_login(self.transporteur_user)
+
+        # Create
+        res_create = self.client.get(reverse('entrepots:entrepot_create'))
+        self.assertEqual(res_create.status_code, 302)
+        self.assertRedirects(res_create, reverse('entrepots:entrepot_list'))
+
+        # Update
+        res_update = self.client.get(reverse('entrepots:entrepot_update', kwargs={'pk': self.entrepot.pk}))
+        self.assertEqual(res_update.status_code, 302)
+        self.assertRedirects(res_update, reverse('entrepots:entrepot_detail', kwargs={'pk': self.entrepot.pk}))
+
+        # Delete
+        res_del = self.client.post(reverse('entrepots:entrepot_delete', kwargs={'pk': self.entrepot.pk}))
+        self.assertEqual(res_del.status_code, 302)
+        self.assertRedirects(res_del, reverse('entrepots:entrepot_detail', kwargs={'pk': self.entrepot.pk}))
+        # Verify entrepot was not deleted
+        self.assertTrue(Entrepot.objects.filter(pk=self.entrepot.pk).exists())
+
+    def test_other_roles_cannot_manage_quais(self):
+        """Les autres rôles ne peuvent pas créer, modifier, supprimer ou basculer l'état d'un quai."""
+        self.client.force_login(self.planificateur_user)
+
+        # Quai Create
+        res_create = self.client.get(reverse('entrepots:quai_create'))
+        self.assertEqual(res_create.status_code, 302)
+        self.assertRedirects(res_create, reverse('entrepots:quai_list'))
+
+        # Quai Update
+        res_update = self.client.get(reverse('entrepots:quai_update', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_update.status_code, 302)
+        self.assertRedirects(res_update, reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+
+        # Quai Delete
+        res_del = self.client.post(reverse('entrepots:quai_delete', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_del.status_code, 302)
+        self.assertRedirects(res_del, reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+        self.assertTrue(Quai.objects.filter(pk=self.quai.pk).exists())
+
+        # Quai Toggle Status
+        res_toggle = self.client.get(reverse('entrepots:quai_toggle_status', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_toggle.status_code, 302)
+        self.assertRedirects(res_toggle, reverse('entrepots:quai_detail', kwargs={'pk': self.quai.pk}))
+        self.quai.refresh_from_db()
+        self.assertEqual(self.quai.statut, 'DISPONIBLE')
+
+    def test_entrepot_role_can_manage_everything(self):
+        """Le rôle ENTREPOT a accès complet pour créer, modifier, supprimer et réguler les quais."""
+        self.client.force_login(self.entrepot_user)
+
+        # Check forms load with 200 OK
+        res_create_form = self.client.get(reverse('entrepots:entrepot_create'))
+        self.assertEqual(res_create_form.status_code, 200)
+
+        res_quai_form = self.client.get(reverse('entrepots:quai_create'))
+        self.assertEqual(res_quai_form.status_code, 200)
+
+        # Quai toggle status works
+        res_toggle = self.client.get(reverse('entrepots:quai_toggle_status', kwargs={'pk': self.quai.pk}))
+        self.assertEqual(res_toggle.status_code, 302)
+        self.quai.refresh_from_db()
+        self.assertEqual(self.quai.statut, 'OCCUPE')
+

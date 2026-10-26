@@ -53,6 +53,15 @@ class UserProfile(models.Model):
             return True
         return False
 
+    @property
+    def is_entrepot(self):
+        """Détermine si l'utilisateur a les prérogatives Gestionnaire d'Entrepôt CargoLink."""
+        if self.role in ('ENTREPOT', 'ENTERPOT', 'ADMIN'):
+            return True
+        if self.user.is_superuser:
+            return True
+        return False
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Synchronisation automatique des permissions Django avec le rôle CargoLink

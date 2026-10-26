@@ -1,0 +1,939 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Smart Capacity Optimizer IA &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'entrepots/css/entrepots.css' %}">
+<link rel="stylesheet" href="{% static 'entrepots/css/optimizer.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="optimizer-container">
+
+    <!-- Top AI Banner -->
+    <div class="optimizer-header">
+        <div class="optimizer-header-content">
+            <div class="ai-badge-row">
+                <span class="ai-tag-pill">
+                    <svg class="ai-sparkle" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
+                    </svg>
+                    Intelligence Artificielle
+                </span>
+                <span class="source-tag">
+                    {% if recs_source == 'gemini' %}
+                        Modèle {{ recs_model }} &bull; Google GenAI
+                    {% else %}
+                        Moteur Déterministe Local
+                    {% endif %}
+                </span>
+            </div>
+            <h1>Smart Capacity Optimizer</h1>
+            <p>Supervision en temps réel de l'état de capacité par entrepôt et simulateur prédictif d'hypothèses de charge (What-If).</p>
+        </div>
+
+        <div class="optimizer-header-actions">
+            <a href="{% url 'entrepots:capacity_optimizer_refresh' %}" class="btn-ai-refresh" id="btnRefreshAnalysis">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <polyline points="1 20 1 14 7 14"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                <span>Rafraîchir l'analyse</span>
+            </a>
+            <a href="{% url 'entrepots:entrepot_list' %}" class="btn-back-entrepots">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Entrepôts & Quais
+            </a>
+        </div>
+    </div>
+
+    <!-- Section A : KPI Global Overview -->
+    <div class="kpi-optimizer-grid">
+        <div class="kpi-opt-card">
+            <div class="kpi-opt-top">
+                <span class="kpi-opt-label">Infrastructures</span>
+                <div class="kpi-opt-icon blue">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V9l9-6 9 6v12H3z"/><path d="M9 21v-7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>
+                </div>
+            </div>
+            <div class="kpi-opt-value">{{ metrics.total_entrepots }} <span class="kpi-opt-unit">sites</span></div>
+            <div class="kpi-opt-subtext">Réseau d'entrepôts enregistrés</div>
+        </div>
+
+        <div class="kpi-opt-card">
+            <div class="kpi-opt-top">
+                <span class="kpi-opt-label">Quais de Chargement</span>
+                <div class="kpi-opt-icon violet">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M6 7V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><line x1="2" y1="13" x2="22" y2="13"/></svg>
+                </div>
+            </div>
+            <div class="kpi-opt-value">{{ metrics.total_quais }} <span class="kpi-opt-unit">quais ({{ metrics.quais_operationnels }} opé.)</span></div>
+            <div class="kpi-opt-subtext">{{ metrics.quais_disponibles }} libres &bull; {{ metrics.quais_occupes }} occupés &bull; {{ metrics.quais_reserves }} réservés</div>
+        </div>
+
+        <div class="kpi-opt-card">
+            <div class="kpi-opt-top">
+                <span class="kpi-opt-label">Capacité Théorique</span>
+                <div class="kpi-opt-icon cyan">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                </div>
+            </div>
+            <div class="kpi-opt-value">{{ metrics.capacite_totale_palettes|default:"0" }} <span class="kpi-opt-unit">palettes</span></div>
+            <div class="kpi-opt-subtext">{{ metrics.superficie_totale_m2|default:"0" }} m² de surface totale</div>
+        </div>
+
+        <div class="kpi-opt-card">
+            <div class="kpi-opt-top">
+                <span class="kpi-opt-label">Taux d'Occupation</span>
+                <div class="kpi-opt-icon emerald">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+                </div>
+            </div>
+            <div class="kpi-opt-value">{{ metrics.taux_utilisation_quais_global }}%</div>
+            <div class="kpi-opt-subtext">(Occupés + Réservés) / Quais Opé.</div>
+        </div>
+
+        <div class="kpi-opt-card">
+            <div class="kpi-opt-top">
+                <span class="kpi-opt-label">Débit de Traitement</span>
+                <div class="kpi-opt-icon amber">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+            </div>
+            <div class="kpi-opt-value">{{ metrics.total_debit_theorique }} <span class="kpi-opt-unit">pal./h</span></div>
+            <div class="kpi-opt-subtext">{{ metrics.total_debit_disponible }} pal./h immédiatement disponibles</div>
+        </div>
+    </div>
+
+    <!-- Thresholds Info Bar -->
+    <div class="thresholds-info-bar">
+        <span style="font-weight: 700; color: #ffffff;">Seuils d'analyse explicites :</span>
+        <span class="threshold-badge"><span class="threshold-dot dot-under"></span> Sous-utilisation (&le; {{ thresholds.underutilized|floatformat:0 }}%)</span>
+        <span class="threshold-badge"><span class="threshold-dot dot-optimal"></span> Équilibré ({{ thresholds.underutilized|floatformat:0 }}% - {{ thresholds.near_capacity|floatformat:0 }}%)</span>
+        <span class="threshold-badge"><span class="threshold-dot dot-near"></span> Proche saturation (&ge; {{ thresholds.near_capacity|floatformat:0 }}%)</span>
+        <span class="threshold-badge"><span class="threshold-dot dot-crit"></span> Critique (&ge; {{ thresholds.critical|floatformat:0 }}%)</span>
+    </div>
+
+    <!-- Section B : Matrice de Capacité & Utilisation des Entrepôts -->
+    <div class="section-header-row">
+        <div>
+            <h2 class="section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                État de Capacité par Entrepôt
+            </h2>
+            <div class="section-subtitle">Taux d'occupation opérationnel des quais et niveau d'activité par site.</div>
+        </div>
+    </div>
+
+    <div class="warehouse-matrix-grid">
+        {% for wh in warehouses %}
+        <div class="wh-matrix-card">
+            <div>
+                <div class="wh-matrix-header">
+                    <div>
+                        <h3 class="wh-matrix-title">{{ wh.nom }}</h3>
+                        <div class="wh-matrix-code">{{ wh.code }} &bull; {{ wh.ville }}</div>
+                    </div>
+                    <span class="badge-classification {{ wh.classification }}">
+                        {{ wh.classification|title }}
+                    </span>
+                </div>
+
+                <!-- Progress Gauge (Fixed: uses --meter-w variable, valid CSS syntax) -->
+                <div class="matrix-meter-container">
+                    <div class="meter-labels">
+                        <span>Occupation des quais</span>
+                        <strong style="color: #ffffff;">{{ wh.utilization_pct }}%</strong>
+                    </div>
+                    <div class="meter-track">
+                        <div class="meter-fill {% if wh.classification == 'CRITIQUE' %}crit{% elif wh.classification == 'PROCHE_SATURATION' %}near{% elif wh.classification == 'SOUS_UTILISE' %}under{% else %}optimal{% endif %}"
+                             style="--meter-w: {{ wh.utilization_pct|floatformat:0 }}%;"></div>
+                    </div>
+                </div>
+
+                <!-- Clean Status Indicators (No Emojis) -->
+                <div class="wh-docks-pills">
+                    <span class="dock-mini-pill" title="Quais disponibles">
+                        <span class="status-indicator available"></span>{{ wh.nb_disponibles }} libre{{ wh.nb_disponibles|pluralize }}
+                    </span>
+                    <span class="dock-mini-pill" title="Quais occupés">
+                        <span class="status-indicator occupied"></span>{{ wh.nb_occupes }} occupé{{ wh.nb_occupes|pluralize }}
+                    </span>
+                    <span class="dock-mini-pill" title="Quais réservés">
+                        <span class="status-indicator reserved"></span>{{ wh.nb_reserves }} réservé{{ wh.nb_reserves|pluralize }}
+                    </span>
+                    {% if wh.nb_maintenance > 0 %}
+                    <span class="dock-mini-pill maint" title="En maintenance">
+                        <span class="status-indicator maintenance"></span>{{ wh.nb_maintenance }} maint.
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="wh-explanation-text">
+                {{ wh.explanation }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Section C : Anomalies & Risques Détectés -->
+    {% if anomalies or city_imbalances %}
+    <div class="section-header-row">
+        <div>
+            <h2 class="section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Risques & Anomalies Détectées
+            </h2>
+            <div class="section-subtitle">Déséquilibres critiques ou incohérences nécessitant une attention.</div>
+        </div>
+    </div>
+
+    <div class="anomalies-container">
+        {% for anom in anomalies %}
+        <div class="anomaly-card-item {% if anom.niveau == 'MEDIUM' %}medium{% endif %}">
+            <div class="anomaly-info-block">
+                <h4>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {{ anom.entrepôt }} &bull; {{ anom.type }}
+                </h4>
+                <p class="anomaly-desc">{{ anom.message }}</p>
+            </div>
+            <div class="anomaly-action-tip">
+                Action : {{ anom.action }}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% for imb in city_imbalances %}
+        <div class="anomaly-card-item">
+            <div class="anomaly-info-block">
+                <h4>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Déséquilibre Local : {{ imb.ville }} (Écart : {{ imb.ecart_utilization|floatformat:1 }}%)
+                </h4>
+                <p class="anomaly-desc">{{ imb.message }}</p>
+            </div>
+            <div class="anomaly-action-tip">
+                Opportunité : Rééquilibrer vers {{ imb.sousutilise.nom }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    <!-- Section D : What-If Capacity Simulator (Enhanced) -->
+    <div class="simulator-workspace" id="simulatorSection">
+        <div class="sim-header-row">
+            <div>
+                <div class="sim-pill-badge">
+                    <span class="sim-pulse-dot"></span>
+                    <span>Mode Sandbox Prédictif &bull; Zéro impact BDD</span>
+                </div>
+                <h2 class="sim-gradient-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    Simulateur d'Hypothèses de Capacité (What-If)
+                </h2>
+                <div class="section-subtitle">Modélisez en temps réel l'impact de variations de volume palettes ou de charge quai sur vos flux logistiques.</div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="sim-quick-presets">
+                <span class="preset-label">Scénarios :</span>
+                <button type="button" class="btn-preset active" data-preset="nominal" onclick="applyPreset('nominal')" title="Revenir à la situation nominale actuelle">🎯 Nominal</button>
+                <button type="button" class="btn-preset" data-preset="pic15" onclick="applyPreset('pic15')" title="Augmenter le volume palettes de 15%">📈 +15% Palettes</button>
+                <button type="button" class="btn-preset" data-preset="pic30" onclick="applyPreset('pic30')" title="Forte affluence de 30%">⚡ +30% Palettes</button>
+                <button type="button" class="btn-preset" data-preset="docks_sat" onclick="applyPreset('docks_sat')" title="Simuler l'occupation de tous les quais opérationnels">🛑 Quais Saturés</button>
+                <button type="button" class="btn-preset" data-preset="creux" onclick="applyPreset('creux')" title="Baisse d'activité de 20%">📉 -20% Palettes</button>
+            </div>
+        </div>
+
+        <div class="sim-grid-layout">
+            <!-- Left Controls Panel -->
+            <div class="sim-controls-panel">
+                <!-- Warehouse Selector -->
+                <div class="sim-field-group">
+                    <label for="simWarehouseSelect" class="sim-label">
+                        <span>Entrepôt à modéliser :</span>
+                        <span class="sim-label-hint">Sélectionnez le site logistique</span>
+                    </label>
+                    <div class="sim-select-wrapper">
+                        <select id="simWarehouseSelect" class="sim-select" onchange="onSelectWarehouseChange()">
+                            {% for wh in warehouses %}
+                            <option value="{{ wh.id }}"
+                                    data-nom="{{ wh.nom }}"
+                                    data-code="{{ wh.code }}"
+                                    data-ville="{{ wh.ville }}"
+                                    data-cap="{{ wh.capacite_palettes }}"
+                                    data-m2="{{ wh.superficie_m2|default:'0' }}"
+                                    data-totalquais="{{ wh.nb_quais }}"
+                                    data-operquais="{{ wh.quais_operationnels }}"
+                                    data-occupied="{{ wh.nb_occupes|add:wh.nb_reserves }}"
+                                    data-available="{{ wh.nb_disponibles }}"
+                                    data-util="{{ wh.utilization_pct }}">
+                                {{ wh.nom }} ({{ wh.code }} &bull; {{ wh.ville }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Selected Warehouse Baseline Snapshot Chips -->
+                    <div class="sim-wh-meta-bar" id="simWhMetaBar">
+                        <span class="sim-wh-chip" id="chipVille"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="valVille">-</span></span>
+                        <span class="sim-wh-chip" id="chipCap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span id="valCapBase">0 pal.</span></span>
+                        <span class="sim-wh-chip" id="chipM2"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span id="valM2Base">0 m²</span></span>
+                        <span class="sim-wh-chip" id="chipQuais"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span id="valQuaisBase">0 quai(s)</span></span>
+                    </div>
+                </div>
+
+                <!-- Capacity Slider Control -->
+                <div class="sim-field-group">
+                    <div class="sim-field-header">
+                        <label for="simCapacitySlider" class="sim-label">Capacité en Palettes proposée :</label>
+                        <div class="sim-stepper-control">
+                            <button type="button" class="btn-stepper" onclick="stepCapacity(-100)" title="Diminuer de 100 palettes">−</button>
+                            <input type="number" id="simCapacityInput" class="sim-stepper-input" min="10" step="100"
+                                   oninput="syncCapInputToSlider(this.value)">
+                            <button type="button" class="btn-stepper" onclick="stepCapacity(100)" title="Augmenter de 100 palettes">+</button>
+                            <span class="sim-unit-badge">pal.</span>
+                        </div>
+                    </div>
+                    <div class="sim-slider-container">
+                        <input type="range" id="simCapacitySlider" class="sim-slider" min="100" max="25000" step="100"
+                               oninput="syncCapSliderToInput(this.value)">
+                        <div class="sim-slider-ticks">
+                            <span>Min: 100</span>
+                            <span id="simCapBaselineLabel" class="tick-baseline">Base: 0</span>
+                            <span id="simCapMaxLabel">Max: 25 000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Docks Occupied Slider Control -->
+                <div class="sim-field-group">
+                    <div class="sim-field-header">
+                        <label for="simDocksOccupiedSlider" class="sim-label">Quais occupés / réservés hypothétiques :</label>
+                        <div class="sim-stepper-control">
+                            <button type="button" class="btn-stepper" onclick="stepDocks(-1)" title="Diminuer d'un quai">−</button>
+                            <input type="number" id="simDocksOccupiedInput" class="sim-stepper-input" style="width: 55px;" min="0" step="1"
+                                   oninput="syncDocksInputToSlider(this.value)">
+                            <button type="button" class="btn-stepper" onclick="stepDocks(1)" title="Augmenter d'un quai">+</button>
+                            <span class="sim-unit-badge">quai(s)</span>
+                        </div>
+                    </div>
+                    <div class="sim-slider-container">
+                        <input type="range" id="simDocksOccupiedSlider" class="sim-slider" min="0" max="10" step="1"
+                               oninput="syncDocksSliderToInput(this.value)">
+                        <div class="sim-slider-ticks">
+                            <span>0 (Tous libres)</span>
+                            <span id="simDockMaxLabel">Max opé.</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Visual Dock Bay Grid -->
+                    <div class="sim-dock-visual-grid" id="simDockVisualGrid"></div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="sim-actions-row">
+                    <button type="button" class="btn-sim-reset" onclick="resetSimulator()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span>Réinitialiser</span>
+                    </button>
+                    <button type="button" class="btn-sim-copy" onclick="copySimulationSummary()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span id="copyBtnText">Copier la synthèse</span>
+                    </button>
+                    <button type="button" class="btn-sim-server" onclick="validateOnServer()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span id="serverBtnText">Vérification Serveur</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Results Panel -->
+            <div class="sim-results-panel">
+                <div id="simStatusBanner" class="sim-status-banner OPTIMAL">
+                    <div class="status-icon-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="status-content-box">
+                        <span id="simStatusText" class="status-title">Configuration simulée viable</span>
+                        <span id="simStatusSubtext" class="status-sub">Les flux et l'espace restent dans les marges optimales.</span>
+                    </div>
+                </div>
+
+                <!-- Visual Gauges Cards -->
+                <div class="sim-comparison-cards">
+                    <!-- Pallets Comparison Card -->
+                    <div class="comp-card-v2">
+                        <div class="comp-v2-header">
+                            <span class="comp-v2-title">Capacité Palettes</span>
+                            <span class="delta-badge" id="simCapDelta">+0%</span>
+                        </div>
+                        <div class="comp-v2-metric-row">
+                            <div class="metric-col">
+                                <span class="metric-caption">Actuelle</span>
+                                <span class="metric-num muted" id="simCapBefore">0</span>
+                            </div>
+                            <div class="metric-arrow">➔</div>
+                            <div class="metric-col">
+                                <span class="metric-caption">Simulée</span>
+                                <span class="metric-num cyan" id="simCapAfter">0</span>
+                            </div>
+                        </div>
+                        <!-- Mini Progress Bar -->
+                        <div class="sim-gauge-track">
+                            <div class="sim-gauge-fill" id="simCapGaugeFill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Docks Comparison Card -->
+                    <div class="comp-card-v2">
+                        <div class="comp-v2-header">
+                            <span class="comp-v2-title">Utilisation des Quais</span>
+                            <span class="delta-badge" id="simUtilDelta">+0%</span>
+                        </div>
+                        <div class="comp-v2-metric-row">
+                            <div class="metric-col">
+                                <span class="metric-caption">Actuelle</span>
+                                <span class="metric-num muted" id="simUtilBefore">0%</span>
+                                <span class="metric-sub-caption" id="simDispoBefore">0 libre</span>
+                            </div>
+                            <div class="metric-arrow">➔</div>
+                            <div class="metric-col">
+                                <span class="metric-caption">Simulée</span>
+                                <span class="metric-num purple" id="simUtilAfter">0%</span>
+                                <span class="metric-sub-caption" id="simDispoAfter">0 libre</span>
+                            </div>
+                        </div>
+                        <!-- Mini Progress Bar -->
+                        <div class="sim-gauge-track">
+                            <div class="sim-gauge-fill purple" id="simDockGaugeFill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Diagnostics & Density Meter -->
+                <div class="sim-diagnostics-box">
+                    <div class="diag-row">
+                        <span class="diag-label">Densité au sol estimée :</span>
+                        <div class="diag-val-group">
+                            <strong id="simDensityVal">-</strong>
+                            <span class="density-pill optimal" id="simDensityPill">Aisé</span>
+                        </div>
+                    </div>
+                    <div class="diag-row">
+                        <span class="diag-label">Quais opérationnels sur le site :</span>
+                        <strong id="simDocksTotal" style="color: #ffffff;">-</strong>
+                    </div>
+                    <div class="diag-row">
+                        <span class="diag-label">Marge de manœuvre quai :</span>
+                        <strong id="simMarginVal" style="color: #34d399;">-</strong>
+                    </div>
+                </div>
+
+                <!-- AI Real-time Insight Tip -->
+                <div class="sim-ai-insight" id="simAiInsight">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+                    <span id="simAiInsightText">Ajustez les paramètres pour visualiser l'impact logistique instantané.</span>
+                </div>
+
+                <!-- Toast Notification Box -->
+                <div id="simToast" class="sim-toast" style="display: none;"></div>
+
+                <!-- Warnings container -->
+                <div id="simWarningsList" style="margin-top: 0.65rem;"></div>
+
+                <div class="sim-safe-note">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>Simulation en mémoire vive. Aucune donnée en base n'est modifiée.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section F : Transparence & Limites des Données Modélisées -->
+    <div class="limitations-card">
+        <h4 style="color: #ffffff; margin: 0 0 0.4rem 0; font-size: 0.88rem; display: flex; align-items: center; gap: 0.45rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Périmètre d'Analyse & Cadre Méthodologique
+        </h4>
+        <ul class="limitations-list">
+            <li><strong>Modèles analysés :</strong> STRICTEMENT restreints aux modèles <code>Entrepot</code> et <code>Quai</code> de CargoLink.</li>
+            <li><strong>Capacité de stockage :</strong> Basée sur la capacité théorique maximale en palettes (<code>capacite_palettes</code>) et la superficie déclarée (<code>superficie_m2</code>).</li>
+            <li><strong>Régulation des quais :</strong> L'occupation en temps réel est évaluée à partir des statuts opérationnels déclarés (<code>OCCUPE</code>, <code>RESERVE</code>, <code>DISPONIBLE</code>, <code>MAINTENANCE</code>) et des débits horaires (<code>capacite_palettes_heure</code>).</li>
+            <li><strong>Absence de modules tiers :</strong> Conformément aux spécifications, aucune dépendance vers les chauffeurs, flottes externes ou plannings hors-périmètre n'est injectée.</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- Interactive Client-side Scripting -->
+<script id="simulator-warehouses-data" type="application/json">
+{{ simulator_warehouses_json|default:"[]"|safe }}
+</script>
+<script>
+const CSRF_TOKEN = '{{ csrf_token }}';
+const SIM_WAREHOUSES = JSON.parse(document.getElementById('simulator-warehouses-data')?.textContent?.trim() || '[]');
+
+// --- ENHANCED SIMULATOR LOGIC ---
+let activePreset = 'nominal';
+
+function getSelectedWhOption() {
+    const sel = document.getElementById('simWarehouseSelect');
+    return sel.options[sel.selectedIndex];
+}
+
+function updateSliderProgress(sliderId, val, min, max) {
+    const slider = document.getElementById(sliderId);
+    if (!slider) return;
+    const minVal = parseFloat(min) || 0;
+    const maxVal = parseFloat(max) || 100;
+    const curVal = parseFloat(val) || 0;
+    const pct = Math.max(0, Math.min(100, ((curVal - minVal) / (maxVal - minVal)) * 100));
+    slider.style.background = `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${pct}%, rgba(255, 255, 255, 0.08) ${pct}%, rgba(255, 255, 255, 0.08) 100%)`;
+}
+
+function onSelectWarehouseChange() {
+    const opt = getSelectedWhOption();
+    if (!opt) return;
+
+    const nom = opt.getAttribute('data-nom') || '';
+    const code = opt.getAttribute('data-code') || '';
+    const ville = opt.getAttribute('data-ville') || '';
+    const currentCap = parseInt(opt.getAttribute('data-cap')) || 1000;
+    const superficieM2 = parseFloat(opt.getAttribute('data-m2')) || 0;
+    const operQuais = parseInt(opt.getAttribute('data-operquais')) || 0;
+    const currentOccupied = parseInt(opt.getAttribute('data-occupied')) || 0;
+    const currentDispo = parseInt(opt.getAttribute('data-available')) || 0;
+    const currentUtil = parseFloat(opt.getAttribute('data-util')) || 0;
+
+    // Update Meta Snapshot Chips
+    document.getElementById('valVille').textContent = ville ? `${ville} (${code})` : code;
+    document.getElementById('valCapBase').textContent = currentCap.toLocaleString('fr-FR') + ' pal.';
+    document.getElementById('valM2Base').textContent = superficieM2 ? superficieM2.toLocaleString('fr-FR') + ' m²' : 'N/A';
+    document.getElementById('valQuaisBase').textContent = `${operQuais} quai(s) (${currentDispo} libre)`;
+
+    // Update capacity slider bounds & values
+    const capSlider = document.getElementById('simCapacitySlider');
+    const capInput = document.getElementById('simCapacityInput');
+    const capMax = Math.max(25000, currentCap * 2);
+    capSlider.min = 100;
+    capSlider.max = capMax;
+    capSlider.value = currentCap;
+    capInput.value = currentCap;
+    capInput.max = capMax;
+
+    document.getElementById('simCapBaselineLabel').textContent = `Base: ${currentCap.toLocaleString('fr-FR')}`;
+    document.getElementById('simCapMaxLabel').textContent = `Max: ${capMax.toLocaleString('fr-FR')}`;
+
+    // Update dock slider bounds & values
+    const dockSlider = document.getElementById('simDocksOccupiedSlider');
+    const dockInput = document.getElementById('simDocksOccupiedInput');
+    dockSlider.min = 0;
+    dockSlider.max = Math.max(1, operQuais);
+    dockSlider.value = Math.min(currentOccupied, operQuais);
+    dockInput.value = Math.min(currentOccupied, operQuais);
+    dockInput.max = operQuais;
+
+    document.getElementById('simDockMaxLabel').textContent = `Max: ${operQuais} quai(s)`;
+
+    // Reset preset buttons styling
+    setPresetActive('nominal');
+
+    calculateSimulation();
+}
+
+function setPresetActive(name) {
+    activePreset = name;
+    document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === name);
+    });
+}
+
+function applyPreset(name) {
+    const opt = getSelectedWhOption();
+    if (!opt) return;
+
+    const currentCap = parseInt(opt.getAttribute('data-cap')) || 1000;
+    const operQuais = parseInt(opt.getAttribute('data-operquais')) || 0;
+    const currentOccupied = parseInt(opt.getAttribute('data-occupied')) || 0;
+
+    const capSlider = document.getElementById('simCapacitySlider');
+    const capInput = document.getElementById('simCapacityInput');
+    const dockSlider = document.getElementById('simDocksOccupiedSlider');
+    const dockInput = document.getElementById('simDocksOccupiedInput');
+
+    setPresetActive(name);
+
+    if (name === 'nominal') {
+        capSlider.value = currentCap;
+        capInput.value = currentCap;
+        dockSlider.value = Math.min(currentOccupied, operQuais);
+        dockInput.value = Math.min(currentOccupied, operQuais);
+    } else if (name === 'pic15') {
+        const val = Math.round(currentCap * 1.15 / 50) * 50;
+        capSlider.value = Math.min(parseInt(capSlider.max), val);
+        capInput.value = Math.min(parseInt(capSlider.max), val);
+    } else if (name === 'pic30') {
+        const val = Math.round(currentCap * 1.30 / 50) * 50;
+        capSlider.value = Math.min(parseInt(capSlider.max), val);
+        capInput.value = Math.min(parseInt(capSlider.max), val);
+    } else if (name === 'docks_sat') {
+        dockSlider.value = operQuais;
+        dockInput.value = operQuais;
+    } else if (name === 'creux') {
+        const val = Math.max(100, Math.round(currentCap * 0.80 / 50) * 50);
+        capSlider.value = val;
+        capInput.value = val;
+    }
+
+    calculateSimulation();
+}
+
+function stepCapacity(delta) {
+    const capSlider = document.getElementById('simCapacitySlider');
+    const capInput = document.getElementById('simCapacityInput');
+    let val = (parseInt(capInput.value) || 0) + delta;
+    val = Math.max(parseInt(capSlider.min), Math.min(parseInt(capSlider.max), val));
+    capSlider.value = val;
+    capInput.value = val;
+    setPresetActive('custom');
+    calculateSimulation();
+}
+
+function stepDocks(delta) {
+    const dockSlider = document.getElementById('simDocksOccupiedSlider');
+    const dockInput = document.getElementById('simDocksOccupiedInput');
+    let val = (parseInt(dockInput.value) || 0) + delta;
+    val = Math.max(parseInt(dockSlider.min), Math.min(parseInt(dockSlider.max), val));
+    dockSlider.value = val;
+    dockInput.value = val;
+    setPresetActive('custom');
+    calculateSimulation();
+}
+
+function syncCapSliderToInput(val) {
+    document.getElementById('simCapacityInput').value = val;
+    setPresetActive('custom');
+    calculateSimulation();
+}
+
+function syncCapInputToSlider(val) {
+    const slider = document.getElementById('simCapacitySlider');
+    let num = parseInt(val) || 0;
+    if (num > parseInt(slider.max)) {
+        slider.max = num;
+        document.getElementById('simCapMaxLabel').textContent = `Max: ${num.toLocaleString('fr-FR')}`;
+    }
+    slider.value = num;
+    setPresetActive('custom');
+    calculateSimulation();
+}
+
+function syncDocksSliderToInput(val) {
+    document.getElementById('simDocksOccupiedInput').value = val;
+    setPresetActive('custom');
+    calculateSimulation();
+}
+
+function syncDocksInputToSlider(val) {
+    document.getElementById('simDocksOccupiedSlider').value = val;
+    setPresetActive('custom');
+    calculateSimulation();
+}
+
+function resetSimulator() {
+    applyPreset('nominal');
+}
+
+function renderDockVisualGrid(operQuais, simOccupied) {
+    const grid = document.getElementById('simDockVisualGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    if (operQuais <= 0) {
+        grid.innerHTML = '<span style="font-size: 0.72rem; color: #94a3b8;">Aucun quai opérationnel sur cet entrepôt.</span>';
+        return;
+    }
+
+    for (let i = 1; i <= operQuais; i++) {
+        const isOccupied = i <= simOccupied;
+        const bay = document.createElement('div');
+        bay.className = 'sim-dock-bay ' + (isOccupied ? 'occupied' : 'available');
+        bay.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <span>Q-${i < 10 ? '0' + i : i}</span>
+            <span style="font-size: 0.6rem; opacity: 0.85;">${isOccupied ? 'Occupé' : 'Libre'}</span>
+        `;
+        grid.appendChild(bay);
+    }
+}
+
+function calculateSimulation() {
+    const opt = getSelectedWhOption();
+    if (!opt) return;
+
+    const currentCap = parseInt(opt.getAttribute('data-cap')) || 0;
+    const superficieM2 = parseFloat(opt.getAttribute('data-m2')) || 0;
+    const operQuais = parseInt(opt.getAttribute('data-operquais')) || 0;
+    const currentOccupied = parseInt(opt.getAttribute('data-occupied')) || 0;
+    const currentDispo = parseInt(opt.getAttribute('data-available')) || 0;
+    const currentUtil = parseFloat(opt.getAttribute('data-util')) || 0;
+
+    const capSlider = document.getElementById('simCapacitySlider');
+    const proposedCap = parseInt(document.getElementById('simCapacityInput').value) || 0;
+    const simOccupied = parseInt(document.getElementById('simDocksOccupiedInput').value) || 0;
+    const dockSlider = document.getElementById('simDocksOccupiedSlider');
+
+    // Update track progress fill
+    updateSliderProgress('simCapacitySlider', proposedCap, parseInt(capSlider.min), parseInt(capSlider.max));
+    updateSliderProgress('simDocksOccupiedSlider', simOccupied, parseInt(dockSlider.min), parseInt(dockSlider.max));
+
+    // Render interactive visual docks
+    renderDockVisualGrid(operQuais, simOccupied);
+
+    // Numerical calculations
+    const deltaCap = proposedCap - currentCap;
+    const deltaCapPct = currentCap > 0 ? ((deltaCap / currentCap) * 100).toFixed(1) : 0;
+
+    let simUtil = 0;
+    let simDispo = 0;
+    if (operQuais > 0) {
+        simUtil = ((simOccupied / operQuais) * 100).toFixed(1);
+        simDispo = Math.max(0, operQuais - simOccupied);
+    }
+    const deltaUtil = (simUtil - currentUtil).toFixed(1);
+
+    // Density calculation
+    let density = '-';
+    let densityVal = null;
+    let densityStatus = 'optimal';
+    let densityPillText = 'Aisé';
+
+    if (superficieM2 > 0 && proposedCap > 0) {
+        densityVal = (superficieM2 / proposedCap).toFixed(2);
+        density = densityVal + ' m²/palette';
+        if (densityVal < 0.8) {
+            densityStatus = 'danger';
+            densityPillText = 'Critique (<0.8)';
+        } else if (densityVal < 1.2) {
+            densityStatus = 'warning';
+            densityPillText = 'Tendu (0.8-1.2)';
+        } else {
+            densityStatus = 'optimal';
+            densityPillText = 'Optimal (>1.2)';
+        }
+    }
+
+    // Warnings and validation
+    const warnings = [];
+    let statusClass = 'OPTIMAL';
+    let statusTitle = 'Configuration simulée viable';
+    let statusSub = 'L\'espace physique et les débits de quais restent équilibrés.';
+    let aiInsightText = '';
+
+    if (proposedCap <= 0) {
+        warnings.push("La capacité proposée doit être strictement supérieure à zéro.");
+        statusClass = 'INVALIDE';
+        statusTitle = 'Hypothèse invalide';
+        statusSub = 'Veuillez saisir un volume de palettes réaliste.';
+        aiInsightText = 'La capacité en palettes ne peut pas être nulle ou négative dans les opérations logistiques.';
+    } else if (densityVal && densityVal < 0.8) {
+        warnings.push(`Densité critique (${densityVal} m²/pal.) : risque d'encombrement physique des voies de manutention.`);
+        statusClass = 'AVERTISSEMENT';
+        statusTitle = 'Alerte densité critique au sol';
+        statusSub = 'Risque élevé de blocage des chariots élévateurs et ralentissement des flux.';
+        aiInsightText = `Avec ${densityVal} m²/palette, vos allées risquent d'être saturées. Prévoyez du rayonnage verticalisé ou limitez le volume à ${Math.round(superficieM2 / 0.85)} palettes.`;
+    }
+
+    if (simOccupied > operQuais) {
+        warnings.push(`Quais occupés simulés (${simOccupied}) supérieurs aux quais opérationnels (${operQuais}).`);
+        statusClass = 'AVERTISSEMENT';
+        statusTitle = 'Dépassement de capacité quai';
+        statusSub = 'Plus de camions que de postes de déchargement disponibles.';
+        aiInsightText = `Tous vos quais (${operQuais}) sont dépassés. Risque de formation immédiate de files d'attente à l'entrée du site.`;
+    } else if (operQuais > 0 && simOccupied === operQuais) {
+        if (statusClass === 'OPTIMAL') {
+            statusClass = 'AVERTISSEMENT';
+            statusTitle = 'Saturation complète des quais (100%)';
+            statusSub = 'Aucune marge pour imprévu ou retard transporteur.';
+        }
+        if (!aiInsightText) {
+            aiInsightText = '100% des quais sont occupés : le moindre retard chauffeur engendrera un effet domino sur la cour logistique.';
+        }
+    }
+
+    if (!aiInsightText) {
+        if (deltaCap > 0 && simDispo >= 1) {
+            aiInsightText = `Scénario très fluide : la hausse de volume (+${deltaCapPct}%) est absorbée sans friction par vos ${simDispo} quai(s) encore disponible(s).`;
+        } else if (deltaCap < 0) {
+            aiInsightText = `Libération d'espace : vous dégagez ${Math.abs(deltaCap).toLocaleString('fr-FR')} palettes de réserve, utilisables pour du stockage tampon ou de la réexpédition.`;
+        } else {
+            aiInsightText = 'Configuration nominale équilibrée : le rythme d\'entrée/sortie est en phase avec les capacités déclarées.';
+        }
+    }
+
+    // Render metrics
+    document.getElementById('simCapBefore').textContent = currentCap.toLocaleString('fr-FR');
+    document.getElementById('simCapAfter').textContent = proposedCap.toLocaleString('fr-FR');
+
+    const capDeltaElem = document.getElementById('simCapDelta');
+    capDeltaElem.textContent = (deltaCap >= 0 ? '+' : '') + deltaCapPct + '%';
+    capDeltaElem.className = 'delta-badge ' + (deltaCap > 0 ? 'pos' : deltaCap < 0 ? 'neg' : 'zero');
+
+    document.getElementById('simUtilBefore').textContent = currentUtil + '%';
+    document.getElementById('simDispoBefore').textContent = currentDispo + ' libre(s)';
+
+    document.getElementById('simUtilAfter').textContent = simUtil + '%';
+    document.getElementById('simDispoAfter').textContent = simDispo + ' libre(s)';
+
+    const utilDeltaElem = document.getElementById('simUtilDelta');
+    utilDeltaElem.textContent = (deltaUtil >= 0 ? '+' : '') + deltaUtil + '%';
+    utilDeltaElem.className = 'delta-badge ' + (deltaUtil <= 0 ? 'pos' : 'neg');
+
+    // Mini gauges
+    const maxGaugeCap = parseInt(capSlider.max) || 25000;
+    const capGaugePct = Math.min(100, Math.max(0, (proposedCap / maxGaugeCap) * 100));
+    document.getElementById('simCapGaugeFill').style.width = capGaugePct + '%';
+
+    const dockGaugePct = Math.min(100, Math.max(0, parseFloat(simUtil) || 0));
+    document.getElementById('simDockGaugeFill').style.width = dockGaugePct + '%';
+
+    // Diagnostics
+    document.getElementById('simDensityVal').textContent = density;
+    const densityPill = document.getElementById('simDensityPill');
+    densityPill.textContent = densityPillText;
+    densityPill.className = 'density-pill ' + densityStatus;
+
+    document.getElementById('simDocksTotal').textContent = operQuais + ' quai(s)';
+    document.getElementById('simMarginVal').textContent = simDispo > 0 ? `+${simDispo} quai(s) disponible(s)` : 'Aucune marge (Saturation)';
+    document.getElementById('simMarginVal').style.color = simDispo > 0 ? '#34d399' : '#fb7185';
+
+    // AI Insight
+    document.getElementById('simAiInsightText').textContent = aiInsightText;
+
+    // Status Banner
+    const banner = document.getElementById('simStatusBanner');
+    banner.className = 'sim-status-banner ' + statusClass;
+    document.getElementById('simStatusText').textContent = statusTitle;
+    document.getElementById('simStatusSubtext').textContent = statusSub;
+
+    // Warnings list
+    const warnContainer = document.getElementById('simWarningsList');
+    warnContainer.innerHTML = '';
+    warnings.forEach(w => {
+        const div = document.createElement('div');
+        div.style.cssText = 'font-size: 0.74rem; color: #fbbf24; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(245, 158, 11, 0.1); padding: 0.3rem 0.55rem; border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.2);';
+        div.innerHTML = '⚠️ ' + w;
+        warnContainer.appendChild(div);
+    });
+}
+
+function copySimulationSummary() {
+    const opt = getSelectedWhOption();
+    if (!opt) return;
+
+    const nom = opt.getAttribute('data-nom') || opt.text;
+    const currentCap = document.getElementById('simCapBefore').textContent;
+    const propCap = document.getElementById('simCapAfter').textContent;
+    const deltaCap = document.getElementById('simCapDelta').textContent;
+    const currentUtil = document.getElementById('simUtilBefore').textContent;
+    const propUtil = document.getElementById('simUtilAfter').textContent;
+    const density = document.getElementById('simDensityVal').textContent;
+    const status = document.getElementById('simStatusText').textContent;
+    const insight = document.getElementById('simAiInsightText').textContent;
+
+    const text = `[CargoLink • Simulation What-If - ${nom}]\n` +
+                 `• Capacité Palettes : ${currentCap} -> ${propCap} (${deltaCap})\n` +
+                 `• Utilisation Quais : ${currentUtil} -> ${propUtil}\n` +
+                 `• Densité calculée  : ${density}\n` +
+                 `• Faisabilité       : ${status}\n` +
+                 `• Analyse IA        : ${insight}`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showSimToast('✓ Scénario copié dans le presse-papiers !');
+        }).catch(() => {
+            showSimToast('✓ Synthèse générée.');
+        });
+    } else {
+        showSimToast('✓ Synthèse générée.');
+    }
+}
+
+function showSimToast(msg) {
+    const toast = document.getElementById('simToast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3200);
+}
+
+function validateOnServer() {
+    const opt = getSelectedWhOption();
+    if (!opt) return;
+
+    const entrepotId = opt.value;
+    const proposedCap = parseInt(document.getElementById('simCapacityInput').value) || 0;
+    const simOccupied = parseInt(document.getElementById('simDocksOccupiedInput').value) || 0;
+    const btnText = document.getElementById('serverBtnText');
+    const originalText = btnText.textContent;
+    btnText.textContent = 'Calcul en cours...';
+
+    fetch("{% url 'entrepots:capacity_optimizer_simulate' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN,
+        },
+        body: JSON.stringify({
+            entrepot_id: entrepotId,
+            proposed_capacite_palettes: proposedCap,
+            hypothetical_occupied_docks: simOccupied,
+        }),
+    })
+    .then(res => res.json())
+    .then(data => {
+        btnText.textContent = originalText;
+        if (data.success) {
+            showSimToast(`✓ Validation serveur réussie : statut ${data.faisabilite}`);
+            if (data.avertissements && data.avertissements.length > 0) {
+                const warnContainer = document.getElementById('simWarningsList');
+                data.avertissements.forEach(w => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'font-size: 0.74rem; color: #38bdf8; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(6, 182, 212, 0.1); padding: 0.3rem 0.55rem; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.25);';
+                    div.innerHTML = 'ℹ️ Note serveur : ' + w;
+                    warnContainer.appendChild(div);
+                });
+            }
+        } else {
+            showSimToast('⚠️ Erreur serveur : ' + (data.error || 'Erreur inconnue'));
+        }
+    })
+    .catch(err => {
+        btnText.textContent = originalText;
+        showSimToast('⚠️ Serveur injoignable, calcul local maintenu.');
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    onSelectWarehouseChange();
+});
+</script>
+{% endblock %}

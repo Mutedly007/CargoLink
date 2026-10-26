@@ -17,6 +17,12 @@
         </div>
 
         <div class="top-actions-group">
+            <a href="{% url 'entrepots:capacity_optimizer' %}" class="btn btn-outline" style="font-size: 0.875rem; border-color: rgba(139, 92, 246, 0.45); color: #c084fc; background: rgba(139, 92, 246, 0.12); display: inline-flex; align-items: center; gap: 0.45rem;">
+                <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
+                </svg>
+                Optimiseur IA
+            </a>
             <a href="{% url 'entrepots:quai_list' %}" class="btn btn-outline" style="font-size: 0.875rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="7" width="20" height="14" rx="2"/>
@@ -27,6 +33,8 @@
                 </svg>
                 Voir tous les Quais ({{ total_quais }})
             </a>
+
+            {% if can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}
             <a href="{% url 'entrepots:entrepot_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -34,6 +42,7 @@
                 </svg>
                 Ajouter un Entrepôt
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -226,13 +235,14 @@
             <!-- Card Actions Bar -->
             <div class="card-actions-bar">
                 <a href="{% url 'entrepots:entrepot_detail' e.pk %}" class="btn-card-primary" style="display: inline-flex; align-items: center; gap: 0.4rem;">
-                    <span>Gérer & Quais</span>
+                    <span>{% if can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}Gérer & Quais{% else %}Consulter l'Entrepôt{% endif %}</span>
                     <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="5" y1="12" x2="19" y2="12"/>
                         <polyline points="12 5 19 12 12 19"/>
                     </svg>
                 </a>
                 
+                {% if can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}
                 <div class="card-icon-actions">
                     <a href="{% url 'entrepots:quai_create_for_entrepot' e.pk %}" class="btn-icon-action" title="Ajouter un quai à cet entrepôt">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -254,6 +264,7 @@
                         </svg>
                     </a>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -277,7 +288,7 @@
         </p>
         {% if query or statut_filter or ville_filter %}
             <a href="{% url 'entrepots:entrepot_list' %}" class="btn btn-outline">Réinitialiser les filtres</a>
-        {% else %}
+        {% elif can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}
             <a href="{% url 'entrepots:entrepot_create' %}" class="btn btn-accent" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>

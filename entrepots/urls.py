@@ -19,4 +19,10 @@ urlpatterns = [
     path('quais/<int:pk>/modifier/', views.quai_update, name='quai_update'),
     path('quais/<int:pk>/supprimer/', views.quai_delete, name='quai_delete'),
     path('quais/<int:pk>/toggle/', views.quai_toggle_status, name='quai_toggle_status'),
+
+    # Smart Capacity Optimizer AI (Strict Scope: Entrepot & Quai)
+    path('optimizer/', views.capacity_optimizer_dashboard, name='capacity_optimizer'),
+    path('optimizer/simulate/', views.capacity_optimizer_simulate_api, name='capacity_optimizer_simulate'),
+    path('optimizer/action/', views.capacity_optimizer_action_api, name='capacity_optimizer_action'),
+    path('optimizer/refresh/', views.capacity_optimizer_refresh_api, name='capacity_optimizer_refresh'),
 ]
