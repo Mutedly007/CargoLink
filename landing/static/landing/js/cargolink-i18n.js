@@ -367,8 +367,184 @@
             title_create: "Nouveau Chauffeur",
             title_update_prefix: "Modifier ",
 
+            // Module Entrepôts & Quais
+            wh_page_title: "Entrepôts & Régulation des Quais",
+            wh_page_sub: "Supervisez vos infrastructures de stockage, surveillez l'état d'occupation des quais et optimisez les flux entrants.",
+            wh_btn_optimizer: "Optimiseur IA",
+            wh_btn_all_quais: "Voir tous les Quais",
+            wh_btn_add_warehouse: "Ajouter un Entrepôt",
+            wh_btn_add_quai: "Ajouter un Quai",
+            wh_kpi_operational: "Entrepôts Opérationnels",
+            wh_kpi_active_quais: "Quais de Chargement",
+            wh_kpi_available_quais: "Quais Disponibles",
+            wh_kpi_occupied_quais: "Quais Occupés",
+            wh_kpi_total_capacity: "Capacité Totale (Palettes)",
+            wh_search_placeholder: "Rechercher par nom, code, ville...",
+            wh_filter_status_all: "Tous les statuts",
+            wh_filter_city_all: "Toutes les villes",
+            wh_filter_type_all: "Tous types de quais",
+            wh_status_actif: "Opérationnel / Actif",
+            wh_status_maintenance: "En maintenance",
+            wh_status_ferme: "Fermé temporairement",
+            wh_status_disponible: "Disponible",
+            wh_status_occupe: "En cours / Occupé",
+            wh_status_reserve: "Réservé (Planifié)",
+            wh_stat_capacity: "Capacité",
+            wh_stat_area: "Superficie",
+            wh_stat_quais: "Quais Actifs",
+            wh_stat_avail: "Disponibilité",
+            wh_btn_details: "Détails & Quais →",
+            wh_empty_title: "Aucun entrepôt trouvé",
+            wh_empty_desc: "Aucun site de stockage ne correspond à vos critères de recherche actuels.",
+            wh_btn_add_first: "Ajouter le premier entrepôt",
+            wh_back_list: "Annuler et retourner",
+            wh_meta_code: "Code Identification",
+            wh_meta_city: "Localisation",
+            wh_meta_manager: "Responsable du Site",
+            wh_meta_phone: "Téléphone",
+            wh_meta_email: "Email de Contact",
+            wh_meta_hours: "Horaires d'Ouverture",
+            wh_sec_quais_title: "Quais de Chargement & Déchargement",
+            wh_sec_quais_sub: "Surveillance en temps réel et régulation des accès pour les transporteurs.",
+            quai_feature_leveler: "Niveleur hydraulique",
+            quai_feature_seal: "Sas isotherme",
+            quai_spec_flow: "Débit moyen :",
+            quai_spec_simultaneous: "Camions max :",
+            quai_spec_truck_type: "Gabarit :",
+            quai_btn_occupy: "Marquer Occupé",
+            quai_btn_release: "Libérer le Quai",
+            wh_form_sub: "Renseignez les caractéristiques techniques, la localisation et les capacités de stockage de l'entrepôt.",
+            quai_form_sub: "Définissez les spécifications techniques du quai, sa capacité horaire et ses équipements.",
+            wh_lbl_nom: "Nom de l'Entrepôt *",
+            wh_lbl_code: "Code d'Identification Unique *",
+            wh_lbl_adresse: "Adresse Postale Complète *",
+            wh_lbl_ville: "Ville *",
+            wh_lbl_code_postal: "Code Postal *",
+            wh_lbl_telephone: "Téléphone de Contact",
+            wh_lbl_email: "Email de Contact",
+            wh_lbl_statut: "Statut d'Exploitation",
+            wh_lbl_gestionnaire: "Responsable / Gestionnaire",
+            wh_lbl_capacite: "Capacité de Stockage (Palettes) *",
+            wh_lbl_superficie: "Superficie en m²",
+            wh_lbl_ouverture: "Heure d'Ouverture (Format HH:MM) *",
+            wh_lbl_fermeture: "Heure de Fermeture (Format HH:MM) *",
+            wh_lbl_jours: "Jours d'Ouverture",
+            quai_lbl_entrepot: "Entrepôt Rattaché *",
+            quai_lbl_numero: "Numéro / Identifiant du Quai *",
+            quai_lbl_type: "Type de Quai *",
+            quai_lbl_statut: "Statut Initial *",
+            quai_lbl_gabarit: "Gabarit Camion Admis",
+            quai_lbl_simultaneous: "Camions Simultanés (1 à 5)",
+            quai_lbl_flow: "Débit Moyen (Palettes / Heure) *",
+            quai_lbl_equipments: "Équipements Techniques & Sécurité",
+            quai_lbl_remarks: "Consignes Particulières / Remarques",
+            btn_save_warehouse: "Enregistrer l'entrepôt",
+            btn_save_quai: "Créer le quai",
+
+            // Module Flotte & Camions
+            truck_page_title: "Gestion de la Flotte • Camions",
+            truck_page_sub: "Supervision des véhicules de transport, disponibilités opérationnelles, charges utiles et maintenance prédictive",
+            truck_btn_add: "Ajouter un Camion",
+            truck_kpi_total: "Total Véhicules",
+            truck_kpi_available: "Disponibles / Prêts",
+            truck_kpi_transit: "En Transit / Route",
+            truck_kpi_dock: "À Quai (En cours)",
+            truck_kpi_maintenance: "En Maintenance",
+            truck_kpi_urgent_ct: "Contrôles Urgents (≤15j)",
+            truck_search_placeholder: "Recherche par immatriculation, marque, modèle, transporteur...",
+            truck_filter_all_status: "Tous les états",
+            truck_filter_all_types: "Tous les gabarits",
+            truck_filter_all_norms: "Toutes les normes",
+            truck_spec_type: "Type / Gabarit",
+            truck_spec_payload: "Charge Utile",
+            truck_spec_pallets: "Capacité palettes",
+            truck_spec_mileage: "Kilométrage",
+            truck_spec_carrier_default: "Transporteur Indépendant",
+            truck_btn_view_ai: "Fiche Véhicule • IA",
+            truck_empty_title: "Aucun camion ne correspond à vos critères",
+            truck_empty_desc: "Vérifiez les filtres de recherche ou enregistrez un premier véhicule pour commencer la gestion de votre flotte.",
+            truck_btn_add_first: "Ajouter un Camion",
+            truck_back_list: "Retour au catalogue de la flotte",
+            truck_btn_quick_status: "Modifier État",
+            truck_sec_specs_title: "Caractéristiques Techniques & Logistiques",
+            truck_spec_max_payload: "Charge Utile Max",
+            truck_spec_norm: "Norme Antipollution",
+            truck_spec_last_ct: "Dernier Contrôle Technique",
+            truck_spec_next_ct: "Prochain Contrôle Exigé",
+            truck_ai_diag_title: "Diagnostic de Maintenance Prédictive (IA)",
+            truck_ai_health_score: "Indice de Santé Global",
+            truck_ai_recommendations: "Recommandations & Alertes Préventives",
+            truck_sec_passages_title: "Historique Récent des Passages & Créneaux",
+            truck_form_back: "Retour à la liste des camions",
+            truck_form_sub: "Renseignez les spécifications techniques et l'état opérationnel du véhicule.",
+            truck_sec_id: "1. Identification & Gabarit",
+            truck_sec_capacities: "2. Capacités & Motorisation",
+            truck_sec_maintenance: "3. Contrôle Technique & Exploitation",
+            truck_lbl_immat: "Immatriculation",
+            truck_lbl_marque: "Marque",
+            truck_lbl_modele: "Modèle",
+            truck_lbl_year: "Année de mise en service",
+            truck_lbl_type: "Type / Gabarit du véhicule",
+            truck_lbl_tonnage: "Charge utile maximale (Tonnes)",
+            truck_lbl_palettes: "Capacité de stockage (Palettes)",
+            truck_lbl_km: "Kilométrage actuel (km)",
+            truck_lbl_norm: "Norme environnementale",
+            truck_lbl_societe: "Entreprise / Société de transport",
+            truck_lbl_last_ct: "Dernier contrôle technique",
+            truck_lbl_next_ct: "Date limite du prochain contrôle",
+            truck_lbl_etat: "État opérationnel initial",
+            truck_lbl_notes: "Observations & Carnet d'entretien",
+            truck_btn_save: "Enregistrer le Camion",
+            btn_filter: "Filtrer",
+            btn_reset: "Réinitialiser",
+            btn_edit: "Modifier",
+            btn_delete: "Supprimer",
+
             // Toasts & feedback
             toast_lang_changed: "🌐 Langue basculée en Français",
+                    quai_btn_add_first: "Ajouter un Nouveau Quai",
+            quai_btn_manage_wh: "Gérer les Entrepôts",
+            quai_empty_desc: "Aucun quai ne correspond aux critères de filtre sélectionnés.",
+            quai_empty_title: "Aucun quai trouvé",
+            quai_filter_status_all: "Tous les statuts de quai",
+            quai_filter_wh_all: "Tous les entrepôts",
+            quai_meta_capacity: "Capacité de Traitement",
+            quai_meta_equipments: "Équipements de Sécurité",
+            quai_meta_gabarit: "Gabarit Véhicules Admis",
+            quai_meta_notes: "Consignes d'accès :",
+            quai_meta_type: "Type de Quai",
+            quai_page_sub: "Vue d'ensemble et contrôle en temps réel de tous les quais du réseau logistique.",
+            quai_page_title: "Régulation des Quais de Chargement",
+            wh_btn_add_quai_this: "Ajouter un Quai à cet Entrepôt",
+            wh_meta_capacity: "Capacité de Stockage",
+            wh_meta_contact: "Contact & Responsable",
+            wh_meta_quais: "Quais & Disponibilité",
+            truck_ai_badge: "Google Gemini IA",
+            truck_ai_btn_refresh: "Actualiser IA",
+            truck_ai_carbon_label: "Indice d'Émission Carbone (ODD 12) :",
+            truck_ai_critical_comps: "Composants Mécaniques Surveillés",
+            truck_ai_risk_lvl: "Niveau de Risque",
+            truck_ai_sub: "Diagnostic de fiabilité mécanique et prédiction d'usure calculés par intelligence artificielle.",
+            truck_ai_synthesis: "SYNTHÈSE DE L'ÉTAT DU VÉHICULE",
+            truck_ai_tip_label: "Conseil Prédictif :",
+            truck_ai_title: "Score de Santé & Maintenance Prédictive",
+            truck_btn_add_passage: "+ Enregistrer Passage",
+            truck_btn_submit_pass: "Valider le Passage",
+            truck_empty_passages: "Aucun passage en entrepôt n'a encore été consigné pour ce véhicule.",
+            truck_form_new_passage: "Nouveau Passage en Entrepôt",
+            truck_lbl_pass_cmr: "N° Bon de Livraison / CMR",
+            truck_lbl_pass_dock: "Quai d'accueil",
+            truck_lbl_pass_notes: "Observations de quai",
+            truck_lbl_pass_op: "Opération",
+            truck_lbl_pass_status: "Statut",
+            truck_lbl_pass_weight: "Poids mesuré au pont-bascule (kg)",
+            truck_lbl_pass_wh: "Entrepôt de transit",
+            truck_lbl_volume: "Volume utile (m³)",
+            truck_spec_carrier: "Société de Transport",
+            truck_spec_last_maint: "Dernière Maintenance",
+            truck_spec_odometer: "Compteur Kilométrique",
+            truck_spec_pallets_euro: "Capacité Palettes",
+            truck_spec_volume: "Volume de Fret",
         },
 
         en: {
@@ -730,8 +906,184 @@
             title_create: "New Driver",
             title_update_prefix: "Edit ",
 
+            // Module Warehouses & Docks
+            wh_page_title: "Warehouses & Dock Regulation",
+            wh_page_sub: "Supervise storage facilities, monitor dock occupancy status, and optimize inbound logistics flows.",
+            wh_btn_optimizer: "AI Optimizer",
+            wh_btn_all_quais: "View All Docks",
+            wh_btn_add_warehouse: "Add Warehouse",
+            wh_btn_add_quai: "Add Dock",
+            wh_kpi_operational: "Operational Warehouses",
+            wh_kpi_active_quais: "Loading Docks",
+            wh_kpi_available_quais: "Available Docks",
+            wh_kpi_occupied_quais: "Occupied Docks",
+            wh_kpi_total_capacity: "Total Capacity (Pallets)",
+            wh_search_placeholder: "Search by name, code, city...",
+            wh_filter_status_all: "All statuses",
+            wh_filter_city_all: "All cities",
+            wh_filter_type_all: "All dock types",
+            wh_status_actif: "Operational / Active",
+            wh_status_maintenance: "In maintenance",
+            wh_status_ferme: "Temporarily closed",
+            wh_status_disponible: "Available",
+            wh_status_occupe: "Occupied / In progress",
+            wh_status_reserve: "Reserved (Scheduled)",
+            wh_stat_capacity: "Capacity",
+            wh_stat_area: "Area",
+            wh_stat_quais: "Active Docks",
+            wh_stat_avail: "Availability",
+            wh_btn_details: "Details & Docks →",
+            wh_empty_title: "No warehouse found",
+            wh_empty_desc: "No storage facility matches your current search criteria.",
+            wh_btn_add_first: "Add first warehouse",
+            wh_back_list: "Cancel and return",
+            wh_meta_code: "Identification Code",
+            wh_meta_city: "Location",
+            wh_meta_manager: "Site Manager",
+            wh_meta_phone: "Phone",
+            wh_meta_email: "Contact Email",
+            wh_meta_hours: "Opening Hours",
+            wh_sec_quais_title: "Loading & Unloading Docks",
+            wh_sec_quais_sub: "Real-time monitoring and dock access regulation for carriers.",
+            quai_feature_leveler: "Hydraulic leveler",
+            quai_feature_seal: "Dock shelter seal",
+            quai_spec_flow: "Average throughput:",
+            quai_spec_simultaneous: "Max trucks:",
+            quai_spec_truck_type: "Size:",
+            quai_btn_occupy: "Mark Occupied",
+            quai_btn_release: "Free Dock",
+            wh_form_sub: "Specify technical characteristics, location, and storage capacity of the warehouse.",
+            quai_form_sub: "Define technical specifications, hourly throughput, and equipment of the dock.",
+            wh_lbl_nom: "Warehouse Name *",
+            wh_lbl_code: "Unique Identification Code *",
+            wh_lbl_adresse: "Full Postal Address *",
+            wh_lbl_ville: "City *",
+            wh_lbl_code_postal: "Postal Code *",
+            wh_lbl_telephone: "Contact Phone",
+            wh_lbl_email: "Contact Email",
+            wh_lbl_statut: "Operational Status",
+            wh_lbl_gestionnaire: "Manager / Supervisor",
+            wh_lbl_capacite: "Storage Capacity (Pallets) *",
+            wh_lbl_superficie: "Area in m²",
+            wh_lbl_ouverture: "Opening Time (HH:MM) *",
+            wh_lbl_fermeture: "Closing Time (HH:MM) *",
+            wh_lbl_jours: "Opening Days",
+            quai_lbl_entrepot: "Assigned Warehouse *",
+            quai_lbl_numero: "Dock Number / Identifier *",
+            quai_lbl_type: "Dock Type *",
+            quai_lbl_statut: "Initial Status *",
+            quai_lbl_gabarit: "Accepted Truck Size",
+            quai_lbl_simultaneous: "Simultaneous Trucks (1 to 5)",
+            quai_lbl_flow: "Average Flow (Pallets / Hour) *",
+            quai_lbl_equipments: "Technical Equipment & Safety",
+            quai_lbl_remarks: "Special Instructions / Remarks",
+            btn_save_warehouse: "Save Warehouse",
+            btn_save_quai: "Create Dock",
+
+            // Module Fleet & Trucks
+            truck_page_title: "Fleet Management • Trucks",
+            truck_page_sub: "Supervision of transport vehicles, operational availability, payloads, and predictive maintenance",
+            truck_btn_add: "Add a Truck",
+            truck_kpi_total: "Total Vehicles",
+            truck_kpi_available: "Available / Ready",
+            truck_kpi_transit: "In Transit / Route",
+            truck_kpi_dock: "At Dock (In progress)",
+            truck_kpi_maintenance: "Under Maintenance",
+            truck_kpi_urgent_ct: "Urgent Inspections (≤15d)",
+            truck_search_placeholder: "Search by license plate, make, model, carrier...",
+            truck_filter_all_status: "All statuses",
+            truck_filter_all_types: "All sizes",
+            truck_filter_all_norms: "All emission standards",
+            truck_spec_type: "Type / Size",
+            truck_spec_payload: "Payload",
+            truck_spec_pallets: "Pallet capacity",
+            truck_spec_mileage: "Mileage",
+            truck_spec_carrier_default: "Independent Carrier",
+            truck_btn_view_ai: "Vehicle File • AI",
+            truck_empty_title: "No truck matches your criteria",
+            truck_empty_desc: "Check your search filters or register a first vehicle to start managing your fleet.",
+            truck_btn_add_first: "Add a Truck",
+            truck_back_list: "Back to fleet catalog",
+            truck_btn_quick_status: "Change Status",
+            truck_sec_specs_title: "Technical & Logistic Specifications",
+            truck_spec_max_payload: "Max Payload",
+            truck_spec_norm: "Emission Standard",
+            truck_spec_last_ct: "Last Technical Inspection",
+            truck_spec_next_ct: "Next Inspection Due Date",
+            truck_ai_diag_title: "Predictive Maintenance Diagnostic (AI)",
+            truck_ai_health_score: "Overall Health Score",
+            truck_ai_recommendations: "Recommendations & Preventive Alerts",
+            truck_sec_passages_title: "Recent Passages & Slots History",
+            truck_form_back: "Back to trucks list",
+            truck_form_sub: "Enter technical specifications and operational status of the vehicle.",
+            truck_sec_id: "1. Identification & Size",
+            truck_sec_capacities: "2. Capacities & Engine",
+            truck_sec_maintenance: "3. Technical Inspection & Operations",
+            truck_lbl_immat: "License Plate",
+            truck_lbl_marque: "Make",
+            truck_lbl_modele: "Model",
+            truck_lbl_year: "Year of manufacture",
+            truck_lbl_type: "Vehicle type / Size",
+            truck_lbl_tonnage: "Maximum payload (Tons)",
+            truck_lbl_palettes: "Pallet storage capacity",
+            truck_lbl_km: "Current mileage (km)",
+            truck_lbl_norm: "Environmental standard",
+            truck_lbl_societe: "Transport company / Carrier",
+            truck_lbl_last_ct: "Last technical inspection",
+            truck_lbl_next_ct: "Next inspection due date",
+            truck_lbl_etat: "Initial operational status",
+            truck_lbl_notes: "Observations & Maintenance log",
+            truck_btn_save: "Save Truck",
+            btn_filter: "Filter",
+            btn_reset: "Reset",
+            btn_edit: "Edit",
+            btn_delete: "Delete",
+
             // Toasts & feedback
             toast_lang_changed: "🌐 Language switched to English",
+                    quai_btn_add_first: "Add a New Dock",
+            quai_btn_manage_wh: "Manage Warehouses",
+            quai_empty_desc: "No docks match the selected filter criteria.",
+            quai_empty_title: "No dock found",
+            quai_filter_status_all: "All dock statuses",
+            quai_filter_wh_all: "All warehouses",
+            quai_meta_capacity: "Processing Capacity",
+            quai_meta_equipments: "Safety Equipment",
+            quai_meta_gabarit: "Accepted Vehicle Sizes",
+            quai_meta_notes: "Access instructions:",
+            quai_meta_type: "Dock Type",
+            quai_page_sub: "Overview and real-time control of all docks across the logistics network.",
+            quai_page_title: "Loading Dock Regulation",
+            wh_btn_add_quai_this: "Add Dock to this Warehouse",
+            wh_meta_capacity: "Storage Capacity",
+            wh_meta_contact: "Contact & Manager",
+            wh_meta_quais: "Docks & Availability",
+            truck_ai_badge: "Google Gemini AI",
+            truck_ai_btn_refresh: "Refresh AI",
+            truck_ai_carbon_label: "Carbon Emission Index (SDG 12):",
+            truck_ai_critical_comps: "Monitored Mechanical Components",
+            truck_ai_risk_lvl: "Risk Level",
+            truck_ai_sub: "Mechanical reliability diagnosis and wear prediction calculated by AI.",
+            truck_ai_synthesis: "VEHICLE STATUS SYNTHESIS",
+            truck_ai_tip_label: "Predictive Tip:",
+            truck_ai_title: "Health Score & Predictive Maintenance",
+            truck_btn_add_passage: "+ Record Passage",
+            truck_btn_submit_pass: "Validate Passage",
+            truck_empty_passages: "No warehouse passages recorded for this vehicle yet.",
+            truck_form_new_passage: "New Warehouse Passage",
+            truck_lbl_pass_cmr: "Delivery Note / CMR No.",
+            truck_lbl_pass_dock: "Reception Dock",
+            truck_lbl_pass_notes: "Dock Observations",
+            truck_lbl_pass_op: "Operation",
+            truck_lbl_pass_status: "Status",
+            truck_lbl_pass_weight: "Scale measured weight (kg)",
+            truck_lbl_pass_wh: "Transit Warehouse",
+            truck_lbl_volume: "Usable Volume (m³)",
+            truck_spec_carrier: "Transport Company",
+            truck_spec_last_maint: "Last Maintenance",
+            truck_spec_odometer: "Odometer",
+            truck_spec_pallets_euro: "Pallet Capacity",
+            truck_spec_volume: "Freight Volume",
         },
 
         ar: {
@@ -1093,13 +1445,359 @@
             title_create: "سائق جديد",
             title_update_prefix: "تعديل ملف ",
 
+            // Module Entrepôts & Quais
+            wh_page_title: "المستودعات وتنظيم الأرصفة",
+            wh_page_sub: "إشراف كامل على منشآت التخزين ومراقبة إشغال الأرصفة وتحسين تدفق الشاحنات الواردة.",
+            wh_btn_optimizer: "مُحسِّن الذكاء الاصطناعي",
+            wh_btn_all_quais: "عرض جميع الأرصفة",
+            wh_btn_add_warehouse: "إضافة مستودع",
+            wh_btn_add_quai: "إضافة رصيف",
+            wh_kpi_operational: "المستودعات التشغيلية",
+            wh_kpi_active_quais: "أرصفة الشحن",
+            wh_kpi_available_quais: "الأرصفة المتاحة",
+            wh_kpi_occupied_quais: "الأرصفة المشغولة",
+            wh_kpi_total_capacity: "السعة الإجمالية (منصات)",
+            wh_search_placeholder: "البحث بالاسم، الرمز، المدينة...",
+            wh_filter_status_all: "جميع الحالات",
+            wh_filter_city_all: "جميع المدن",
+            wh_filter_type_all: "جميع أنواع الأرصفة",
+            wh_status_actif: "تشغيلي / نشط",
+            wh_status_maintenance: "في الصيانة",
+            wh_status_ferme: "مغلق مؤقتاً",
+            wh_status_disponible: "متاح",
+            wh_status_occupe: "مشغول / قيد العمل",
+            wh_status_reserve: "محجوز (مجدول)",
+            wh_stat_capacity: "السعة",
+            wh_stat_area: "المساحة",
+            wh_stat_quais: "الأرصفة النشطة",
+            wh_stat_avail: "التوفر",
+            wh_btn_details: "التفاصيل والأرصفة ←",
+            wh_empty_title: "لم يتم العثور على أي مستودع",
+            wh_empty_desc: "لا توجد منشأة تخزين تطابق معايير البحث المحددة حالياً.",
+            wh_btn_add_first: "إضافة أول مستودع",
+            wh_back_list: "إلغاء والعودة",
+            wh_meta_code: "رمز التعريف",
+            wh_meta_city: "الموقع الجغرافي",
+            wh_meta_manager: "مسؤول الموقع",
+            wh_meta_phone: "رقم الهاتف",
+            wh_meta_email: "البريد الإلكتروني",
+            wh_meta_hours: "أوقات العمل",
+            wh_sec_quais_title: "أرصفة الشحن والتفريغ",
+            wh_sec_quais_sub: "مراقبة فورية وتنظيم وصول شاحنات الناقلين للأرصفة.",
+            quai_feature_leveler: "مسوِّي هيدروليكي",
+            quai_feature_seal: "ستار عازل للحرارة",
+            quai_spec_flow: "معدل التدفق :",
+            quai_spec_simultaneous: "أقصى شاحنات :",
+            quai_spec_truck_type: "الصنف :",
+            quai_btn_occupy: "تحديد كمشغول",
+            quai_btn_release: "تحرير الرصيف",
+            wh_form_sub: "أدخل المواصفات التقنية والموقع الجغرافي وسعة التخزين للمستودع.",
+            quai_form_sub: "حدد المواصفات الفنية للرصيف وطاقة التدفق بالساعة والتجهيزات المتوفرة.",
+            wh_lbl_nom: "اسم المستودع *",
+            wh_lbl_code: "رمز التعريف الفريد *",
+            wh_lbl_adresse: "العنوان البريدي الكامل *",
+            wh_lbl_ville: "المدينة *",
+            wh_lbl_code_postal: "الرمز البريدي *",
+            wh_lbl_telephone: "رقم هاتف الاتصال",
+            wh_lbl_email: "البريد الإلكتروني للاتصال",
+            wh_lbl_statut: "الحالة التشغيلية",
+            wh_lbl_gestionnaire: "المسؤول / المدير",
+            wh_lbl_capacite: "سعة التخزين (منصات) *",
+            wh_lbl_superficie: "المساحة بالمتر المربع",
+            wh_lbl_ouverture: "ساعة الفتح (تنسيق HH:MM) *",
+            wh_lbl_fermeture: "ساعة الإغلاق (تنسيق HH:MM) *",
+            wh_lbl_jours: "أيام العمل",
+            quai_lbl_entrepot: "المستودع المرتبط *",
+            quai_lbl_numero: "رقم / معرّف الرصيف *",
+            quai_lbl_type: "صنف الرصيف *",
+            quai_lbl_statut: "الحالة الأولية *",
+            quai_lbl_gabarit: "حجم الشاحنات المقبول",
+            quai_lbl_simultaneous: "الشاحنات المتزامنة (1 إلى 5)",
+            quai_lbl_flow: "معدل التفريغ (منصات / ساعة) *",
+            quai_lbl_equipments: "التجهيزات الفنية والسلامة",
+            quai_lbl_remarks: "تعليمات خاصة / ملاحظات",
+            btn_save_warehouse: "حفظ بيانات المستودع",
+            btn_save_quai: "إنشاء الرصيف",
+
+            // Module Flotte & Camions
+            truck_page_title: "إدارة الأسطول والشاحنات",
+            truck_page_sub: "مراقبة مركبات النقل والجاهزية التشغيلية والحمولات والصيانة التنبؤية بالذكاء الاصطناعي",
+            truck_btn_add: "إضافة شاحنة جديدة",
+            truck_kpi_total: "إجمالي المركبات",
+            truck_kpi_available: "متاحة / جاهزة",
+            truck_kpi_transit: "في الطريق / عبور",
+            truck_kpi_dock: "على الرصيف (قيد العمل)",
+            truck_kpi_maintenance: "في الصيانة",
+            truck_kpi_urgent_ct: "فحص فني عاجل (≤15 يوم)",
+            truck_search_placeholder: "البحث برقم اللوحة، الماركة، الطراز، الناقل...",
+            truck_filter_all_status: "جميع الحالات التشغيلية",
+            truck_filter_all_types: "جميع الأحجام والأصناف",
+            truck_filter_all_norms: "جميع المعايير البيئية",
+            truck_spec_type: "الصنف / الحجم",
+            truck_spec_payload: "الحمولة الصافية",
+            truck_spec_pallets: "سعة المنصات",
+            truck_spec_mileage: "المسافة المقطوعة",
+            truck_spec_carrier_default: "ناقل مستقل",
+            truck_btn_view_ai: "ملف الشاحنة • الذكاء الاصطناعي",
+            truck_empty_title: "لا توجد أي شاحنة تطابق معاييرك",
+            truck_empty_desc: "تحقق من فلاتر البحث أو أضف أول مركبة للبدء في إدارة أسطولك.",
+            truck_btn_add_first: "إضافة شاحنة جديدة",
+            truck_back_list: "العودة لكتالوج الأسطول",
+            truck_btn_quick_status: "تحديث الحالة",
+            truck_sec_specs_title: "المواصفات الفنية واللوجستية",
+            truck_spec_max_payload: "أقصى حمولة نافعة",
+            truck_spec_norm: "المعيار البيئي للانبعاثات",
+            truck_spec_last_ct: "تاريخ آخر فحص فني",
+            truck_spec_next_ct: "تاريخ الفحص الفني القادم",
+            truck_ai_diag_title: "تشخيص الصيانة التنبؤية (الذكاء الاصطناعي)",
+            truck_ai_health_score: "مؤشر السلامة العام",
+            truck_ai_recommendations: "التوصيات والتنبيهات الوقائية",
+            truck_sec_passages_title: "سجل العبور والمواعيد السابقة",
+            truck_form_back: "العودة لقائمة الشاحنات",
+            truck_form_sub: "أدخل المواصفات التقنية والحالة التشغيلية للمركبة.",
+            truck_sec_id: "1. بيانات التعريف والصنف",
+            truck_sec_capacities: "2. السعات والمحرك",
+            truck_sec_maintenance: "3. الفحص الفني والتشغيل",
+            truck_lbl_immat: "رقم اللوحة",
+            truck_lbl_marque: "العلامة التجارية",
+            truck_lbl_modele: "الطراز",
+            truck_lbl_year: "سنة الصنع والتسجيل",
+            truck_lbl_type: "صنف ونوع المركبة",
+            truck_lbl_tonnage: "الحمولة القصوى (بالأطنان)",
+            truck_lbl_palettes: "سعة التخزين (بالمنصات)",
+            truck_lbl_km: "المسافة المقطوعة (كم)",
+            truck_lbl_norm: "المعيار البيئي",
+            truck_lbl_societe: "شركة النقل / الشحن",
+            truck_lbl_last_ct: "تاريخ آخر فحص فني",
+            truck_lbl_next_ct: "تاريخ الفحص الفني القادم",
+            truck_lbl_etat: "الحالة التشغيلية الأولية",
+            truck_lbl_notes: "ملاحظات وسجل الصيانة",
+            truck_btn_save: "حفظ بيانات الشاحنة",
+            btn_filter: "تصفية",
+            btn_reset: "إعادة تعيين",
+            btn_edit: "تعديل",
+            btn_delete: "حذف",
+
             // Toasts & feedback
             toast_lang_changed: "🌐 تم تغيير لغة الواجهة إلى العربية",
+            quai_btn_add_first: "إضافة رصيف جديد",
+            quai_btn_manage_wh: "إدارة المستودعات",
+            quai_empty_desc: "لا يوجد أي رصيف يطابق معايير التصفية المحددة.",
+            quai_empty_title: "لم يتم العثور على أي رصيف",
+            quai_filter_status_all: "جميع حالات الأرصفة",
+            quai_filter_wh_all: "جميع المستودعات",
+            quai_meta_capacity: "سعة المعالجة",
+            quai_meta_equipments: "تجهيزات السلامة",
+            quai_meta_gabarit: "أصناف المركبات المقبولة",
+            quai_meta_notes: "تعليمات الدخول:",
+            quai_meta_type: "نوع الرصيف",
+            quai_page_sub: "نظرة شاملة وتحكم في الوقت الفعلي لجميع أرصفة الشبكة اللوجستية.",
+            quai_page_title: "تنظيم أرصفة الشحن والتفريغ",
+            wh_btn_add_quai_this: "إضافة رصيف لهذا المستودع",
+            wh_meta_capacity: "سعة التخزين",
+            wh_meta_contact: "جهة الاتصال والمسؤول",
+            wh_meta_quais: "الأرصفة والتوفر",
+            truck_ai_badge: "الذكاء الاصطناعي Google Gemini",
+            truck_ai_btn_refresh: "تحديث الذكاء الاصطناعي",
+            truck_ai_carbon_label: "مؤشر انبعاثات الكربون (الهدف 12):",
+            truck_ai_critical_comps: "المكونات الميكانيكية المراقبة",
+            truck_ai_risk_lvl: "مستوى الخطر",
+            truck_ai_sub: "تشخيص الموثوقية الميكانيكية وتنبؤ التآكل بواسطة الذكاء الاصطناعي.",
+            truck_ai_synthesis: "ملخص حالة المركبة",
+            truck_ai_tip_label: "نصيحة تنبؤية:",
+            truck_ai_title: "مؤشر السلامة والصيانة التنبؤية",
+            truck_btn_add_passage: "+ تسجيل عبور",
+            truck_btn_submit_pass: "تأكيد تسجيل العبور",
+            truck_empty_passages: "لم يتم تسجيل أي عبور بالمستودع لهذه الشاحنة حتى الآن.",
+            truck_form_new_passage: "تسجيل عبور جديد للمستودع",
+            truck_lbl_pass_cmr: "رقم وصل التسليم / CMR",
+            truck_lbl_pass_dock: "رصيف الاستقبال",
+            truck_lbl_pass_notes: "ملاحظات الرصيف",
+            truck_lbl_pass_op: "نوع العملية",
+            truck_lbl_pass_status: "الحالة",
+            truck_lbl_pass_weight: "الوزن المقاس بميزان الجسر (كغ)",
+            truck_lbl_pass_wh: "مستودع العبور",
+            truck_lbl_volume: "الحجم المفيد (م³)",
+            truck_spec_carrier: "شركة النقل",
+            truck_spec_last_maint: "آخر صيانة",
+            truck_spec_odometer: "عداد الكيلومترات",
+            truck_spec_pallets_euro: "سعة المنصات",
+            truck_spec_volume: "حجم الشحن"
         }
     };
 
     // Table of direct text phrases for elements without data-i18n attributes
     const DIRECT_PHRASES = [
+        {
+            fr: "Entrepôts & Régulation des Quais",
+            en: "Warehouses & Dock Regulation",
+            ar: "المستودعات وتنظيم الأرصفة"
+        },
+        {
+            fr: "Gestion de la Flotte • Camions",
+            en: "Fleet Management • Trucks",
+            ar: "إدارة الأسطول والشاحنات"
+        },
+        {
+            fr: "Ajouter un Camion",
+            en: "Add a Truck",
+            ar: "إضافة شاحنة"
+        },
+        {
+            fr: "Ajouter un Entrepôt",
+            en: "Add Warehouse",
+            ar: "إضافة مستودع"
+        },
+        {
+            fr: "Nouveau Quai",
+            en: "New Dock",
+            ar: "رصيف جديد"
+        },
+        {
+            fr: "Total Véhicules",
+            en: "Total Vehicles",
+            ar: "إجمالي المركبات"
+        },
+        {
+            fr: "Disponibles / Prêts",
+            en: "Available / Ready",
+            ar: "متاحة / جاهزة"
+        },
+        {
+            fr: "En Transit / Route",
+            en: "In Transit / Route",
+            ar: "في الطريق / عبور"
+        },
+        {
+            fr: "À Quai (En cours)",
+            en: "At Dock (In progress)",
+            ar: "على الرصيف (قيد العمل)"
+        },
+        {
+            fr: "En Maintenance",
+            en: "Under Maintenance",
+            ar: "في الصيانة"
+        },
+        {
+            fr: "Contrôles Urgents (≤15j)",
+            en: "Urgent Inspections (≤15d)",
+            ar: "فحص فني عاجل (≤15 يوم)"
+        },
+        {
+            fr: "Entrepôts Opérationnels",
+            en: "Operational Warehouses",
+            ar: "المستودعات التشغيلية"
+        },
+        {
+            fr: "Quais de Chargement",
+            en: "Loading Docks",
+            ar: "أرصفة الشحن"
+        },
+        {
+            fr: "Quais Disponibles",
+            en: "Available Docks",
+            ar: "الأرصفة المتاحة"
+        },
+        {
+            fr: "Quais Occupés",
+            en: "Occupied Docks",
+            ar: "الأرصفة المشغولة"
+        },
+        {
+            fr: "Capacité Totale (Palettes)",
+            en: "Total Capacity (Pallets)",
+            ar: "السعة الإجمالية (منصات)"
+        },
+        {
+            fr: "Tous les états",
+            en: "All statuses",
+            ar: "جميع الحالات"
+        },
+        {
+            fr: "Tous les gabarits",
+            en: "All sizes",
+            ar: "جميع الأصناف"
+        },
+        {
+            fr: "Toutes les normes",
+            en: "All emission standards",
+            ar: "جميع المعايير"
+        },
+        {
+            fr: "Type / Gabarit",
+            en: "Type / Size",
+            ar: "الصنف / الحجم"
+        },
+        {
+            fr: "Charge Utile",
+            en: "Payload",
+            ar: "الحمولة الصافية"
+        },
+        {
+            fr: "Capacité palettes",
+            en: "Pallet capacity",
+            ar: "سعة المنصات"
+        },
+        {
+            fr: "Kilométrage",
+            en: "Mileage",
+            ar: "المسافة المقطوعة"
+        },
+        {
+            fr: "Fiche Véhicule • IA",
+            en: "Vehicle File • AI",
+            ar: "ملف الشاحنة • الذكاء الاصطناعي"
+        },
+        {
+            fr: "Modifier État",
+            en: "Update Status",
+            ar: "تحديث الحالة"
+        },
+        {
+            fr: "Caractéristiques Techniques & Logistiques",
+            en: "Technical & Logistic Specifications",
+            ar: "المواصفات الفنية واللوجستية"
+        },
+        {
+            fr: "Charge Utile Max",
+            en: "Max Payload",
+            ar: "أقصى حمولة نافعة"
+        },
+        {
+            fr: "Norme Antipollution",
+            en: "Emission Standard",
+            ar: "معيار الانبعاثات"
+        },
+        {
+            fr: "Dernier Contrôle Technique",
+            en: "Last Technical Inspection",
+            ar: "آخر فحص فني"
+        },
+        {
+            fr: "Prochain Contrôle Exigé",
+            en: "Next Due Inspection",
+            ar: "الفحص الفني القادم"
+        },
+        {
+            fr: "Diagnostic de Maintenance Prédictive (IA)",
+            en: "Predictive Maintenance Diagnostic (AI)",
+            ar: "تشخيص الصيانة التنبؤية (الذكاء الاصطناعي)"
+        },
+        {
+            fr: "Indice de Santé Global",
+            en: "Overall Health Score",
+            ar: "مؤشر السلامة العام"
+        },
+        {
+            fr: "Recommandations & Alertes Préventives",
+            en: "Recommendations & Preventive Alerts",
+            ar: "التوصيات والتنبيهات الوقائية"
+        },
+        {
+            fr: "Historique Récent des Passages & Créneaux",
+            en: "Recent Passages & Slots History",
+            ar: "سجل العبور والمواعيد السابقة"
+        },
         {
             fr: "Régulation & Créneaux des Quais",
             en: "Dock Regulation & Time Slots",
@@ -1590,8 +2288,10 @@
             // 5. Remplacement des expressions directes (tables, filtres, options)
             this.translateDirectPhrases(lang);
 
-            // 6. Traduction dynamique du module Chauffeurs & Flotte
+            // 6. Traduction dynamique des modules
             this.translateChauffeurs(lang);
+            this.translateEntrepots(lang);
+            this.translateCamions(lang);
         },
 
         translateChauffeurs: function (lang) {
@@ -1789,6 +2489,188 @@
             }
         },
 
+        translateEntrepots: function (lang) {
+            const dict = this.getTranslations(lang);
+            const isRTL = lang === 'ar';
+
+            document.querySelectorAll('.entrepots-container, .form-page-container').forEach(c => {
+                c.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+            });
+
+            // Status mapping for Entrepôts and Quais
+            const WH_STATUS = {
+                ACTIF: { fr: "Opérationnel", en: "Operational", ar: "تشغيلي" },
+                MAINTENANCE: { fr: "Maintenance", en: "In Maintenance", ar: "في الصيانة" },
+                FERME: { fr: "Fermé", en: "Closed", ar: "مغلق" }
+            };
+            const QUAI_STATUS = {
+                DISPONIBLE: { fr: "Libre", en: "Available", ar: "متاح" },
+                OCCUPE: { fr: "Occupé", en: "Occupied", ar: "مشغول" },
+                RESERVE: { fr: "Réservé", en: "Reserved", ar: "محجوز" },
+                MAINTENANCE: { fr: "Maintenance", en: "In Maintenance", ar: "في الصيانة" }
+            };
+
+            document.querySelectorAll('.badge-status-pill').forEach(el => {
+                const dot = el.querySelector('.status-dot');
+                let targetText = null;
+
+                if (el.classList.contains('status-actif')) targetText = WH_STATUS.ACTIF[lang];
+                else if (el.classList.contains('status-disponible')) targetText = QUAI_STATUS.DISPONIBLE[lang];
+                else if (el.classList.contains('status-occupe')) targetText = QUAI_STATUS.OCCUPE[lang];
+                else if (el.classList.contains('status-reserve')) targetText = QUAI_STATUS.RESERVE[lang];
+                else if (el.classList.contains('status-maintenance')) targetText = WH_STATUS.MAINTENANCE[lang];
+                else if (el.classList.contains('status-ferme')) targetText = WH_STATUS.FERME[lang];
+
+                if (targetText) {
+                    el.innerHTML = '';
+                    if (dot) el.appendChild(dot);
+                    el.appendChild(document.createTextNode(' ' + targetText));
+                }
+            });
+
+            document.querySelectorAll('.quai-chip').forEach(el => {
+                const dot = el.querySelector('.status-dot');
+                let targetText = null;
+
+                if (el.classList.contains('status-disponible')) targetText = QUAI_STATUS.DISPONIBLE[lang];
+                else if (el.classList.contains('status-occupe')) targetText = QUAI_STATUS.OCCUPE[lang];
+                else if (el.classList.contains('status-reserve')) targetText = QUAI_STATUS.RESERVE[lang];
+                else if (el.classList.contains('status-maintenance')) targetText = QUAI_STATUS.MAINTENANCE[lang];
+
+                if (targetText) {
+                    // Extract dock number if present
+                    const numMatch = el.textContent.match(/\b([A-Za-z0-9\-_]+)\b$/);
+                    const dockNum = numMatch ? numMatch[1] : '';
+                    el.innerHTML = '';
+                    if (dot) el.appendChild(dot);
+                    el.appendChild(document.createTextNode(' ' + (dockNum ? dockNum : targetText)));
+                }
+            });
+
+            // Quai types in select options
+            const QUAI_TYPE_MAPPING = {
+                'STANDARD': { fr: "Standard (Sec)", en: "Standard (Dry)", ar: "قياسي (جاف)" },
+                'FRIGORIFIQUE': { fr: "Frigorifique (Froid positif/négatif)", en: "Refrigerated (Cold storage)", ar: "مبرد (تخزين مبرد/مجمد)" },
+                'ADR': { fr: "Matières Dangereuses (ADR)", en: "Hazardous Materials (ADR)", ar: "مواد خطرة (ADR)" },
+                'GROS_VOLUME': { fr: "Gros Volume (Haute cadence)", en: "High Volume (High throughput)", ar: "حجم كبير (وتيرة عالية)" },
+                'VRAC': { fr: "Vrac / Extérieur", en: "Bulk / Outdoor", ar: "صب / خارجي" }
+            };
+            document.querySelectorAll('select[name="type"] option, select[name="type_quai"] option').forEach(opt => {
+                if (QUAI_TYPE_MAPPING[opt.value]) {
+                    opt.textContent = QUAI_TYPE_MAPPING[opt.value][lang];
+                }
+            });
+
+            // Action toggle buttons
+            document.querySelectorAll('.btn-toggle-occupy').forEach(btn => {
+                const textSpan = btn.querySelector('span') || btn;
+                textSpan.textContent = dict.quai_btn_occupy || (lang === 'en' ? 'Mark Occupied' : lang === 'ar' ? 'تحديد كمشغول' : 'Occuper');
+            });
+            document.querySelectorAll('.btn-toggle-release').forEach(btn => {
+                const textSpan = btn.querySelector('span') || btn;
+                textSpan.textContent = dict.quai_btn_release || (lang === 'en' ? 'Free Dock' : lang === 'ar' ? 'تحرير الرصيف' : 'Libérer');
+            });
+        },
+
+        translateCamions: function (lang) {
+            const dict = this.getTranslations(lang);
+            const isRTL = lang === 'ar';
+
+            document.querySelectorAll('.camions-container').forEach(c => {
+                c.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+            });
+
+            const CAMION_STATUS = {
+                'status-disponible': { fr: "Disponible / Prêt", en: "Available / Ready", ar: "متاح / جاهز" },
+                'status-transit': { fr: "En Transit / Route", en: "In Transit / Route", ar: "في الطريق / عبور" },
+                'status-quai': { fr: "À Quai (En cours)", en: "At Dock (In progress)", ar: "على الرصيف (قيد العمل)" },
+                'status-maintenance': { fr: "En Maintenance", en: "Under Maintenance", ar: "في الصيانة" },
+                'status-hors-service': { fr: "Hors Service", en: "Out of Service", ar: "خارج الخدمة" }
+            };
+
+            const CT_URGENT = {
+                fr: "Contrôle technique imminent",
+                en: "Inspection Due Soon",
+                ar: "فحص فني وشيك"
+            };
+
+            document.querySelectorAll('.status-pill').forEach(pill => {
+                const txt = pill.textContent.trim();
+                const dot = pill.querySelector('.status-dot');
+
+                if (txt.includes('Contrôle technique imminent') || txt.includes('Inspection Due Soon') || txt.includes('فحص فني وشيك')) {
+                    pill.innerHTML = '';
+                    if (dot) pill.appendChild(dot);
+                    pill.appendChild(document.createTextNode(' ' + CT_URGENT[lang]));
+                    return;
+                }
+
+                for (const cls of Object.keys(CAMION_STATUS)) {
+                    if (pill.classList.contains(cls)) {
+                        pill.innerHTML = '';
+                        if (dot) pill.appendChild(dot);
+                        pill.appendChild(document.createTextNode(' ' + CAMION_STATUS[cls][lang]));
+                        break;
+                    }
+                }
+            });
+
+            // Back arrow
+            const truckArrow = document.getElementById('truckBackArrow');
+            if (truckArrow) {
+                truckArrow.innerHTML = isRTL ? '&rarr;' : '&larr;';
+            }
+
+            // Status select options
+            const STATUS_OPTS = {
+                'DISPONIBLE': { fr: "Disponible / Prêt", en: "Available / Ready", ar: "متاح / جاهز" },
+                'EN_TRANSIT': { fr: "En Transit / Route", en: "In Transit / Route", ar: "في الطريق / عبور" },
+                'A_QUAI': { fr: "À Quai (En cours)", en: "At Dock (In progress)", ar: "على الرصيف (قيد العمل)" },
+                'EN_MAINTENANCE': { fr: "En Maintenance", en: "Under Maintenance", ar: "في الصيانة" },
+                'HORS_SERVICE': { fr: "Hors Service", en: "Out of Service", ar: "خارج الخدمة" }
+            };
+            document.querySelectorAll('select[name="etat"] option, select[name="nouvel_etat"] option').forEach(opt => {
+                if (STATUS_OPTS[opt.value]) {
+                    opt.textContent = STATUS_OPTS[opt.value][lang];
+                }
+            });
+
+            // Truck types select options
+            const TYPE_MAPPING = {
+                'SEMI_REMORQUE': { fr: "Semi-remorque (Tautliner / Bâché)", en: "Semi-trailer (Curtainsider)", ar: "نصف مقطورة (ستارة / مغطى)" },
+                'FOURGON': { fr: "Fourgon Grand Volume (Rigide)", en: "High-Volume Box Truck", ar: "شاحنة صندوقية كبيرة الحجم" },
+                'FRIGORIFIQUE': { fr: "Frigorifique (Sous température contrôlée)", en: "Refrigerated (Temperature Controlled)", ar: "مبردة (حرارة مضبوطة)" },
+                'PLATEAU': { fr: "Plateau Nu (Charges lourdes / Conteneurs)", en: "Flatbed (Heavy Cargo / Containers)", ar: "سطحة (حمولة ثقيلة / حاويات)" },
+                'BENNE': { fr: "Camion Benne (Vrac minéral / Céréales)", en: "Dump Truck (Bulk Minerals / Grain)", ar: "شاحنة قلابة (صب / حبوب)" },
+                'CITERNE': { fr: "Citerne (Hydrocarbures & Liquides)", en: "Tanker (Fuel & Liquids)", ar: "صهريج (محروقات وسوائل)" },
+                'PORTE_CONTENEUR': { fr: "Porte-conteneur Portuaire", en: "Port Container Chassis", ar: "حاملة حاويات مينائية" }
+            };
+            document.querySelectorAll('select[name="type_camion"] option').forEach(opt => {
+                if (TYPE_MAPPING[opt.value]) {
+                    opt.textContent = TYPE_MAPPING[opt.value][lang];
+                }
+            });
+
+            // Emission norms select options
+            const NORME_MAPPING = {
+                'EURO_6': { fr: "Euro 6 (Crit'Air 2 - Flotte verte)", en: "Euro 6 (Low emission fleet)", ar: "يورو 6 (أسطول أخضر منخفض الانبعاثات)" },
+                'EURO_5': { fr: "Euro 5 (Standard Autoroutier)", en: "Euro 5 (Highway Standard)", ar: "يورو 5 (معيار الطرق السريعة)" },
+                'EURO_4': { fr: "Euro 4 (Usage restreint)", en: "Euro 4 (Restricted Use)", ar: "يورو 4 (استخدام مقيد)" },
+                'ELECTRIQUE': { fr: "100% Électrique (Zéro Émission)", en: "100% Electric (Zero Emission)", ar: "كهربائي 100% (صفر انبعاثات)" },
+                'HYBRIDE': { fr: "Hybride / GNV (Gaz Naturel)", en: "Hybrid / CNG (Natural Gas)", ar: "هجين / غاز طبيعي" }
+            };
+            document.querySelectorAll('select[name="norme_anti_pollution"] option, select[name="norme"] option').forEach(opt => {
+                if (NORME_MAPPING[opt.value]) {
+                    opt.textContent = NORME_MAPPING[opt.value][lang];
+                }
+            });
+
+            const camionSearch = document.querySelector('form[action*="camion"] input[name="q"]');
+            if (camionSearch && dict.truck_search_placeholder) {
+                camionSearch.setAttribute('placeholder', dict.truck_search_placeholder);
+            }
+        },
+
         translateDirectPhrases: function (lang) {
             // Options de sélection
             document.querySelectorAll('select option').forEach(opt => {
@@ -1811,7 +2693,10 @@
                 '.form-group label', '.planning-hours-header div',
                 '.current-date-title', '.nav-day-btn',
                 '.detail-main-card h1', '.detail-main-card h3',
-                '.meta-label', '.dropdown-item-title', '.dropdown-item-sub'
+                '.meta-label', '.dropdown-item-title', '.dropdown-item-sub',
+                '.spec-cell-label', '.meta-block-label', '.section-quais-header h2',
+                '.section-quais-header p', '.detail-card-title', '.btn-card',
+                '.empty-box h3', '.empty-box p', '.empty-state-box h3', '.empty-state-box p'
             ];
 
             selectors.forEach(sel => {
