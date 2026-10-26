@@ -277,29 +277,26 @@ Je réponds **exclusivement** aux questions relatives au **Module de Gestion des
 
         <!-- Prompt Suggestions / Questions types pour démo -->
         <div class="prompt-suggestions-row">
-            <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Exemples de questions :</span>
-            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+            <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;" data-i18n="ai_quick_questions_title">Exemples de questions :</span>
+            <button type="button" class="chip-suggestion" data-i18n="ai_q1" onclick="sendQuickPrompt(this.innerText)">
                 📋 Quels sont les créneaux en attente de confirmation ?
             </button>
-            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+            <button type="button" class="chip-suggestion" data-i18n="ai_q2" onclick="sendQuickPrompt(this.innerText)">
                 📅 Fais-moi un résumé des créneaux prévus aujourd'hui
             </button>
-            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+            <button type="button" class="chip-suggestion" data-i18n="ai_q3" onclick="sendQuickPrompt(this.innerText)">
                 🚛 Y a-t-il des camions actuellement à quai ?
             </button>
-            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+            <button type="button" class="chip-suggestion" data-i18n="ai_q4" onclick="sendQuickPrompt(this.innerText)">
                 🛡️ Y a-t-il des conflits ou quais saturés ?
-            </button>
-            <button type="button" class="chip-suggestion" style="border-color: rgba(239,68,68,0.4); color: #fca5a5;" onclick="sendQuickPrompt('Quelle est la recette de la pizza margherita ?')">
-                🍕 Test Filtrage Strict (Question hors créneaux)
             </button>
         </div>
 
         <!-- Chat Input -->
         <form class="chat-input-bar" id="chatForm">
-            <input type="text" id="userInput" class="chat-text-input" placeholder="Posez une question sur vos créneaux, les horaires ou les quais..." autocomplete="off">
+            <input type="text" id="userInput" class="chat-text-input" placeholder="Posez une question sur vos créneaux, les horaires ou les quais..." data-i18n-placeholder="ai_chat_ph" autocomplete="off">
             <button type="submit" class="btn btn-accent" style="padding: 0.75rem 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <span>Envoyer</span>
+                <span data-i18n="ai_btn_send">Envoyer</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"/>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"/>

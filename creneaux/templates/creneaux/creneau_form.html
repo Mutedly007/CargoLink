@@ -10,7 +10,7 @@
 {% block content %}
 <div class="creneaux-container">
     <div style="margin-bottom: 1.5rem;">
-        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;" data-i18n="form_back_link">
             ◀ Retour au planning des créneaux
         </a>
     </div>
@@ -42,24 +42,24 @@
 
             <!-- SECTION 1: INFRASTRUCTURE & HORAIRES -->
             <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.1rem; color: #60a5fa; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #60a5fa; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="form_sec1_title">
                     🏭 1. Infrastructure & Plage Horaire
                 </h3>
                 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.entrepot.id_for_label }}">Entrepôt cible *</label>
+                        <label class="form-label" for="{{ form.entrepot.id_for_label }}" data-i18n="lbl_target_wh">Entrepôt cible *</label>
                         {{ form.entrepot }}
                     </div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
-                            <label class="form-label" for="{{ form.quai.id_for_label }}" style="margin: 0;">Quai de chargement / déchargement *</label>
-                            <button type="button" id="btnAiRecommend" class="btn-ai-magic" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+                            <label class="form-label" for="{{ form.quai.id_for_label }}" style="margin: 0;" data-i18n="lbl_target_dock">Quai de chargement / déchargement *</label>
+                            <button type="button" id="btnAiRecommend" class="btn-ai-magic" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" data-i18n="btn_ai_dock_opt">
                                 ✨ Optimisation Quai (IA)
                             </button>
                         </div>
                         {{ form.quai }}
-                        <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;">
+                        <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;" data-i18n="lbl_dock_help">
                             Sélectionnez un quai ou utilisez l'IA pour attribuer le quai optimal
                         </small>
 
@@ -70,26 +70,26 @@
 
                 <div class="form-grid-2" style="grid-template-columns: 1fr 1fr 1fr;">
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.date_creneau.id_for_label }}">Date d'opération *</label>
+                        <label class="form-label" for="{{ form.date_creneau.id_for_label }}" data-i18n="lbl_op_date">Date d'opération *</label>
                         {{ form.date_creneau }}
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.heure_debut.id_for_label }}">Heure de début *</label>
+                        <label class="form-label" for="{{ form.heure_debut.id_for_label }}" data-i18n="lbl_start_time">Heure de début *</label>
                         {{ form.heure_debut }}
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.heure_fin.id_for_label }}">Heure de fin *</label>
+                        <label class="form-label" for="{{ form.heure_fin.id_for_label }}" data-i18n="lbl_end_time">Heure de fin *</label>
                         {{ form.heure_fin }}
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.type_operation.id_for_label }}">Type d'opération *</label>
+                        <label class="form-label" for="{{ form.type_operation.id_for_label }}" data-i18n="lbl_op_type">Type d'opération *</label>
                         {{ form.type_operation }}
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.priorite.id_for_label }}">Priorité opérationnelle *</label>
+                        <label class="form-label" for="{{ form.priorite.id_for_label }}" data-i18n="lbl_priority">Priorité opérationnelle *</label>
                         {{ form.priorite }}
                     </div>
                 </div>
@@ -97,17 +97,17 @@
 
             <!-- SECTION 2: TRANSPORTEUR & VÉHICULE -->
             <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                <h3 style="font-size: 1.1rem; color: #4ade80; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #4ade80; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="form_sec2_title">
                     🚛 2. Transporteur & Véhicule
                 </h3>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.transporteur_nom.id_for_label }}">Société de transport / Transporteur *</label>
+                        <label class="form-label" for="{{ form.transporteur_nom.id_for_label }}" data-i18n="lbl_carrier_co">Société de transport / Transporteur *</label>
                         {{ form.transporteur_nom }}
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.type_camion.id_for_label }}">Gabarit du véhicule *</label>
+                        <label class="form-label" for="{{ form.type_camion.id_for_label }}" data-i18n="lbl_truck_opt">Gabarit du véhicule *</label>
                         {{ form.type_camion }}
                     </div>
                 </div>
@@ -118,7 +118,7 @@
                         {{ form.immatriculation_camion }}
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.chauffeur_nom.id_for_label }}">Nom complet du chauffeur *</label>
+                        <label class="form-label" for="{{ form.chauffeur_nom.id_for_label }}" data-i18n="lbl_driver_opt">Nom complet du chauffeur *</label>
                         {{ form.chauffeur_nom }}
                     </div>
                 </div>
@@ -131,13 +131,13 @@
 
             <!-- SECTION 3: MARCHANDISE & LOGISTIQUE -->
             <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
-                <h3 style="font-size: 1.1rem; color: #fb923c; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #fb923c; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="form_sec3_title">
                     📦 3. Marchandise & Consignes
                 </h3>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.type_marchandise.id_for_label }}">Type de marchandise *</label>
+                        <label class="form-label" for="{{ form.type_marchandise.id_for_label }}" data-i18n="lbl_goods_type">Type de marchandise *</label>
                         {{ form.type_marchandise }}
                     </div>
                     <div class="form-group">
@@ -148,7 +148,7 @@
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label class="form-label" for="{{ form.poids_kg.id_for_label }}">Poids total estimé (kg)</label>
+                        <label class="form-label" for="{{ form.poids_kg.id_for_label }}" data-i18n="lbl_weight">Poids total estimé (kg)</label>
                         {{ form.poids_kg }}
                     </div>
                     <div class="form-group">
@@ -158,14 +158,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.consignes.id_for_label }}">Consignes particulières d'accès ou de manutention</label>
+                    <label class="form-label" for="{{ form.consignes.id_for_label }}" data-i18n="lbl_notes">Consignes particulières d'accès ou de manutention</label>
                     {{ form.consignes }}
                 </div>
             </div>
 
             <div class="form-actions-row">
-                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline">Annuler</a>
-                <button type="submit" class="btn btn-accent">{{ action_label }}</button>
+                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline" data-i18n="btn_cancel_link">Annuler</a>
+                <button type="submit" class="btn btn-accent" data-i18n="btn_save_slot">{{ action_label }}</button>
             </div>
         </form>
     </div>

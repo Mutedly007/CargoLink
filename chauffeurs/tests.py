@@ -2,7 +2,9 @@ from datetime import date, timedelta
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-from entrepots.models import Entrepot
+from entrepots.models import Entrepot, Quai
+from camions.models import Camion
+from creneaux.models import Creneau
 from chauffeurs.models import Chauffeur, VisiteChauffeur
 from chauffeurs.forms import ChauffeurForm, VisiteChauffeurForm
 
@@ -263,3 +265,250 @@ class ChauffeurCRUDViewsTests(TestCase):
         response = self.client.post(url)
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Chauffeur.objects.filter(pk=self.chauffeur.pk).exists())
+
+    def test_chauffeur_affecter_mission_success(self):
+        quai = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai A-01",
+            statut="DISPONIBLE"
+        )
+        camion = Camion.objects.create(
+            immatriculation="205-TN-9999",
+            marque="Mercedes-Benz",
+            modele="Actros",
+            etat="DISPONIBLE",
+            type_camion="SEMI_REMORQUE",
+            capacite_tonnage=26.0
+        )
+        url = reverse('chauffeurs:chauffeur_affecter_mission', kwargs={'pk': self.chauffeur.pk})
+        data = {
+            'camion_id': camion.pk,
+            'quai_id': quai.pk,
+            'type_operation': 'DECHARGEMENT'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+
+        self.chauffeur.refresh_from_db()
+        camion.refresh_from_db()
+        self.assertEqual(self.chauffeur.statut, 'EN_MISSION')
+        self.assertEqual(self.chauffeur.immatriculation_camion, "205-TN-9999")
+        self.assertEqual(camion.etat, 'EN_TRANSIT')
+        self.assertTrue(Creneau.objects.filter(immatriculation_camion="205-TN-9999", quai=quai).exists())
+        self.assertTrue(VisiteChauffeur.objects.filter(chauffeur=self.chauffeur, quai_numero="Quai A-01").exists())
+
+    def test_chauffeur_affecter_mission_camion_indisponible_rejete(self):
+        quai = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai B-02",
+            statut="DISPONIBLE"
+        )
+        camion_occupe = Camion.objects.create(
+            immatriculation="210-TN-8888",
+            marque="Volvo",
+            modele="FH",
+            etat="EN_TRANSIT",
+            type_camion="SEMI_REMORQUE"
+        )
+        url = reverse('chauffeurs:chauffeur_affecter_mission', kwargs={'pk': self.chauffeur.pk})
+        data = {
+            'camion_id': camion_occupe.pk,
+            'quai_id': quai.pk,
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+
+        self.chauffeur.refresh_from_db()
+        self.assertEqual(self.chauffeur.statut, 'DISPONIBLE')
+
+    def test_chauffeur_affecter_mission_quai_indisponible_rejete(self):
+        quai_occupe = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai C-03",
+            statut="OCCUPE"
+        )
+        camion = Camion.objects.create(
+            immatriculation="215-TN-7777",
+            marque="Scania",
+            modele="R500",
+            etat="DISPONIBLE",
+            type_camion="SEMI_REMORQUE"
+        )
+        url = reverse('chauffeurs:chauffeur_affecter_mission', kwargs={'pk': self.chauffeur.pk})
+        data = {
+            'camion_id': camion.pk,
+            'quai_id': quai_occupe.pk,
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+
+        self.chauffeur.refresh_from_db()
+        self.assertEqual(self.chauffeur.statut, 'DISPONIBLE')
+        camion.refresh_from_db()
+        self.assertEqual(camion.etat, 'DISPONIBLE')
+
+    def test_chauffeur_liberer_mission(self):
+        quai = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai D-04",
+            statut="RESERVE"
+        )
+        camion = Camion.objects.create(
+            immatriculation="220-TN-6666",
+            marque="Renault",
+            modele="T",
+            etat="EN_TRANSIT",
+            type_camion="SEMI_REMORQUE"
+        )
+        self.chauffeur.statut = "EN_MISSION"
+        self.chauffeur.immatriculation_camion = camion.immatriculation
+        self.chauffeur.save()
+
+        creneau = Creneau.objects.create(
+            entrepot=self.entrepot,
+            quai=quai,
+            date_creneau=self.today,
+            heure_debut="10:00",
+            heure_fin="12:00",
+            statut="CONFIRME",
+            chauffeur_nom=self.chauffeur.nom_complet,
+            immatriculation_camion=camion.immatriculation,
+            transporteur_nom="Express Cargo"
+        )
+
+        url = reverse('chauffeurs:chauffeur_liberer_mission', kwargs={'pk': self.chauffeur.pk})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+
+        self.chauffeur.refresh_from_db()
+        camion.refresh_from_db()
+        quai.refresh_from_db()
+        creneau.refresh_from_db()
+
+        self.assertEqual(self.chauffeur.statut, 'DISPONIBLE')
+        self.assertEqual(camion.etat, 'DISPONIBLE')
+        self.assertEqual(quai.statut, 'DISPONIBLE')
+        self.assertEqual(creneau.statut, 'TERMINE')
+
+    def test_chauffeur_affecter_mission_with_next_chauffeur_detail_redirects_properly(self):
+        quai = Quai.objects.create(
+            entrepot=self.entrepot,
+            numero="Quai E-05",
+            statut="DISPONIBLE"
+        )
+        camion = Camion.objects.create(
+            immatriculation="230-TN-5555",
+            marque="DAF",
+            modele="XF",
+            etat="DISPONIBLE",
+            type_camion="SEMI_REMORQUE"
+        )
+        url = reverse('chauffeurs:chauffeur_affecter_mission', kwargs={'pk': self.chauffeur.pk})
+        data = {
+            'camion_id': camion.pk,
+            'quai_id': quai.pk,
+            'next': 'chauffeurs:chauffeur_detail',
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('chauffeurs:chauffeur_detail', kwargs={'pk': self.chauffeur.pk}))
+
+
+class ChauffeurAIAssistantTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.today = date.today()
+
+        self.user = User.objects.create_user(
+            username="ai_test_user",
+            password="password123",
+            email="ai_test@cargolink.tn"
+        )
+        self.user.profile.role = "TRANSPORTEUR"
+        self.user.profile.save()
+        self.client.login(username="ai_test_user", password="password123")
+
+        self.chauffeur = Chauffeur.objects.create(
+            prenom="Slim",
+            nom="Bouazizi",
+            telephone="+216 20 111 222",
+            numero_permis="PERM-SLIM-01",
+            categorie_permis="CE",
+            date_delivrance_permis=self.today - timedelta(days=400),
+            date_expiration_permis=self.today + timedelta(days=20),
+            entreprise_transport="Bouazizi Transport",
+            immatriculation_camion="240-TN-1111",
+            statut="DISPONIBLE"
+        )
+
+    def test_ai_assistant_view_authenticated(self):
+        url = reverse('chauffeurs:chauffeur_ai_assistant')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "CargoLink Driver AI Copilot")
+        self.assertContains(response, "Slim Bouazizi")
+
+    def test_ai_assistant_view_unauthenticated_redirects(self):
+        self.client.logout()
+        url = reverse('chauffeurs:chauffeur_ai_assistant')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('landing'))
+
+    def test_ai_chat_api_french_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Quels chauffeurs ont un permis qui expire ce mois-ci ?",
+            'lang': "fr"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertIn('response', data)
+        self.assertTrue(len(data['response']) > 0)
+
+    def test_ai_chat_api_arabic_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "أعرض السائقين الأكثر زيارة",
+            'lang': "ar"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertEqual(data.get('language'), 'ar')
+
+    def test_ai_chat_api_english_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Show the drivers with the most visits.",
+            'lang': "en"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertEqual(data.get('language'), 'en')
+
+    def test_ai_chat_api_summary_query(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Résume l'historique du chauffeur Slim Bouazizi",
+            'lang': "fr"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertIn("Bouazizi", data['response'])
+
+    def test_ai_chat_api_guardrail(self):
+        url = reverse('chauffeurs:chauffeur_ai_chat_api')
+        response = self.client.post(url, {
+            'prompt': "Raconte-moi une blague sur les voyages dans l'espace",
+            'lang': "fr"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data.get('source'), 'guardrail')
+
+
+

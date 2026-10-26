@@ -10,7 +10,7 @@
 {% block content %}
 <div class="creneaux-container">
     <div style="margin-bottom: 1.5rem;">
-        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;" data-i18n="detail_back_link">
             ◀ Retour à la liste des créneaux
         </a>
     </div>
@@ -19,11 +19,11 @@
         <div style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.25rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
                 <span style="font-size: 1.75rem;">📋</span>
-                <h1 style="font-size: 1.75rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin: 0;">
+                <h1 style="font-size: 1.75rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin: 0;" data-i18n="demand_page_title">
                     Demande de Créneau de Quai
                 </h1>
             </div>
-            <p style="color: var(--text-muted); font-size: 0.92rem;">
+            <p style="color: var(--text-muted); font-size: 0.92rem;" data-i18n="demand_page_sub">
                 Module Gestion des Créneaux : enregistrez une demande de créneau horaire sur quai logistique. La demande sera soumise au contrôle de disponibilité et de non-conflit horaire.
             </p>
         </div>
