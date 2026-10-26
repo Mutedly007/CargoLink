@@ -61,7 +61,7 @@ Réservation automatique d'un créneau : le bouton « Réserver automatiquement 
 
 Fichiers partagés modifiés (uniquement des ajouts) :
 
-- `cargolink/settings.py` : `'livraisons'` dans `INSTALLED_APPS`, chargement du `.env`, configuration DeepSeek
+- `cargolink/settings.py` : `'livraisons'` dans `INSTALLED_APPS`, chargement du `.env`, configuration de CargoLink AI
 - `cargolink/urls.py` : `path('livraisons/', include('livraisons.urls'))`
 - `landing/templates/landing/base.html` : liens « Livraisons » (navbar et footer)
 - `.env.example`, `.gitignore`, `cargolink/settings_test.py` (tests sur SQLite)
@@ -104,13 +104,13 @@ R11 preuve obligatoire pour clôturer.
 | :--- | :--- |
 | **Affectation intelligente** | Contraintes dures puis score sur 100 : capacité (30), disponibilité immédiate (15), environnement / norme Euro (15), affinité chauffeur-camion (15), fiabilité CT / permis (15), équité de charge sur 7 jours (10). Top 3 avec points forts / points d'attention et ressources écartées avec leur motif. |
 | **Recherche avancée** | 12 critères combinables (texte, statuts, entrepôt, ville, type, priorité, marchandise, chauffeur, camion, période, en retard, incidents) + tri. Les KPI sont cliquables. |
-| **Recherche en langage naturel** | « livraisons urgentes en retard vers Sfax cette semaine » → filtres validés (DeepSeek, ou moteur de mots-clés local). |
+| **Recherche en langage naturel** | « livraisons urgentes en retard vers Sfax cette semaine » → filtres validés (CargoLink AI, ou moteur de mots-clés local). |
 | **Analyse de risque** | Score 0-100, facteurs et recommandations (ETA vs échéance, incidents, CT, permis, ADR, froid, distance…). |
 | **Message destinataire FR / AR / EN** | SMS / email prêt à copier (répond à la promesse « multilingue » des slides). |
 | **ETA & CO₂** | Distance routière estimée entre villes tunisiennes, durée selon le gabarit, émissions selon la norme du camion (ODD 12 / 13). |
 | **Réservation automatique de créneau** | Via l'allocateur de quais de Kacem. |
 
-## 5. IA DeepSeek — prompt engineering
+## 5. CargoLink AI — prompt engineering
 
 Fichier : `livraisons/ai_service.py`. API compatible OpenAI (`/chat/completions`), **mode JSON**.
 
@@ -120,7 +120,7 @@ Fichier : `livraisons/ai_service.py`. API compatible OpenAI (`/chat/completions`
 - **Validation serveur** de chaque réponse : valeurs autorisées (statuts, priorités…), bornes (score 0-100), longueurs ; une valeur hors liste est ignorée.
 - **Minimisation des données** : ni téléphone, ni email, ni adresse exacte envoyés au modèle.
 - **Repli local** systématique si la clé est absente ou l'API indisponible : l'application fonctionne sans IA.
-- **Affichage** : réponses insérées avec `textContent` (aucun HTML du modèle interprété), source affichée (« DeepSeek » / « Moteur local »).
+- **Affichage** : réponses insérées avec `textContent` (aucun HTML du modèle interprété), source affichée (« CargoLink AI » / « Moteur local »).
 
 Configuration (fichier `.env` à la racine, jamais commité) :
 

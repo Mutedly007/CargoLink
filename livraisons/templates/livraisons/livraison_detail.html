@@ -315,7 +315,7 @@
             <section class="liv-card" id="risquePanel" data-url="{% url 'livraisons:api_analyse_risque' livraison.pk %}">
                 <div class="liv-card-title">
                     <span>{% include "livraisons/_icone.html" with nom="shield" %} Analyse de risque</span>
-                    <span class="liv-source" data-role="source">{% if risque.source == 'deepseek' %}DeepSeek{% else %}Moteur local{% endif %}</span>
+                    <span class="liv-source" data-role="source">{% if risque.source == 'deepseek' %}CargoLink AI{% else %}Moteur local{% endif %}</span>
                 </div>
                 <div class="liv-risk {{ risque.niveau }}" data-role="risque">
                     <div class="liv-risk-gauge" style="--score: {{ risque.score }};"><span data-role="score">{{ risque.score }}</span></div>
@@ -330,7 +330,7 @@
                 <ul class="liv-list" data-role="recommandations">{% for r in risque.recommandations %}<li>{{ r }}</li>{% empty %}<li>Aucune action requise.</li>{% endfor %}</ul>
                 {% csrf_token %}
                 <button type="button" class="btn btn-ai btn-sm" id="btnAnalyseIA" style="width:100%; justify-content:center;">
-                    {% include "livraisons/_icone.html" with nom="sparkles" %} {% if ia_disponible %}Analyse approfondie DeepSeek{% else %}Relancer l'analyse{% endif %}
+                    {% include "livraisons/_icone.html" with nom="sparkles" %} {% if ia_disponible %}Analyse approfondie CargoLink AI{% else %}Relancer l'analyse{% endif %}
                 </button>
             </section>
 

@@ -183,7 +183,7 @@
                 }
                 const exp = res.explication || {};
                 if (exp.synthese) {
-                    const source = element('span', 'liv-source', exp.source === 'deepseek' ? 'DeepSeek' : 'Moteur local');
+                    const source = element('span', 'liv-source', exp.source === 'deepseek' ? 'CargoLink AI' : 'Moteur local');
                     synthese.append(source, ' ', exp.synthese);
                     if (exp.alternative) synthese.append(element('div', 'liv-small liv-muted', exp.alternative));
                     (exp.vigilance || []).forEach((v) => synthese.append(element('div', 'liv-small liv-warning-text', '• ' + v)));
@@ -246,7 +246,7 @@
                 bloc.querySelector('[data-role="resume"]').textContent = r.resume;
                 remplirListe(panneauRisque.querySelector('[data-role="facteurs"]'), r.facteurs, 'Aucun facteur de risque détecté.');
                 remplirListe(panneauRisque.querySelector('[data-role="recommandations"]'), r.recommandations, 'Aucune action requise.');
-                panneauRisque.querySelector('[data-role="source"]').textContent = r.source === 'deepseek' ? 'DeepSeek' : 'Moteur local';
+                panneauRisque.querySelector('[data-role="source"]').textContent = r.source === 'deepseek' ? 'CargoLink AI' : 'Moteur local';
             } catch (err) {
                 alert("Analyse indisponible pour le moment.");
             } finally {
@@ -272,7 +272,7 @@
                 document.getElementById('msgObjet').value = r.objet;
                 texte.value = r.message;
                 texte.dir = langue === 'ar' ? 'rtl' : 'ltr';
-                document.getElementById('msgSource').textContent = r.source === 'deepseek' ? 'Rédigé par DeepSeek' : 'Modèle local';
+                document.getElementById('msgSource').textContent = r.source === 'deepseek' ? 'Rédigé par CargoLink AI' : 'Modèle local';
                 document.getElementById('msgResultat').hidden = false;
             } catch (err) {
                 alert("Rédaction indisponible pour le moment.");

@@ -98,7 +98,7 @@ Génère 6 livraisons (tous les statuts) à partir des entrepôts, camions et ch
 uv run python manage.py populate_livraisons          # --clear pour les supprimer
 uv run python manage.py check_retards_livraisons     # détection des retards (--dry-run pour simuler)
 ```
-L'IA du module utilise DeepSeek si `DEEPSEEK_API_KEY` est défini dans `.env`, sinon un moteur de règles local.
+CargoLink AI (l'assistant IA du module) est actif si `DEEPSEEK_API_KEY` est défini dans `.env`, sinon un moteur de règles local.
 Plan d'intégration complet : [`docs/MODULE_LIVRAISONS.md`](docs/MODULE_LIVRAISONS.md).
 
 ### D. Créer un compte super-administrateur
@@ -197,7 +197,7 @@ CargoLink/
 │   ├── regles.py              # Règles de gestion (capacité, permis, ADR, froid, conflits)
 │   ├── services.py            # Cycle de vie + synchronisation Créneaux / Quais / Camions / Chauffeurs
 │   ├── smart_assign.py        # Affectation intelligente camion + chauffeur
-│   ├── ai_service.py          # Copilote IA DeepSeek (prompt engineering) + repli local
+│   ├── ai_service.py          # CargoLink AI (prompt engineering) + repli local
 │   ├── search.py, geo.py      # Recherche avancée, ETA / distance / CO2
 │   ├── management/commands/   # populate_livraisons.py, check_retards_livraisons.py
 │   └── templates/livraisons/  # Tableau de bord, détail, POD mobile, suivi public, bon de livraison

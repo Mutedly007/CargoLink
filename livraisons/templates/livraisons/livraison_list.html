@@ -57,7 +57,7 @@
         </a>
     </section>
 
-    <!-- Recherche en langage naturel (DeepSeek ou moteur local) -->
+    <!-- Recherche en langage naturel (CargoLink AI ou moteur local) -->
     <form class="liv-ai-search" id="aiSearchForm" data-url="{% url 'livraisons:api_recherche_ia' %}">
         {% csrf_token %}
         {% include "livraisons/_icone.html" with nom="sparkles" classe="liv-icon-lg" %}
@@ -66,7 +66,7 @@
         <button type="submit" class="btn btn-ai btn-sm">{% include "livraisons/_icone.html" with nom="search" %} Rechercher</button>
     </form>
     <p class="liv-ai-hint">
-        Recherche intelligente {% if ia_disponible %}propulsée par DeepSeek{% else %}(moteur local — ajoutez DEEPSEEK_API_KEY pour l'IA){% endif %} :
+        Recherche intelligente {% if ia_disponible %}propulsée par CargoLink AI{% else %}(moteur local — configurez la clé IA dans le fichier .env){% endif %} :
         décrivez simplement ce que vous cherchez.
     </p>
     {% if explication_ia %}
