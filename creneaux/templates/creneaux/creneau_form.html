@@ -1,0 +1,197 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="creneaux-container">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+            ◀ Retour au planning des créneaux
+        </a>
+    </div>
+
+    <div class="form-card">
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.25rem;">
+            <h1 style="font-size: 1.75rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif;">{{ title }}</h1>
+            <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 0.25rem;">{{ subtitle }}</p>
+        </div>
+
+        {% if form.errors %}
+        <div style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.75rem; color: #fca5a5;">
+            <strong style="display: block; margin-bottom: 0.5rem; font-size: 0.95rem;">⚠️ Des erreurs ont été détectées :</strong>
+            <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.88rem;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}</strong> : {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" id="creneauForm">
+            {% csrf_token %}
+
+            <!-- SECTION 1: INFRASTRUCTURE & HORAIRES -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.1rem; color: #60a5fa; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🏭 1. Infrastructure & Plage Horaire
+                </h3>
+                
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.entrepot.id_for_label }}">Entrepôt cible *</label>
+                        {{ form.entrepot }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.quai.id_for_label }}">Quai de chargement / déchargement *</label>
+                        {{ form.quai }}
+                        <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;">
+                            Filtré selon le site logistique sélectionné
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-grid-2" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.date_creneau.id_for_label }}">Date d'opération *</label>
+                        {{ form.date_creneau }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.heure_debut.id_for_label }}">Heure de début *</label>
+                        {{ form.heure_debut }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.heure_fin.id_for_label }}">Heure de fin *</label>
+                        {{ form.heure_fin }}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.type_operation.id_for_label }}">Type d'opération *</label>
+                        {{ form.type_operation }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.priorite.id_for_label }}">Priorité opérationnelle *</label>
+                        {{ form.priorite }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: TRANSPORTEUR & VÉHICULE -->
+            <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
+                <h3 style="font-size: 1.1rem; color: #4ade80; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🚛 2. Transporteur & Véhicule
+                </h3>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.transporteur_nom.id_for_label }}">Société de transport / Transporteur *</label>
+                        {{ form.transporteur_nom }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.type_camion.id_for_label }}">Gabarit du véhicule *</label>
+                        {{ form.type_camion }}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.immatriculation_camion.id_for_label }}">Immatriculation véhicule *</label>
+                        {{ form.immatriculation_camion }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.chauffeur_nom.id_for_label }}">Nom complet du chauffeur *</label>
+                        {{ form.chauffeur_nom }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.chauffeur_telephone.id_for_label }}">Numéro de téléphone du chauffeur</label>
+                    {{ form.chauffeur_telephone }}
+                </div>
+            </div>
+
+            <!-- SECTION 3: MARCHANDISE & LOGISTIQUE -->
+            <div style="margin-bottom: 2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem;">
+                <h3 style="font-size: 1.1rem; color: #fb923c; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    📦 3. Marchandise & Consignes
+                </h3>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.type_marchandise.id_for_label }}">Type de marchandise *</label>
+                        {{ form.type_marchandise }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.nb_palettes.id_for_label }}">Nombre de palettes *</label>
+                        {{ form.nb_palettes }}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.poids_kg.id_for_label }}">Poids total estimé (kg)</label>
+                        {{ form.poids_kg }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.numero_bl.id_for_label }}">N° BL / CMR / Document transport</label>
+                        {{ form.numero_bl }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.consignes.id_for_label }}">Consignes particulières d'accès ou de manutention</label>
+                    {{ form.consignes }}
+                </div>
+            </div>
+
+            <div class="form-actions-row">
+                <a href="{% url 'creneaux:creneau_list' %}" class="btn btn-outline">Annuler</a>
+                <button type="submit" class="btn btn-accent">{{ action_label }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Dynamisation des quais selon l'entrepôt choisi via AJAX
+    document.addEventListener('DOMContentLoaded', function() {
+        const entrepotSelect = document.getElementById('id_entrepot');
+        const quaiSelect = document.getElementById('id_quai');
+
+        if (entrepotSelect && quaiSelect) {
+            entrepotSelect.addEventListener('change', function() {
+                const entrepotId = this.value;
+                if (!entrepotId) return;
+
+                quaiSelect.innerHTML = '<option value="">Chargement des quais...</option>';
+
+                fetch(`/creneaux/api/quais/${entrepotId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        quaiSelect.innerHTML = '<option value="">-- Sélectionner un quai --</option>';
+                        data.quais.forEach(q => {
+                            const opt = document.createElement('option');
+                            opt.value = q.id;
+                            opt.textContent = `${q.numero} (${q.type_quai}) - ${q.statut}`;
+                            quaiSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Erreur chargement quais:', err);
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}

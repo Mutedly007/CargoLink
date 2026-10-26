@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'landing',
     'accounts',
     'entrepots',
+    'creneaux',
 ]
 
 MIDDLEWARE = [

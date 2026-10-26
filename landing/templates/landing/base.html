@@ -29,7 +29,7 @@
             <!-- Functional Navigation Links -->
             <ul class="nav-menu">
                 <li class="nav-item"><a href="{% url 'entrepots:entrepot_list' %}">Entrepôts & Quais</a></li>
-                <li class="nav-item"><a href="{% url 'landing' %}#creneaux">Planning & Créneaux</a></li>
+                <li class="nav-item"><a href="{% url 'creneaux:creneau_list' %}">Planning & Créneaux</a></li>
                 <li class="nav-item"><a href="{% url 'landing' %}#flotte">Flotte & Camions</a></li>
                 <li class="nav-item"><a href="{% url 'landing' %}#chauffeurs">Chauffeurs</a></li>
             </ul>
@@ -175,7 +175,7 @@
                 <h4>Plateforme & Services</h4>
                 <ul class="footer-links">
                     <li><a href="{% url 'entrepots:entrepot_list' %}">Gestion des Entrepôts & Quais</a></li>
-                    <li><a href="{% url 'landing' %}#creneaux">Réservation de Créneaux</a></li>
+                    <li><a href="{% url 'creneaux:creneau_list' %}">Réservation de Créneaux</a></li>
                     <li><a href="{% url 'landing' %}#flotte">Suivi de Flotte & Camions</a></li>
                     <li><a href="{% url 'landing' %}#chauffeurs">Portail Chauffeurs</a></li>
                 </ul>
