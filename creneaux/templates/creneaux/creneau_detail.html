@@ -19,12 +19,14 @@
                 🖨️ Imprimer Bon de Passage
             </button>
             {% if creneau.statut != 'ANNULE' and creneau.statut != 'TERMINE' %}
+                {% if not is_entrepot_role %}
                 <a href="{% url 'creneaux:creneau_update' creneau.pk %}" class="btn btn-outline" style="font-size: 0.85rem;">
                     ✏️ Modifier
                 </a>
                 <a href="{% url 'creneaux:creneau_cancel' creneau.pk %}" class="btn btn-outline" style="font-size: 0.85rem; border-color: rgba(239,68,68,0.4); color: #f87171;">
                     ❌ Annuler
                 </a>
+                {% endif %}
             {% endif %}
         </div>
     </div>
@@ -108,6 +110,11 @@
                         Avancement des étapes logistiques en temps réel
                     </span>
                 </div>
+                {% if is_entrepot_role %}
+                <div style="background: rgba(59,130,246,0.08); border: 1px dashed rgba(59,130,246,0.3); color: #93c5fd; padding: 0.5rem 0.95rem; border-radius: 8px; font-size: 0.83rem; display: flex; align-items: center; gap: 0.45rem;">
+                    <span>👁️</span> <em>Accès consultation seule (Entrepôt). Les actions de validation et modifications sont réservées aux Planificateurs.</em>
+                </div>
+                {% else %}
                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                     {% if creneau.statut == 'EN_ATTENTE' %}
                         <a href="{% url 'creneaux:creneau_confirm' creneau.pk %}" class="btn btn-accent" style="font-size: 0.85rem;">
@@ -127,6 +134,7 @@
                         </a>
                     {% endif %}
                 </div>
+                {% endif %}
             </div>
             {% endif %}
 

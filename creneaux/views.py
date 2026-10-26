@@ -4,12 +4,49 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from django.db.models import Q, Count
 from django.urls import reverse
 
 from .models import Creneau, HistoriqueStatutCreneau
 from .forms import CreneauForm, DemandeCreneauForm, AnnulationCreneauForm
 from entrepots.models import Entrepot, Quai
+
+
+# ==============================================================================
+# CONTRÔLE D'ACCÈS & RÔLES LOGISTIQUES
+# ==============================================================================
+
+def is_entrepot_role(user):
+    """
+    Vérifie si l'utilisateur connecté a le rôle Gestionnaire d'Entrepôt.
+    Dans la session Entrepôt, le module créneaux est strictement en consultation seule.
+    """
+    if not user.is_authenticated:
+        return False
+    profile = getattr(user, 'profile', None)
+    if not profile:
+        return False
+    return profile.role in ('ENTREPOT', 'ENTERPOT')
+
+
+def check_creneaux_write_access(request, redirect_pk=None):
+    """
+    Contrôle de sécurité : Le Gestionnaire d'Entrepôt dispose uniquement d'un droit
+    de consultation sur le module des créneaux.
+    La planification, modification, annulation et validation sont réservées aux Planificateurs.
+    """
+    if is_entrepot_role(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : En tant que Gestionnaire d'Entrepôt, vous disposez uniquement d'un accès en consultation "
+            "sur le planning des créneaux. La planification, modification et suppression sont réservées aux Planificateurs."
+        )
+        if redirect_pk:
+            return redirect('creneaux:creneau_detail', pk=redirect_pk)
+        return redirect('creneaux:creneau_list')
+    return None
 
 
 # ==============================================================================
@@ -83,6 +120,7 @@ def creneau_list(request):
         'entrepots': entrepots,
         'statut_choices': Creneau.STATUT_CHOICES,
         'type_op_choices': Creneau.TYPE_OPERATION_CHOICES,
+        'is_entrepot_role': is_entrepot_role(request.user),
         # KPIs
         'total_creneaux': total_creneaux,
         'total_aujourdhui': total_aujourdhui,
@@ -150,6 +188,7 @@ def creneau_planning(request):
         'next_date': next_date,
         'quais_data': quais_data,
         'heures': heures,
+        'is_entrepot_role': is_entrepot_role(request.user),
     }
     return render(request, 'creneaux/creneau_planning.html', context)
 
@@ -161,7 +200,12 @@ def creneau_planning(request):
 def creneau_create(request):
     """
     Création directe d'un créneau (pour les gestionnaires d'entrepôt et planificateurs).
+    Accès restreint : Les utilisateurs en session Entrepôt sont limités à la consultation.
     """
+    denied = check_creneaux_write_access(request)
+    if denied:
+        return denied
+
     entrepot_id = request.GET.get('entrepot') or None
     quai_id = request.GET.get('quai') or None
 
@@ -197,7 +241,12 @@ def demande_creneau(request):
     """
     Demande de créneau (Module Kacem - Slide 16 : 'Demande de créneau').
     Enregistre une sollicitation de créneau horaire à l'état EN_ATTENTE pour arbitrage.
+    Accès restreint : Les utilisateurs en session Entrepôt sont limités à la consultation.
     """
+    denied = check_creneaux_write_access(request)
+    if denied:
+        return denied
+
     if request.method == 'POST':
         form = DemandeCreneauForm(request.POST)
         if form.is_valid():
@@ -229,6 +278,10 @@ def creneau_confirm(request, pk):
     Confirmation de créneau (Module Kacem - Slide 16 : 'Confirmation').
     Valide un créneau en attente et l'intègre définitivement au planning des quais.
     """
+    denied = check_creneaux_write_access(request, redirect_pk=pk)
+    if denied:
+        return denied
+
     creneau = get_object_or_404(Creneau, pk=pk)
     creneau.confirmer(user=request.user)
     messages.success(request, f"Le créneau {creneau.reference} a été confirmé et validé au planning !")
@@ -248,13 +301,21 @@ def creneau_detail(request, pk):
         Creneau.objects.select_related('entrepot', 'quai', 'demandeur').prefetch_related('historique'),
         pk=pk
     )
-    return render(request, 'creneaux/creneau_detail.html', {'creneau': creneau})
+    return render(request, 'creneaux/creneau_detail.html', {
+        'creneau': creneau,
+        'is_entrepot_role': is_entrepot_role(request.user),
+    })
 
 
 def creneau_update(request, pk):
     """
     Modification d'un créneau existant.
+    Accès restreint : Le rôle Gestionnaire d'Entrepôt est en consultation seule.
     """
+    denied = check_creneaux_write_access(request, redirect_pk=pk)
+    if denied:
+        return denied
+
     creneau = get_object_or_404(Creneau, pk=pk)
 
     if request.method == 'POST':
@@ -279,7 +340,12 @@ def creneau_update(request, pk):
 def creneau_cancel(request, pk):
     """
     Annulation motivée d'un créneau.
+    Accès restreint : Le rôle Gestionnaire d'Entrepôt est en consultation seule.
     """
+    denied = check_creneaux_write_access(request, redirect_pk=pk)
+    if denied:
+        return denied
+
     creneau = get_object_or_404(Creneau, pk=pk)
 
     if request.method == 'POST':
@@ -302,7 +368,12 @@ def creneau_action_statut(request, pk, action):
     """
     Transitions d'état en 1 clic pour le suivi opérationnel en temps réel (Slide 8).
     Actions disponibles: confirmer, arriver, mettre_a_quai, terminer.
+    Accès restreint : Le rôle Gestionnaire d'Entrepôt est en consultation seule.
     """
+    denied = check_creneaux_write_access(request, redirect_pk=pk)
+    if denied:
+        return denied
+
     creneau = get_object_or_404(Creneau, pk=pk)
 
     if action == 'confirmer':
@@ -378,3 +449,85 @@ def api_quais_by_entrepot(request, entrepot_id):
     """
     quais = Quai.objects.filter(entrepot_id=entrepot_id).values('id', 'numero', 'type_quai', 'statut')
     return JsonResponse({'quais': list(quais)})
+
+
+def api_ai_recommend_dock(request):
+    """
+    Endpoint AJAX d'Attribution Intelligente des Quais par IA (Module Kacem - Volet IA).
+    Calcule le quai optimal en fonction du débit, du gabarit, de la marchandise et de l'équilibrage de charge.
+    """
+    from .ai_optimizer import SmartDockAllocator
+
+    entrepot_id = request.GET.get('entrepot_id') or request.POST.get('entrepot_id')
+    date_str = request.GET.get('date') or request.POST.get('date')
+    heure_debut_str = request.GET.get('heure_debut') or request.POST.get('heure_debut')
+    heure_fin_str = request.GET.get('heure_fin') or request.POST.get('heure_fin')
+    type_marchandise = request.GET.get('type_marchandise') or request.POST.get('type_marchandise') or 'STANDARD'
+    type_camion = request.GET.get('type_camion') or request.POST.get('type_camion') or 'SEMI_REMORQUE'
+    nb_palettes = request.GET.get('nb_palettes') or request.POST.get('nb_palettes') or 10
+
+    if not entrepot_id or not date_str or not heure_debut_str or not heure_fin_str:
+        return JsonResponse({
+            'success': False,
+            'message': "Veuillez d'abord sélectionner l'entrepôt, la date et les horaires pour permettre à l'IA d'analyser la disponibilité des quais."
+        })
+
+    try:
+        date_creneau = datetime.strptime(date_str, '%Y-%m-%d').date()
+        h1 = datetime.strptime(heure_debut_str, '%H:%M').time()
+        h2 = datetime.strptime(heure_fin_str, '%H:%M').time()
+        nb_pal = int(nb_palettes)
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'message': f"Format de données invalide : {str(e)}"
+        })
+
+    allocator = SmartDockAllocator()
+    result = allocator.recommend_best_dock(
+        entrepot_id=int(entrepot_id),
+        date_creneau=date_creneau,
+        heure_debut=h1,
+        heure_fin=h2,
+        type_marchandise=type_marchandise,
+        type_camion=type_camion,
+        nb_palettes=nb_pal
+    )
+
+    return JsonResponse(result)
+
+
+# ==============================================================================
+# ASSISTANT IA GOOGLE GEMINI (STRICTEMENT DÉDIÉ AU MODULE CRÉNEAUX)
+# ==============================================================================
+
+def assistant_creneaux(request):
+    """
+    Interface visuelle dédiée du Copilot IA Google Gemini pour la Gestion des Créneaux.
+    """
+    api_key_configured = bool(getattr(settings, 'GEMINI_API_KEY', ''))
+    return render(request, 'creneaux/assistant_gemini.html', {
+        'api_key_configured': api_key_configured
+    })
+
+
+@csrf_exempt
+def api_gemini_chat(request):
+    """
+    Endpoint AJAX interrogeant Google Gemini exclusivement sur le périmètre des créneaux.
+    """
+    from .gemini_service import GeminiSlotAssistant
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Méthode POST requise'}, status=405)
+
+    prompt = request.POST.get('prompt', '').strip()
+    api_key = request.POST.get('api_key', '').strip() or None
+
+    if not prompt:
+        return JsonResponse({'error': 'Veuillez saisir une question sur vos créneaux.'}, status=400)
+
+    assistant = GeminiSlotAssistant(api_key=api_key)
+    result = assistant.ask(prompt, user=request.user)
+    return JsonResponse(result)
+

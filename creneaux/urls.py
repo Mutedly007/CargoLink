@@ -24,6 +24,11 @@ urlpatterns = [
     # Export & Rapports
     path('export/csv/', views.creneau_export_csv, name='creneau_export_csv'),
 
-    # Helper AJAX
+    # 4. Assistant IA Google Gemini (Périmètre Créneaux Strict)
+    path('assistant/', views.assistant_creneaux, name='assistant_creneaux'),
+    path('api/gemini-chat/', views.api_gemini_chat, name='api_gemini_chat'),
+
+    # Helper AJAX & IA
     path('api/quais/<int:entrepot_id>/', views.api_quais_by_entrepot, name='api_quais_by_entrepot'),
+    path('api/ai-recommend-dock/', views.api_ai_recommend_dock, name='api_ai_recommend_dock'),
 ]

@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import UserProfile
 
 
@@ -141,6 +142,189 @@ class AccountsAuthTests(TestCase):
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Site administration")
+
+    def test_profile_view_requires_login(self):
+        """Un visiteur non connecté est redirigé vers la page de connexion."""
+        response = self.client.get(reverse('profile'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+
+    def test_profile_view_get_authenticated(self):
+        """Un utilisateur connecté visualise ses informations sur la page profil."""
+        user = User.objects.create_user(
+            username='kacem_profil',
+            email='kacem@cargolink.tn',
+            first_name='Kacem',
+            last_name='Trabelsi',
+            password='TestPassword123!'
+        )
+        user.profile.role = 'ENTREPOT'
+        user.profile.entreprise = 'Logistique Sahel'
+        user.profile.telephone = '+216 99 888 777'
+        user.profile.save()
+
+        self.client.force_login(user)
+        response = self.client.get(reverse('profile'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Kacem Trabelsi")
+        self.assertContains(response, "@kacem_profil")
+        self.assertContains(response, "kacem@cargolink.tn")
+        self.assertContains(response, "Logistique Sahel")
+        self.assertContains(response, "+216 99 888 777")
+        self.assertContains(response, "Gestionnaire d&#x27;Entrepôt")
+
+    def test_profile_update_personal_info_and_role(self):
+        """Un utilisateur met à jour ses coordonnées et son rôle."""
+        user = User.objects.create_user(
+            username='user_to_edit',
+            email='old_email@cargolink.tn',
+            first_name='Ancien',
+            last_name='Nom',
+            password='TestPassword123!'
+        )
+        user.profile.role = 'ENTREPOT'
+        user.profile.save()
+
+        self.client.force_login(user)
+        post_data = {
+            'first_name': 'Nouveau',
+            'last_name': 'Prenom',
+            'username': 'user_edited',
+            'email': 'nouveau_email@cargolink.tn',
+            'role': 'PLANIFICATEUR',
+            'entreprise': 'Super Transports',
+            'telephone': '+216 55 444 333',
+        }
+        response = self.client.post(reverse('profile'), data=post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user.refresh_from_db()
+        self.assertEqual(user.first_name, 'Nouveau')
+        self.assertEqual(user.last_name, 'Prenom')
+        self.assertEqual(user.username, 'user_edited')
+        self.assertEqual(user.email, 'nouveau_email@cargolink.tn')
+        self.assertEqual(user.profile.role, 'PLANIFICATEUR')
+        self.assertEqual(user.profile.entreprise, 'Super Transports')
+        self.assertEqual(user.profile.telephone, '+216 55 444 333')
+
+    def test_profile_update_password_success(self):
+        """Un utilisateur change son mot de passe avec succès."""
+        user = User.objects.create_user(
+            username='pwd_user',
+            email='pwd@cargolink.tn',
+            password='CurrentPassword123!'
+        )
+        self.client.force_login(user)
+
+        post_data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'username': 'pwd_user',
+            'email': 'pwd@cargolink.tn',
+            'role': 'ENTREPOT',
+            'entreprise': '',
+            'telephone': '',
+            'old_password': 'CurrentPassword123!',
+            'new_password': 'BrandNewPassword456!',
+            'confirm_new_password': 'BrandNewPassword456!',
+        }
+        response = self.client.post(reverse('profile'), data=post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user.refresh_from_db()
+        self.assertTrue(user.check_password('BrandNewPassword456!'))
+
+    def test_profile_update_password_wrong_old_password(self):
+        """Une erreur est renvoyée si l'ancien mot de passe est erroné."""
+        user = User.objects.create_user(
+            username='pwd_user_fail',
+            email='pwdfail@cargolink.tn',
+            password='CurrentPassword123!'
+        )
+        self.client.force_login(user)
+
+        post_data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'username': 'pwd_user_fail',
+            'email': 'pwdfail@cargolink.tn',
+            'role': 'ENTREPOT',
+            'entreprise': '',
+            'telephone': '',
+            'old_password': 'WrongPassword999!',
+            'new_password': 'BrandNewPassword456!',
+            'confirm_new_password': 'BrandNewPassword456!',
+        }
+        response = self.client.post(reverse('profile'), data=post_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Le mot de passe actuel saisi est incorrect.", response.context['form'].errors.get('old_password', []))
+
+        user.refresh_from_db()
+        self.assertTrue(user.check_password('CurrentPassword123!'))
+
+    def test_profile_update_avatar_upload(self):
+        """Un utilisateur peut téléverser une photo de profil valide."""
+        user = User.objects.create_user(
+            username='avatar_user',
+            email='avatar@cargolink.tn',
+            password='TestPassword123!'
+        )
+        self.client.force_login(user)
+
+        # 1x1 valid GIF image
+        gif_bytes = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+        uploaded_avatar = SimpleUploadedFile('my_avatar.gif', gif_bytes, content_type='image/gif')
+
+        post_data = {
+            'first_name': 'Avatar',
+            'last_name': 'Tester',
+            'username': 'avatar_user',
+            'email': 'avatar@cargolink.tn',
+            'role': 'ENTREPOT',
+            'entreprise': '',
+            'telephone': '',
+            'avatar': uploaded_avatar,
+        }
+        response = self.client.post(reverse('profile'), data=post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user.refresh_from_db()
+        self.assertTrue(bool(user.profile.avatar))
+        self.assertIn('my_avatar', user.profile.avatar.name)
+        # Nettoyage
+        if user.profile.avatar:
+            user.profile.avatar.delete(save=False)
+
+    def test_profile_update_avatar_delete(self):
+        """Un utilisateur peut supprimer sa photo de profil existante."""
+        user = User.objects.create_user(
+            username='avatar_del_user',
+            email='avatardel@cargolink.tn',
+            password='TestPassword123!'
+        )
+        gif_bytes = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+        user.profile.avatar = SimpleUploadedFile('to_delete.gif', gif_bytes, content_type='image/gif')
+        user.profile.save()
+        self.assertTrue(bool(user.profile.avatar))
+
+        self.client.force_login(user)
+        post_data = {
+            'first_name': 'Avatar',
+            'last_name': 'Tester',
+            'username': 'avatar_del_user',
+            'email': 'avatardel@cargolink.tn',
+            'role': 'ENTREPOT',
+            'entreprise': '',
+            'telephone': '',
+            'delete_avatar': '1',
+        }
+        response = self.client.post(reverse('profile'), data=post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user.refresh_from_db()
+        self.assertFalse(bool(user.profile.avatar))
+
+
 
 
 

@@ -175,3 +175,132 @@ class CreneauxModuleTests(TestCase):
         res = self.client.get(reverse('creneaux:creneau_export_csv'))
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res['Content-Type'], 'text/csv; charset=utf-8')
+
+    def test_ai_smart_dock_allocator(self):
+        """Vérifie le moteur IA d'optimisation et d'attribution du meilleur quai (Volet IA - Kacem)."""
+        from .ai_optimizer import SmartDockAllocator
+
+        allocator = SmartDockAllocator()
+        # Test 1 : Recommandation pour de la marchandise standard
+        rec = allocator.recommend_best_dock(
+            entrepot_id=self.entrepot.id,
+            date_creneau=self.today,
+            heure_debut=time(11, 0),
+            heure_fin=time(12, 30),
+            type_marchandise='STANDARD',
+            type_camion='SEMI_REMORQUE',
+            nb_palettes=20
+        )
+        self.assertTrue(rec['success'])
+        self.assertIn('meilleur_quai_id', rec)
+        self.assertGreaterEqual(rec['score_optimal'], 50)
+
+        # Test 2 : Requête AJAX API
+        api_res = self.client.get(reverse('creneaux:api_ai_recommend_dock'), {
+            'entrepot_id': self.entrepot.id,
+            'date': self.today.strftime('%Y-%m-%d'),
+            'heure_debut': '11:00',
+            'heure_fin': '12:30',
+            'type_marchandise': 'STANDARD',
+            'type_camion': 'SEMI_REMORQUE',
+            'nb_palettes': 15
+        })
+        self.assertEqual(api_res.status_code, 200)
+        json_data = api_res.json()
+        self.assertTrue(json_data['success'])
+        self.assertEqual(json_data['meilleur_quai_id'], rec['meilleur_quai_id'])
+
+    def test_gemini_slot_assistant(self):
+        """Vérifie l'assistant Gemini bridé strictement au module des créneaux."""
+        from .gemini_service import GeminiSlotAssistant
+
+        assistant = GeminiSlotAssistant()
+
+        # Test 1 : Question autorisée sur les créneaux
+        res_valid = assistant.ask("Combien de créneaux sont prévus aujourd'hui ?")
+        self.assertTrue(res_valid['success'])
+        self.assertIn("créneau", res_valid['response'].lower())
+
+        # Test 2 : Question hors-périmètre (doit être refusée par le garde-fou)
+        res_hors_sujet = assistant.ask("Donne-moi une recette de cuisine pour ce soir.")
+        self.assertTrue(res_hors_sujet['success'])
+        self.assertIn("exclusivement aux questions relatives au module", res_hors_sujet['response'])
+        self.assertIn("Gestion des Créneaux", res_hors_sujet['response'])
+
+        # Test 3 : Page assistant HTTP 200
+        res_page = self.client.get(reverse('creneaux:assistant_creneaux'))
+        self.assertEqual(res_page.status_code, 200)
+
+    def test_entrepot_role_consultation_only_restriction(self):
+        """
+        Vérifie que la session Gestionnaire d'Entrepôt est limitée à la consultation :
+        - Consultation OK (liste, planning, détail).
+        - Planification, modification, annulation et validation strictement bloquées.
+        """
+        # 1. Création d'un utilisateur au rôle ENTREPOT
+        entrepot_user = User.objects.create_user(
+            username='user_entrepot_test',
+            email='entrepot@cargolink.tn',
+            password='Password123!',
+        )
+        entrepot_user.profile.role = 'ENTREPOT'
+        entrepot_user.profile.save()
+
+        # Création d'un créneau pour tester les accès détail, modifier, annuler
+        creneau = Creneau.objects.create(
+            entrepot=self.entrepot,
+            quai=self.quai,
+            date_creneau=self.today + timedelta(days=2),
+            heure_debut=time(14, 0),
+            heure_fin=time(15, 0),
+            statut='EN_ATTENTE',
+            type_operation='DECHARGEMENT',
+            transporteur_nom='Trans Express',
+            immatriculation_camion='999-TN-999',
+            chauffeur_nom='Chauffeur Test',
+            consignes='Colis divers',
+            type_marchandise='STANDARD',
+            nb_palettes=10
+        )
+
+        self.client.login(username='user_entrepot_test', password='Password123!')
+
+        # 2. Consultation autorisée (Liste, Planning, Détail)
+        res_list = self.client.get(reverse('creneaux:creneau_list'))
+        self.assertEqual(res_list.status_code, 200)
+        self.assertTrue(res_list.context['is_entrepot_role'])
+
+        res_planning = self.client.get(reverse('creneaux:creneau_planning'))
+        self.assertEqual(res_planning.status_code, 200)
+        self.assertTrue(res_planning.context['is_entrepot_role'])
+
+        res_detail = self.client.get(reverse('creneaux:creneau_detail', kwargs={'pk': creneau.pk}))
+        self.assertEqual(res_detail.status_code, 200)
+        self.assertTrue(res_detail.context['is_entrepot_role'])
+
+        # 3. Actions d'écriture interdites (Redirections avec message d'avertissement)
+        # Création directe
+        res_create = self.client.get(reverse('creneaux:creneau_create'))
+        self.assertEqual(res_create.status_code, 302)
+        self.assertRedirects(res_create, reverse('creneaux:creneau_list'))
+
+        # Demande de créneau
+        res_demande = self.client.get(reverse('creneaux:demande_creneau'))
+        self.assertEqual(res_demande.status_code, 302)
+        self.assertRedirects(res_demande, reverse('creneaux:creneau_list'))
+
+        # Modification
+        res_update = self.client.get(reverse('creneaux:creneau_update', kwargs={'pk': creneau.pk}))
+        self.assertEqual(res_update.status_code, 302)
+        self.assertRedirects(res_update, reverse('creneaux:creneau_detail', kwargs={'pk': creneau.pk}))
+
+        # Annulation
+        res_cancel = self.client.get(reverse('creneaux:creneau_cancel', kwargs={'pk': creneau.pk}))
+        self.assertEqual(res_cancel.status_code, 302)
+        self.assertRedirects(res_cancel, reverse('creneaux:creneau_detail', kwargs={'pk': creneau.pk}))
+
+        # Confirmation
+        res_confirm = self.client.get(reverse('creneaux:creneau_confirm', kwargs={'pk': creneau.pk}))
+        self.assertEqual(res_confirm.status_code, 302)
+        self.assertRedirects(res_confirm, reverse('creneaux:creneau_detail', kwargs={'pk': creneau.pk}))
+

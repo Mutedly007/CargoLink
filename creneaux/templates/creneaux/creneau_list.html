@@ -34,9 +34,15 @@
                 </svg>
                 Export CSV
             </a>
+            {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:demande_creneau' %}" class="btn btn-outline" style="font-size: 0.875rem; border-color: #3b82f6; color: #60a5fa;">
                 📋 Demande de Créneau
             </a>
+            {% endif %}
+            <a href="{% url 'creneaux:assistant_creneaux' %}" class="btn-ai-magic" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;">
+                ✨ Copilot IA Gemini
+            </a>
+            {% if not is_entrepot_role %}
             <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -44,6 +50,7 @@
                 </svg>
                 Planifier un Créneau
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -204,7 +211,7 @@
                             </div>
                         </td>
                         <td>
-                            <strong style="color: #ffffff;">{{ c.quai.numero }}</strong>
+                            <strong class="cell-title-text">{{ c.quai.numero }}</strong>
                             <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
                                 🏭 {{ c.entrepot.nom }}
                             </div>
@@ -220,13 +227,13 @@
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight: 600; color: #ffffff;">{{ c.transporteur_nom }}</div>
-                            <div style="font-family: monospace; font-size: 0.8rem; color: #94a3b8; background: rgba(255,255,255,0.06); display: inline-block; padding: 1px 6px; border-radius: 4px; margin-top: 2px;">
+                            <div class="cell-primary-text">{{ c.transporteur_nom }}</div>
+                            <div class="truck-plate-badge">
                                 🚛 {{ c.immatriculation_camion }}
                             </div>
                         </td>
                         <td>
-                            <div style="color: #ffffff;">{{ c.chauffeur_nom }}</div>
+                            <div class="cell-primary-text">{{ c.chauffeur_nom }}</div>
                             {% if c.chauffeur_telephone %}
                             <div style="font-size: 0.78rem; color: var(--text-muted);">
                                 📞 {{ c.chauffeur_telephone }}
@@ -249,13 +256,19 @@
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 4rem 2rem;">
                             <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
-                            <h3 style="color: #ffffff; margin-bottom: 0.5rem;">Aucun créneau planifié</h3>
+                            <h3 class="cell-title-text" style="margin-bottom: 0.5rem;">Aucun créneau planifié</h3>
                             <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto;">
                                 Aucun créneau horaire ne correspond aux filtres actuels. Commencez par planifier un créneau ou effectuez une demande de livraison.
                             </p>
+                            {% if not is_entrepot_role %}
                             <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="font-size: 0.9rem;">
                                 Planifier le Premier Créneau
                             </a>
+                            {% else %}
+                            <div style="color: #93c5fd; font-size: 0.85rem; font-weight: 500;">
+                                ℹ️ Vous êtes en mode consultation. La planification des créneaux est effectuée par les Planificateurs.
+                            </div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

@@ -86,6 +86,12 @@ Une commande Django personnalisée est disponible pour peupler automatiquement l
 uv run python manage.py populate_entrepots
 ```
 
+### B. Remplir la base avec des camions et historiques de passage (Module Rahma)
+Une commande dédiée permet de générer 5 camions réalistes (Volvo, Scania, Mercedes, Renault E-Tech, DAF) avec leurs historiques de passage aux entrepôts :
+```bash
+uv run python manage.py populate_camions
+```
+
 ### B. Créer un compte super-administrateur
 Pour créer votre compte administrateur Django et plateforme :
 ```bash
@@ -130,6 +136,9 @@ uv run python manage.py test entrepots.tests --keepdb
 # Tests d'authentification et de contrôle d'accès
 uv run python manage.py test accounts.tests --keepdb
 
+# Tests du module Flotte & Camions (Rahma)
+uv run python manage.py test camions.tests --keepdb
+
 # Tests de la landing page
 uv run python manage.py test landing.tests --keepdb
 ```
@@ -154,6 +163,15 @@ CargoLink/
 │   ├── management/commands/   # populate_entrepots.py (Génération données de test)
 │   ├── static/entrepots/css/  # entrepots.css (Design system dédié, KPI, dots)
 │   └── templates/entrepots/   # Listes, détails, formulaires et suppressions
+│
+├── camions/                   # Module Gestion de la Flotte & Camions (Rahma)
+│   ├── models.py              # Camion & HistoriquePassage
+│   ├── forms.py               # CamionForm, HistoriquePassageForm
+│   ├── views.py               # CRUD complet, bascule d'état rapide, RBAC
+│   ├── ai_service.py          # GeminiTruckDiagnostic (Maintenance prédictive & Fleet Health Score)
+│   ├── management/commands/   # populate_camions.py (Données de démo flotte)
+│   ├── static/camions/css/    # camions.css (Design system dédié, KPI, gauges)
+│   └── templates/camions/     # Listes, détails, formulaires et suppressions
 │
 ├── landing/                   # Vitrine publique & Layout commun
 │   ├── templates/landing/     # base.html (Header/Navbar, Footer), landing.html
