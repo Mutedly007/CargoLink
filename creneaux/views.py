@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime, date, time, timedelta
+from functools import wraps
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -17,6 +18,41 @@ from entrepots.models import Entrepot, Quai
 # ==============================================================================
 # CONTRÔLE D'ACCÈS & RÔLES LOGISTIQUES
 # ==============================================================================
+
+def creneaux_session_required(view_func):
+    """
+    Contrôle d'accès au module Planning & Créneaux :
+    Vérifie qu'une session planificateur (ou administrateur / gestionnaire d'entrepôt) est active.
+    Si la session n'est pas ouverte ou que le rôle n'est pas autorisé,
+    l'utilisateur est redirigé vers la page d'accueil principale ('landing').
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "Accès restreint : Veuillez vous connecter avec votre session Planificateur pour accéder au planning des créneaux."
+            )
+            return redirect('landing')
+
+        user = request.user
+        user_role = getattr(getattr(user, 'profile', None), 'role', None)
+        is_allowed = (
+            user.is_superuser
+            or user.is_staff
+            or user_role in ('PLANIFICATEUR', 'ADMIN', 'ENTREPOT', 'ENTERPOT')
+        )
+        if not is_allowed:
+            messages.error(
+                request,
+                "Accès refusé : Seuls les planificateurs et gestionnaires autorisés peuvent accéder au module des créneaux."
+            )
+            return redirect('landing')
+
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped_view
+
 
 def is_entrepot_role(user):
     """
@@ -53,6 +89,7 @@ def check_creneaux_write_access(request, redirect_pk=None):
 # TABLEAU DE BORD & LISTE DES CRÉNEAUX
 # ==============================================================================
 
+@creneaux_session_required
 def creneau_list(request):
     """
     Vue principale : Liste des créneaux, indicateurs KPI et filtres multi-critères.
@@ -136,6 +173,7 @@ def creneau_list(request):
 # PLANNING VISUEL (TIMELINE HORAIRE DES QUAIS)
 # ==============================================================================
 
+@creneaux_session_required
 def creneau_planning(request):
     """
     Vue Planning / Grille horaire : Visualisation de l'occupation des quais par heure
@@ -197,6 +235,7 @@ def creneau_planning(request):
 # CRÉATION & DEMANDE DE CRÉNEAU
 # ==============================================================================
 
+@creneaux_session_required
 def creneau_create(request):
     """
     Création directe d'un créneau (pour les gestionnaires d'entrepôt et planificateurs).
@@ -237,6 +276,7 @@ def creneau_create(request):
     })
 
 
+@creneaux_session_required
 def demande_creneau(request):
     """
     Demande de créneau (Module Kacem - Slide 16 : 'Demande de créneau').
@@ -273,6 +313,7 @@ def demande_creneau(request):
     })
 
 
+@creneaux_session_required
 def creneau_confirm(request, pk):
     """
     Confirmation de créneau (Module Kacem - Slide 16 : 'Confirmation').
@@ -292,6 +333,7 @@ def creneau_confirm(request, pk):
 # DÉTAIL D'UN CRÉNEAU & ACTIONS DE STATUT
 # ==============================================================================
 
+@creneaux_session_required
 def creneau_detail(request, pk):
     """
     Fiche détaillée d'un créneau : informations complètes, timeline d'état,
@@ -307,6 +349,7 @@ def creneau_detail(request, pk):
     })
 
 
+@creneaux_session_required
 def creneau_update(request, pk):
     """
     Modification d'un créneau existant.
@@ -337,6 +380,7 @@ def creneau_update(request, pk):
     })
 
 
+@creneaux_session_required
 def creneau_cancel(request, pk):
     """
     Annulation motivée d'un créneau.
@@ -364,6 +408,7 @@ def creneau_cancel(request, pk):
     })
 
 
+@creneaux_session_required
 def creneau_action_statut(request, pk, action):
     """
     Transitions d'état en 1 clic pour le suivi opérationnel en temps réel (Slide 8).
@@ -398,6 +443,7 @@ def creneau_action_statut(request, pk, action):
 # EXPORT DES CRÉNEAUX (CSV / EXCEL)
 # ==============================================================================
 
+@creneaux_session_required
 def creneau_export_csv(request):
     """
     Export CSV des créneaux selon les filtres courants pour rapports logistiques.
@@ -443,6 +489,7 @@ def creneau_export_csv(request):
 # API HELPER (AJAX pour filtrage des quais par entrepôt)
 # ==============================================================================
 
+@creneaux_session_required
 def api_quais_by_entrepot(request, entrepot_id):
     """
     Retourne la liste JSON des quais d'un entrepôt donné pour alimenter dynamiquement les selects.
@@ -451,6 +498,7 @@ def api_quais_by_entrepot(request, entrepot_id):
     return JsonResponse({'quais': list(quais)})
 
 
+@creneaux_session_required
 def api_ai_recommend_dock(request):
     """
     Endpoint AJAX d'Attribution Intelligente des Quais par IA (Module Kacem - Volet IA).
@@ -501,6 +549,7 @@ def api_ai_recommend_dock(request):
 # ASSISTANT IA GOOGLE GEMINI (STRICTEMENT DÉDIÉ AU MODULE CRÉNEAUX)
 # ==============================================================================
 
+@creneaux_session_required
 def assistant_creneaux(request):
     """
     Interface visuelle dédiée du Copilot IA Google Gemini pour la Gestion des Créneaux.
@@ -512,6 +561,7 @@ def assistant_creneaux(request):
 
 
 @csrf_exempt
+@creneaux_session_required
 def api_gemini_chat(request):
     """
     Endpoint AJAX interrogeant Google Gemini exclusivement sur le périmètre des créneaux.

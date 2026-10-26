@@ -99,6 +99,38 @@ class ChauffeurCRUDViewsTests(TestCase):
             date_visite=self.today
         )
 
+        self.user = User.objects.create_user(
+            username="test_chauffeur",
+            password="password123",
+            email="test_chauffeur@cargolink.tn"
+        )
+        self.user.profile.role = "TRANSPORTEUR"
+        self.user.profile.save()
+        self.client.login(username="test_chauffeur", password="password123")
+
+    def test_chauffeur_list_unauthenticated_redirects_to_landing(self):
+        """Vérifie qu'un utilisateur non connecté est redirigé vers la page d'accueil principale."""
+        self.client.logout()
+        response = self.client.get(reverse('chauffeurs:chauffeur_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('landing'))
+
+    def test_chauffeur_list_non_chauffeur_redirects_to_landing(self):
+        """Vérifie qu'un utilisateur sans session chauffeur (ex: gestionnaire entrepôt) est redirigé vers la landing page."""
+        self.client.logout()
+        other_user = User.objects.create_user(
+            username="test_entrepot",
+            password="password123",
+            email="entrepot@cargolink.tn"
+        )
+        other_user.profile.role = "ENTREPOT"
+        other_user.profile.save()
+        self.client.login(username="test_entrepot", password="password123")
+
+        response = self.client.get(reverse('chauffeurs:chauffeur_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('landing'))
+
     def test_chauffeur_list_view(self):
         response = self.client.get(reverse('chauffeurs:chauffeur_list'))
         self.assertEqual(response.status_code, 200)

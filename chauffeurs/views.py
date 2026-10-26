@@ -1,5 +1,6 @@
 import csv
 from datetime import date, timedelta
+from functools import wraps
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import HttpResponse
@@ -11,6 +12,42 @@ from .forms import ChauffeurForm, VisiteChauffeurForm
 from creneaux.models import Creneau
 
 
+def chauffeur_session_required(view_func):
+    """
+    Contrôle d'accès au module Chauffeurs (Khalil Hlila) :
+    Vérifie qu'une session chauffeur (ou administrateur) est active.
+    Si la session n'est pas ouverte ou que le rôle n'est pas autorisé,
+    l'utilisateur est redirigé vers la page d'accueil principale ('landing').
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "Accès restreint : Veuillez vous connecter avec votre session Chauffeur pour accéder à cet espace."
+            )
+            return redirect('landing')
+
+        user = request.user
+        user_role = getattr(getattr(user, 'profile', None), 'role', None)
+        is_allowed = (
+            user.is_superuser
+            or user.is_staff
+            or user_role in ('TRANSPORTEUR', 'ADMIN')
+        )
+        if not is_allowed:
+            messages.error(
+                request,
+                "Accès refusé : Seuls les chauffeurs / transporteurs et administrateurs peuvent accéder à cet espace."
+            )
+            return redirect('landing')
+
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped_view
+
+
+@chauffeur_session_required
 def chauffeur_list(request):
     """
     R (Read List) : Liste complète des chauffeurs avec recherche,
@@ -99,6 +136,7 @@ def chauffeur_list(request):
     return render(request, 'chauffeurs/chauffeur_list.html', context)
 
 
+@chauffeur_session_required
 def chauffeur_detail(request, pk):
     """
     R (Read Detail) : Fiche détaillée du chauffeur avec ses informations personnelles,
@@ -121,6 +159,7 @@ def chauffeur_detail(request, pk):
     return render(request, 'chauffeurs/chauffeur_detail.html', context)
 
 
+@chauffeur_session_required
 def chauffeur_create(request):
     """
     C (Create) : Ajout d'un nouveau chauffeur dans le réseau CargoLink.
@@ -147,6 +186,7 @@ def chauffeur_create(request):
     return render(request, 'chauffeurs/chauffeur_form.html', context)
 
 
+@chauffeur_session_required
 def chauffeur_update(request, pk):
     """
     U (Update) : Modification des informations d'un chauffeur existant.
@@ -173,6 +213,7 @@ def chauffeur_update(request, pk):
     return render(request, 'chauffeurs/chauffeur_form.html', context)
 
 
+@chauffeur_session_required
 def chauffeur_delete(request, pk):
     """
     D (Delete) : Suppression d'un chauffeur avec écran de confirmation.
@@ -191,6 +232,7 @@ def chauffeur_delete(request, pk):
     return render(request, 'chauffeurs/chauffeur_confirm_delete.html', context)
 
 
+@chauffeur_session_required
 def chauffeur_statut_update(request, pk):
     """
     Mise à jour rapide du statut opérationnel en 1 clic (Disponible, En mission, À quai, En repos).
@@ -210,6 +252,7 @@ def chauffeur_statut_update(request, pk):
     return redirect(next_url)
 
 
+@chauffeur_session_required
 def visite_create(request, chauffeur_pk):
     """
     Enregistre un nouveau passage ou contrôle de visite en entrepôt pour un chauffeur donné.
@@ -240,6 +283,7 @@ def visite_create(request, chauffeur_pk):
     return render(request, 'chauffeurs/visite_form.html', context)
 
 
+@chauffeur_session_required
 def chauffeur_portal_mobile(request):
     """
     Portail Chauffeur Mobile & Responsive (Conforme au slide 9).
@@ -271,6 +315,7 @@ def chauffeur_portal_mobile(request):
     return render(request, 'chauffeurs/chauffeur_portal_mobile.html', context)
 
 
+@chauffeur_session_required
 def chauffeurs_export(request):
     """
     Export CSV des données chauffeurs pour reporting et tableaux de bord (Slide 8).
