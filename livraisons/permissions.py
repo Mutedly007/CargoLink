@@ -20,6 +20,7 @@ ACTIONS_PAR_STATUT = {
     'livrer': ('ARRIVEE',),
     'echouer': ('EN_TRANSIT', 'ARRIVEE'),
     'annuler': ('BROUILLON', 'PLANIFIEE', 'EN_CHARGEMENT'),
+    'supprimer': ('BROUILLON', 'PLANIFIEE'),
     'reaffecter': ('PLANIFIEE', 'EN_CHARGEMENT', 'EN_TRANSIT'),
     'incident': ('PLANIFIEE', 'EN_CHARGEMENT', 'EN_TRANSIT', 'ARRIVEE'),
 }
@@ -122,7 +123,7 @@ def peut_executer(user, livraison, action):
         return est_transporteur_de(user, livraison) or gere_destination(user, livraison)
     if action == 'incident':
         return est_transporteur_de(user, livraison) or gere_un_entrepot_de(user, livraison)
-    # modifier, planifier, annuler, reaffecter : réservés aux planificateurs
+    # modifier, planifier, annuler, supprimer, reaffecter : réservés aux planificateurs
     return False
 
 

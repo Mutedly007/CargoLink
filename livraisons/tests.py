@@ -570,6 +570,40 @@ class LivraisonVuesTests(LivraisonsTestBase):
         livraison.refresh_from_db()
         self.assertEqual(livraison.statut, 'BROUILLON')
 
+    def test_suppression_page_propose_annuler_ou_supprimer(self):
+        livraison = self.nouvelle_livraison()
+        self.client.force_login(self.planificateur)
+        reponse = self.client.get(reverse('livraisons:livraison_delete', args=[livraison.pk]))
+        self.assertContains(reponse, 'Annuler la livraison')
+        self.assertContains(reponse, 'Supprimer définitivement')
+
+    def test_suppression_livraison_planifiee_libere_les_creneaux(self):
+        livraison = self.nouvelle_livraison()
+        services.planifier(livraison, self.planificateur)
+        self.client.force_login(self.planificateur)
+        reponse = self.client.post(reverse('livraisons:livraison_delete', args=[livraison.pk]))
+        self.assertRedirects(reponse, reverse('livraisons:livraison_list'))
+        self.assertFalse(Livraison.objects.filter(pk=livraison.pk).exists())
+        self.cr_chargement.refresh_from_db(); self.cr_dechargement.refresh_from_db()
+        self.assertEqual(self.cr_chargement.statut, 'ANNULE')
+        self.assertEqual(self.cr_dechargement.statut, 'ANNULE')
+
+    def test_suppression_impossible_une_fois_partie(self):
+        livraison = self.nouvelle_livraison()
+        for etape in (services.planifier, services.charger):
+            etape(livraison, self.planificateur)
+        self.client.force_login(self.planificateur)
+        self.client.post(reverse('livraisons:livraison_delete', args=[livraison.pk]))
+        self.assertTrue(Livraison.objects.filter(pk=livraison.pk).exists())
+        with self.assertRaises(TransitionImpossible):
+            services.supprimer(livraison, self.planificateur)
+
+    def test_transporteur_ne_peut_pas_supprimer(self):
+        livraison = self.nouvelle_livraison()
+        self.client.force_login(self.transporteur)
+        self.client.post(reverse('livraisons:livraison_delete', args=[livraison.pk]))
+        self.assertTrue(Livraison.objects.filter(pk=livraison.pk).exists())
+
     def test_gestionnaire_destination_peut_receptionner(self):
         livraison = self.nouvelle_livraison()
         for etape in (services.planifier, services.charger, services.partir):

@@ -388,6 +388,22 @@ def annuler(livraison, user, motif):
 
 
 @transaction.atomic
+def supprimer(livraison, user):
+    """
+    Suppression définitive d'une livraison en attente (BROUILLON / PLANIFIEE).
+    Les créneaux liés sont d'abord annulés via le module Créneaux pour libérer les quais ;
+    le suivi et les incidents sont supprimés avec la livraison (CASCADE).
+    Retourne la référence supprimée.
+    """
+    _verifier_etat(livraison, ('BROUILLON', 'PLANIFIEE'), "supprimer")
+    reference = livraison.reference
+    for creneau in (livraison.creneau_chargement, livraison.creneau_dechargement):
+        _creneau_annuler(creneau, f"Livraison {reference} supprimée.", user)
+    livraison.delete()
+    return reference
+
+
+@transaction.atomic
 def reaffecter(livraison, user, camion=None, chauffeur=None, ancien_camion_en_panne=False, commentaire=''):
     """
     Remplace le camion et/ou le chauffeur (après une panne par exemple).

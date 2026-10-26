@@ -202,6 +202,30 @@ def livraison_update(request, pk):
 
 
 @livraisons_session_required
+def livraison_delete(request, pk):
+    """
+    D (Delete) : pour une livraison en attente (brouillon ou planifiée), le planificateur choisit
+    entre l'annuler (historique conservé) ou la supprimer définitivement (créneaux libérés).
+    """
+    livraison = _livraison_visible(request, pk)
+    if not peut_executer(request.user, livraison, 'supprimer'):
+        return _refuser(request, livraison, "Seule une livraison en attente (brouillon ou planifiée) peut être supprimée.")
+
+    if request.method == 'POST':
+        try:
+            reference = services.supprimer(livraison, request.user)
+        except TransitionImpossible as exc:
+            return _refuser(request, livraison, str(exc))
+        messages.success(request, f"Livraison {reference} supprimée définitivement. Ses créneaux ont été libérés.")
+        return redirect('livraisons:livraison_list')
+
+    return render(request, 'livraisons/livraison_confirm_delete.html', {
+        'livraison': livraison,
+        'motif_form': MotifForm(),
+    })
+
+
+@livraisons_session_required
 def livraison_detail(request, pk):
     livraison = _livraison_visible(request, pk)
     actions = actions_autorisees(request.user, livraison)

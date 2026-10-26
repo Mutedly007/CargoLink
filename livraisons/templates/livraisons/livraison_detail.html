@@ -20,6 +20,11 @@
                 {% include "livraisons/_icone.html" with nom="pen" %} Modifier
             </a>
             {% endif %}
+            {% if 'supprimer' in actions %}
+            <a href="{% url 'livraisons:livraison_delete' livraison.pk %}" class="btn btn-outline btn-sm btn-danger-outline">
+                {% include "livraisons/_icone.html" with nom="x" %} Annuler ou supprimer
+            </a>
+            {% endif %}
         </div>
     </div>
 
@@ -111,7 +116,7 @@
         {% endif %}
         {% endif %}
 
-        {% if 'reaffecter' in actions or 'annuler' in actions or 'echouer' in actions %}
+        {% if 'reaffecter' in actions or 'echouer' in actions or 'annuler' in actions and 'supprimer' not in actions %}
         <div class="liv-grid-2">
             {% if 'reaffecter' in actions %}
             <details class="liv-collapse">
@@ -135,7 +140,7 @@
                 </form>
             </details>
             {% endif %}
-            {% if 'annuler' in actions %}
+            {% if 'annuler' in actions and 'supprimer' not in actions %}
             <details class="liv-collapse">
                 <summary>{% include "livraisons/_icone.html" with nom="x" %} Annuler la livraison</summary>
                 <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'annuler' %}" class="liv-collapse-body">{% csrf_token %}

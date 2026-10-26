@@ -1,0 +1,58 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}Annuler ou supprimer {{ livraison.reference }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'livraisons/css/livraisons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="liv-container liv-container-narrow">
+    <a class="liv-back-link" href="{% url 'livraisons:livraison_detail' livraison.pk %}">{% include "livraisons/_icone.html" with nom="arrow-left" %} {{ livraison.reference }}</a>
+    <header class="liv-top-bar">
+        <div class="liv-title">
+            <h1>{% include "livraisons/_icone.html" with nom="x" %} Annuler ou supprimer</h1>
+            <p>{{ livraison.reference }} • {{ livraison.ville_depart }} → {{ livraison.ville_arrivee }} • {{ livraison.statut_court }}</p>
+        </div>
+    </header>
+
+    <section class="liv-card" aria-labelledby="titre-annuler">
+        <div class="liv-card-title"><span id="titre-annuler">{% include "livraisons/_icone.html" with nom="clock" %} Annuler la livraison</span></div>
+        <p class="liv-small" style="color: var(--text-sub);">
+            Recommandé. La livraison reste dans l'historique avec le statut « Annulée » et son motif.
+            Les créneaux liés sont annulés et leurs quais libérés.
+        </p>
+        <form method="post" action="{% url 'livraisons:livraison_action' livraison.pk 'annuler' %}" style="margin-top: 0.75rem;">
+            {% csrf_token %}
+            {% include "livraisons/_champ.html" with champ=motif_form.motif %}
+            <div class="liv-form-actions">
+                <button type="submit" class="btn btn-accent">Annuler la livraison</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="liv-card" aria-labelledby="titre-supprimer">
+        <div class="liv-card-title"><span id="titre-supprimer" class="liv-danger-text">{% include "livraisons/_icone.html" with nom="alert" %} Supprimer définitivement</span></div>
+        <p class="liv-small" style="color: var(--text-sub);">
+            Pour une livraison créée par erreur. Elle disparaît avec son suivi
+            ({{ livraison.suivis.count }} événement{{ livraison.suivis.count|pluralize }})
+            et ses incidents ({{ livraison.incidents.count }}). Cette action est irréversible.
+        </p>
+        {% if livraison.creneau_chargement or livraison.creneau_dechargement %}
+        <p class="liv-small liv-muted">
+            Créneaux qui seront annulés :
+            {% if livraison.creneau_chargement %}{{ livraison.creneau_chargement.reference }}{% endif %}
+            {% if livraison.creneau_dechargement %}{{ livraison.creneau_dechargement.reference }}{% endif %}
+        </p>
+        {% endif %}
+        <form method="post" style="margin-top: 0.75rem;">
+            {% csrf_token %}
+            <div class="liv-form-actions">
+                <a href="{% url 'livraisons:livraison_detail' livraison.pk %}" class="btn btn-outline">Revenir</a>
+                <button type="submit" class="btn btn-outline btn-danger-outline">Supprimer définitivement</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

@@ -12,6 +12,7 @@ urlpatterns = [
     path('nouvelle/', views.livraison_create, name='livraison_create'),
     path('<int:pk>/', views.livraison_detail, name='livraison_detail'),
     path('<int:pk>/modifier/', views.livraison_update, name='livraison_update'),
+    path('<int:pk>/supprimer/', views.livraison_delete, name='livraison_delete'),
 
     # Cycle de vie (POST) : planifier, charger, partir, arriver, annuler, echouer, reaffecter, reserver_creneau
     path('<int:pk>/action/<str:action>/', views.livraison_action, name='livraison_action'),
