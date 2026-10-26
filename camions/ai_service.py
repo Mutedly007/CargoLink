@@ -40,7 +40,7 @@ RÈGLES STRICTES DE RÉPONSE :
 """
 
     def __init__(self, api_key: str = None):
-        self.api_key = api_key or getattr(settings, 'GEMINI_API_KEY', '') or ''
+        self.api_key = api_key or getattr(settings, 'GEMINI_API_KEY_CAMION', '') or ''
         self.model_name = "gemini-1.5-flash"
         self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent"
 

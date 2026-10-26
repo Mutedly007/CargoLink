@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Base Stylesheet -->
-    <link rel="stylesheet" href="{% static 'landing/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'landing/css/base.css' %}?v=2.1">
     {% block extra_css %}{% endblock %}
 
     <!-- Prevent Theme and Accessibility Text Size Flash on Page Load -->
@@ -45,8 +45,6 @@
                 <li class="nav-item"><a href="{% url 'entrepots:entrepot_list' %}">Entrepôts & Quais</a></li>
                 <li class="nav-item"><a href="{% url 'creneaux:creneau_list' %}">Planning & Créneaux</a></li>
                 <li class="nav-item"><a href="{% url 'camions:camion_list' %}">Flotte & Camions</a></li>
-                <li class="nav-item"><a href="{% url 'landing' %}#chauffeurs">Chauffeurs</a></li>
-                <li class="nav-item"><a href="{% url 'landing' %}#flotte">Flotte & Camions</a></li>
                 <li class="nav-item"><a href="{% url 'chauffeurs:chauffeur_list' %}">Chauffeurs</a></li>
             </ul>
 
@@ -73,7 +71,8 @@
                         <button type="button" class="user-pill-btn" id="userMenuTrigger" aria-expanded="false" aria-haspopup="true">
                             <div class="user-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
                                 {% if user.profile.avatar %}
-                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-avatar-img">
+                                    <img src="{{ user.profile.avatar.url }}" alt="" class="user-avatar-img" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                    <span class="user-avatar-fallback" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">{% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:':1'|upper }}{% endif %}</span>
                                 {% elif user.profile.initials %}
                                     {{ user.profile.initials }}
                                 {% else %}
@@ -106,7 +105,8 @@
                             <div class="dropdown-header">
                                 <div class="dropdown-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
                                     {% if user.profile.avatar %}
-                                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="dropdown-avatar-img">
+                                        <img src="{{ user.profile.avatar.url }}" alt="" class="dropdown-avatar-img" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                        <span class="dropdown-avatar-fallback" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">{% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:':1'|upper }}{% endif %}</span>
                                     {% elif user.profile.initials %}
                                         {{ user.profile.initials }}
                                     {% else %}
@@ -230,8 +230,6 @@
                     <li><a href="{% url 'entrepots:entrepot_list' %}">Gestion des Entrepôts & Quais</a></li>
                     <li><a href="{% url 'creneaux:creneau_list' %}">Réservation de Créneaux</a></li>
                     <li><a href="{% url 'camions:camion_list' %}">Suivi de Flotte & Camions</a></li>
-                    <li><a href="{% url 'landing' %}#chauffeurs">Portail Chauffeurs</a></li>
-                    <li><a href="{% url 'landing' %}#flotte">Suivi de Flotte & Camions</a></li>
                     <li><a href="{% url 'chauffeurs:chauffeur_list' %}">Portail Chauffeurs</a></li>
                 </ul>
             </div>

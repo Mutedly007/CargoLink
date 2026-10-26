@@ -7,6 +7,25 @@ from .forms import EntrepotForm, QuaiForm
 
 
 # ==============================================================================
+# CONTRÔLE D'ACCÈS & RÔLES
+# ==============================================================================
+
+def is_entrepot_manager(user):
+    """
+    Vérifie si l'utilisateur connecté est un Gestionnaire d'Entrepôt
+    (ou Administrateur / Superutilisateur).
+    """
+    if not user or not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    profile = getattr(user, 'profile', None)
+    if profile:
+        return profile.is_entrepot
+    return False
+
+
+# ==============================================================================
 # CRUD ENTREPÔTS
 # ==============================================================================
 
@@ -60,6 +79,7 @@ def entrepot_list(request):
         'quais_disponibles': quais_disponibles,
         'quais_occupes': quais_occupes,
         'capacite_globale': capacite_globale,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
         'page_title': "Gestion des Entrepôts & Quais • CargoLink",
     }
     return render(request, 'entrepots/entrepot_list.html', context)
@@ -75,6 +95,7 @@ def entrepot_detail(request, pk):
     context = {
         'entrepot': entrepot,
         'quais': quais,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
         'page_title': f"{entrepot.nom} • Détails Entrepôt",
     }
     return render(request, 'entrepots/entrepot_detail.html', context)
@@ -84,7 +105,16 @@ def entrepot_detail(request, pk):
 def entrepot_create(request):
     """
     C (Create) : Formulaire d'ajout d'un nouvel entrepôt.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à ajouter des entrepôts. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:entrepot_list')
+
     if request.method == 'POST':
         form = EntrepotForm(request.POST)
         if form.is_valid():
@@ -116,7 +146,16 @@ def entrepot_create(request):
 def entrepot_update(request, pk):
     """
     U (Update) : Modification des informations d'un entrepôt existant.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à modifier cet entrepôt. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:entrepot_detail', pk=pk)
+
     entrepot = get_object_or_404(Entrepot, pk=pk)
 
     if request.method == 'POST':
@@ -148,7 +187,16 @@ def entrepot_update(request, pk):
 def entrepot_delete(request, pk):
     """
     D (Delete) : Suppression d'un entrepôt avec avertissement des quais associés.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à supprimer cet entrepôt. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:entrepot_detail', pk=pk)
+
     entrepot = get_object_or_404(Entrepot, pk=pk)
 
     if request.method == 'POST':
@@ -194,6 +242,7 @@ def quai_list(request):
         'statut_filter': statut_filter,
         'type_filter': type_filter,
         'selected_entrepot_id': entrepot_id,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
         'page_title': "Régulation des Quais • CargoLink",
     }
     return render(request, 'entrepots/quai_list.html', context)
@@ -204,14 +253,30 @@ def quai_detail(request, pk):
     R (Read Detail) : Fiche technique et état opérationnel d'un quai.
     """
     quai = get_object_or_404(Quai.objects.select_related('entrepot'), pk=pk)
-    return render(request, 'entrepots/quai_detail.html', {'quai': quai, 'page_title': f"{quai.numero} • Fiche Quai"})
+    context = {
+        'quai': quai,
+        'can_manage_entrepots': is_entrepot_manager(request.user),
+        'page_title': f"{quai.numero} • Fiche Quai",
+    }
+    return render(request, 'entrepots/quai_detail.html', context)
 
 
 @login_required
 def quai_create(request, entrepot_pk=None):
     """
     C (Create) : Ajout d'un quai, optionnellement pré-attaché à un entrepôt.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à ajouter des quais. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        if entrepot_pk:
+            return redirect('entrepots:entrepot_detail', pk=entrepot_pk)
+        return redirect('entrepots:quai_list')
+
     initial_data = {}
     preset_entrepot = None
     if entrepot_pk:
@@ -251,7 +316,16 @@ def quai_create(request, entrepot_pk=None):
 def quai_update(request, pk):
     """
     U (Update) : Modification des paramètres d'un quai.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à modifier ce quai. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:quai_detail', pk=pk)
+
     quai = get_object_or_404(Quai, pk=pk)
 
     if request.method == 'POST':
@@ -280,7 +354,16 @@ def quai_update(request, pk):
 def quai_delete(request, pk):
     """
     D (Delete) : Suppression d'un quai.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à supprimer ce quai. "
+            "Votre profil dispose uniquement d'un droit de consultation."
+        )
+        return redirect('entrepots:quai_detail', pk=pk)
+
     quai = get_object_or_404(Quai, pk=pk)
     entrepot_pk = quai.entrepot.pk
 
@@ -302,7 +385,15 @@ def quai_toggle_status(request, pk):
     """
     Action rapide (Live Demo) : Bascule instantanément le statut d'un quai
     entre 'DISPONIBLE' et 'OCCUPE', permettant au jury de constater la mise à jour en direct.
+    Réservé exclusivement au rôle Gestionnaire d'Entrepôt (et Administrateur).
     """
+    if not is_entrepot_manager(request.user):
+        messages.warning(
+            request,
+            "Accès restreint : Seul le rôle Gestionnaire d'Entrepôt est habilité à modifier l'état opérationnel d'un quai."
+        )
+        return redirect('entrepots:quai_detail', pk=pk)
+
     quai = get_object_or_404(Quai, pk=pk)
     if quai.statut == 'DISPONIBLE':
         quai.occuper()
@@ -315,3 +406,230 @@ def quai_toggle_status(request, pk):
     if next_url:
         return redirect(next_url)
     return redirect('entrepots:entrepot_detail', pk=quai.entrepot.pk)
+
+
+# ==============================================================================
+# SMART CAPACITY OPTIMIZER AI (Strict Scope: Entrepot & Quai)
+# ==============================================================================
+import json
+from django.http import JsonResponse, HttpResponseBadRequest
+from .services import CapacityAnalyzer, CapacityOptimizer, GeminiCapacityRecommender
+
+
+@login_required
+def capacity_optimizer_dashboard(request):
+    """
+    Tableau de bord visuel d'Intelligence de Capacité & Optimisation IA.
+    Analyse les entrepôts et les quais, détecte les anomalies et formule
+    des recommandations hiérarchisées avec Google Gemini et What-If simulator.
+    """
+    # 1. Analyse déterministe factuelle
+    analysis = CapacityAnalyzer.get_full_analysis()
+    opportunities = CapacityOptimizer.find_feasible_redistributions(analysis)
+
+    # 2. Gestion des recommandations (avec mise en cache session)
+    force_refresh = request.GET.get('refresh') == '1'
+    recs_data = None
+
+    if not force_refresh:
+        recs_data = request.session.get('capacity_recommendations')
+
+    if not recs_data:
+        recs_data = GeminiCapacityRecommender.generate_recommendations(analysis, opportunities)
+        request.session['capacity_recommendations'] = recs_data
+        request.session.modified = True
+
+    # 3. États de gestion des recommandations (Revues / Ignorées)
+    dismissed_ids = set(request.session.get('dismissed_recs', []))
+    reviewed_ids = set(request.session.get('reviewed_recs', []))
+
+    recommendations = []
+    for rec in recs_data.get('recommendations', []):
+        r_copy = dict(rec)
+        r_copy['is_dismissed'] = r_copy['id'] in dismissed_ids
+        r_copy['is_reviewed'] = r_copy['id'] in reviewed_ids
+        recommendations.append(r_copy)
+
+    # Métriques pour le filtrage
+    total_recs = len(recommendations)
+    active_recs = sum(1 for r in recommendations if not r['is_dismissed'])
+    high_prio_count = sum(1 for r in recommendations if r['priority_level'] == 'HIGH' and not r['is_dismissed'])
+    reviewed_count = sum(1 for r in recommendations if r['is_reviewed'])
+    dismissed_count = sum(1 for r in recommendations if r['is_dismissed'])
+
+    # 4. Données préparées pour le simulateur What-If
+    simulator_warehouses = []
+    for ent in analysis['warehouses']:
+        simulator_warehouses.append({
+            'id': ent['id'],
+            'nom': ent['nom'],
+            'code': ent['code'],
+            'ville': ent['ville'],
+            'capacite_palettes': ent['capacite_palettes'],
+            'superficie_m2': ent['superficie_m2'],
+            'nb_quais': ent['nb_quais'],
+            'quais_operationnels': ent['quais_operationnels'],
+            'nb_occupes': ent['nb_occupes'],
+            'nb_reserves': ent['nb_reserves'],
+            'nb_disponibles': ent['nb_disponibles'],
+            'utilization_pct': ent['utilization_pct'],
+        })
+
+    context = {
+        'analysis': analysis,
+        'metrics': analysis['metrics'],
+        'thresholds': analysis['thresholds'],
+        'warehouses': analysis['warehouses'],
+        'underutilized_warehouses': analysis['underutilized_warehouses'],
+        'near_capacity_warehouses': analysis['near_capacity_warehouses'],
+        'critical_warehouses': analysis['critical_warehouses'],
+        'anomalies': analysis['anomalies'],
+        'city_imbalances': analysis['city_imbalances'],
+        'data_limitations': analysis['data_limitations'],
+        'opportunities': opportunities,
+        'recs_summary': recs_data.get('summary', ''),
+        'recs_source': recs_data.get('source', 'deterministic'),
+        'recs_model': recs_data.get('model_used', 'Gemini 2.5 Flash'),
+        'fallback_reason': recs_data.get('fallback_reason', ''),
+        'recommendations': recommendations,
+        'total_recs': total_recs,
+        'active_recs': active_recs,
+        'high_prio_count': high_prio_count,
+        'reviewed_count': reviewed_count,
+        'dismissed_count': dismissed_count,
+        'simulator_warehouses_json': json.dumps(simulator_warehouses),
+        'page_title': "Smart Capacity Optimizer AI • CargoLink",
+    }
+
+    return render(request, 'entrepots/capacity_optimizer.html', context)
+
+
+@login_required
+def capacity_optimizer_simulate_api(request):
+    """
+    Endpoint AJAX pour exécuter une simulation 'What-If' côté serveur.
+    Validation stricte : ne modifie JAMAIS la base de données de production.
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Méthode POST requise.")
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({'success': False, 'error': "Format JSON invalide."}, status=400)
+
+    try:
+        entrepot_id = int(data.get('entrepot_id', 0))
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'error': "Identifiant d'entrepôt invalide."}, status=400)
+
+    proposed_cap = data.get('proposed_capacite_palettes')
+    if proposed_cap is not None:
+        try:
+            proposed_cap = int(proposed_cap)
+        except (TypeError, ValueError):
+            return JsonResponse({'success': False, 'error': "Capacité palettes invalide."}, status=400)
+
+    hypo_docks = data.get('hypothetical_occupied_docks')
+    if hypo_docks is not None:
+        try:
+            hypo_docks = int(hypo_docks)
+        except (TypeError, ValueError):
+            hypo_docks = None
+
+    selected_quai_id = data.get('selected_quai_id')
+    if selected_quai_id:
+        try:
+            selected_quai_id = int(selected_quai_id)
+        except (TypeError, ValueError):
+            selected_quai_id = None
+
+    proposed_throughput = data.get('proposed_quai_throughput')
+    if proposed_throughput is not None:
+        try:
+            proposed_throughput = int(proposed_throughput)
+        except (TypeError, ValueError):
+            proposed_throughput = None
+
+    result = CapacityOptimizer.simulate_what_if(
+        entrepot_id=entrepot_id,
+        proposed_capacite_palettes=proposed_cap,
+        hypothetical_occupied_docks=hypo_docks,
+        selected_quai_id=selected_quai_id,
+        proposed_quai_throughput=proposed_throughput,
+    )
+    return JsonResponse(result)
+
+
+@login_required
+def capacity_optimizer_action_api(request):
+    """
+    Gestion des statuts des recommandations (Marquer comme revue, ignorer, rétablir).
+    Sauvegardé dans la session du gestionnaire sans impacter le schéma de BDD.
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Méthode POST requise.")
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({'success': False, 'error': "Format JSON invalide."}, status=400)
+
+    rec_id = str(data.get('rec_id', '')).strip()
+    action = str(data.get('action', '')).strip()
+
+    if not rec_id:
+        return JsonResponse({'success': False, 'error': "ID de recommandation manquant."}, status=400)
+
+    dismissed = set(request.session.get('dismissed_recs', []))
+    reviewed = set(request.session.get('reviewed_recs', []))
+
+    if action == 'dismiss':
+        dismissed.add(rec_id)
+    elif action == 'review':
+        reviewed.add(rec_id)
+    elif action == 'unreview':
+        reviewed.discard(rec_id)
+    elif action == 'restore':
+        dismissed.discard(rec_id)
+    else:
+        return JsonResponse({'success': False, 'error': "Action non reconnue."}, status=400)
+
+    request.session['dismissed_recs'] = list(dismissed)
+    request.session['reviewed_recs'] = list(reviewed)
+    request.session.modified = True
+
+    return JsonResponse({
+        'success': True,
+        'rec_id': rec_id,
+        'action': action,
+        'is_dismissed': rec_id in dismissed,
+        'is_reviewed': rec_id in reviewed,
+        'dismissed_count': len(dismissed),
+        'reviewed_count': len(reviewed),
+    })
+
+
+@login_required
+def capacity_optimizer_refresh_api(request):
+    """
+    Régénération forcée des recommandations IA à la demande de l'utilisateur.
+    """
+    analysis = CapacityAnalyzer.get_full_analysis()
+    opportunities = CapacityOptimizer.find_feasible_redistributions(analysis)
+
+    recs_data = GeminiCapacityRecommender.generate_recommendations(analysis, opportunities)
+    request.session['capacity_recommendations'] = recs_data
+    request.session.modified = True
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'summary': recs_data.get('summary'),
+            'source': recs_data.get('source'),
+            'model_used': recs_data.get('model_used'),
+            'recommendations': recs_data.get('recommendations', []),
+        })
+
+    messages.success(request, "L'analyse IA de capacité a été recalculée avec succès !")
+    return redirect('entrepots:capacity_optimizer')

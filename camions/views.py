@@ -25,7 +25,19 @@ class TransporteurOrAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if user.is_superuser:
             return True
         if hasattr(user, 'profile'):
-            return user.profile.role in ('TRANSPORTEUR', 'ADMIN')
+            if user.profile.role not in ('TRANSPORTEUR', 'ADMIN'):
+                return False
+            # Un TRANSPORTEUR ne peut modifier/supprimer que ses propres camions
+            if user.profile.role == 'TRANSPORTEUR':
+                # Pour les vues avec objet (Update/Delete), vérifier la propriété
+                pk = self.kwargs.get('pk')
+                if pk:
+                    try:
+                        camion = Camion.objects.get(pk=pk)
+                        return camion.transporteur == user
+                    except Camion.DoesNotExist:
+                        return False
+            return True
         return False
 
     def handle_no_permission(self):
@@ -40,15 +52,27 @@ class CamionListView(ListView):
     """
     Catalogue et tableau de bord principal de la flotte de camions.
     Affiche les indicateurs KPI, les filtres dynamiques et la recherche par immatriculation.
+    Les TRANSPORTEURS ne voient que leurs propres camions ; les ADMIN voient toute la flotte.
     """
     model = Camion
     template_name = 'camions/camion_list.html'
     context_object_name = 'camions'
     paginate_by = 12
 
-    def get_queryset(self):
+    def _base_queryset(self):
+        """Retourne le queryset de base filtré selon le rôle de l'utilisateur."""
         qs = Camion.objects.select_related('transporteur', 'transporteur__profile').prefetch_related('passages')
-        
+        user = self.request.user
+        # Un TRANSPORTEUR ne voit que ses propres camions
+        if user.is_authenticated and not user.is_superuser:
+            role = getattr(getattr(user, 'profile', None), 'role', None)
+            if role == 'TRANSPORTEUR':
+                qs = qs.filter(transporteur=user)
+        return qs
+
+    def get_queryset(self):
+        qs = self._base_queryset()
+
         # Recherche textuelle (Immatriculation, marque, modèle, société)
         q = self.request.GET.get('q', '').strip()
         if q:
@@ -78,7 +102,8 @@ class CamionListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        all_camions = Camion.objects.all()
+        # Les KPIs reflètent le périmètre visible par l'utilisateur (flotte propre ou totale)
+        all_camions = self._base_queryset()
 
         # Indicateurs clés de performance (KPIs)
         context['kpi_total'] = all_camions.count()
@@ -205,17 +230,19 @@ class CamionQuickStatusView(LoginRequiredMixin, View):
     """
     def post(self, request, pk):
         camion = get_object_or_404(Camion, pk=pk)
-        
+
         # Vérification des droits
-        if not (request.user.is_superuser or (hasattr(request.user, 'profile') and request.user.profile.role in ('TRANSPORTEUR', 'ADMIN'))):
-            return HttpResponseForbidden("Non autorisé")
+        is_admin = request.user.is_superuser or (hasattr(request.user, 'profile') and request.user.profile.role == 'ADMIN')
+        is_owner = hasattr(request.user, 'profile') and request.user.profile.role == 'TRANSPORTEUR' and camion.transporteur == request.user
+        if not (is_admin or is_owner):
+            return HttpResponseForbidden("Non autorisé : vous ne pouvez modifier que vos propres camions.")
 
         nouvel_etat = request.POST.get('nouvel_etat')
         if nouvel_etat in dict(Camion.ETAT_CHOICES):
             camion.etat = nouvel_etat
             camion.save(update_fields=['etat', 'date_modification'])
             messages.success(request, f"État du camion {camion.immatriculation} mis à jour : {camion.get_etat_display()}")
-        
+
         return redirect(camion.get_absolute_url())
 
 
