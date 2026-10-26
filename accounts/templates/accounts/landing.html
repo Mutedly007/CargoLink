@@ -1,0 +1,762 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}CargoLink &bull; Connecter, Planifier, Optimiser la Logistique{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero {
+        position: relative;
+        padding: 5rem 1.5rem 4rem;
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 3.5rem;
+        align-items: center;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(249, 115, 22, 0.12);
+        color: #fb923c;
+        border: 1px solid rgba(249, 115, 22, 0.3);
+        padding: 0.4rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-badge-pulse {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.4); opacity: 0.6; }
+    }
+
+    .hero-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-title span.gradient-text {
+        background: linear-gradient(135deg, #f97316 20%, #60a5fa 90%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+        font-size: 1.15rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin-bottom: 2.25rem;
+        max-width: 580px;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+    }
+
+    .hero-cta {
+        padding: 0.9rem 1.85rem;
+        font-size: 1.05rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .hero-tags {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        font-size: 0.825rem;
+        color: var(--text-muted);
+    }
+
+    .hero-tag-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    /* Hero Visual Card */
+    .hero-visual {
+        position: relative;
+    }
+
+    .visual-card {
+        background: rgba(15, 27, 49, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(20px);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(37, 99, 235, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .visual-card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #2563eb, #f97316);
+    }
+
+    .visual-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    .visual-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 8px var(--success);
+    }
+
+    .dock-slot {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-sm);
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.85rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s ease;
+    }
+
+    .dock-slot:hover {
+        transform: translateX(4px);
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .dock-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dock-id {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #ffffff;
+    }
+
+    .dock-sub {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .badge-status {
+        padding: 0.25rem 0.65rem;
+        border-radius: 9999px;
+        font-size: 0.725rem;
+        font-weight: 700;
+    }
+
+    .status-dispo { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .status-occupe { background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .status-reserve { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+
+    /* Stats Bar */
+    .stats-bar {
+        max-width: 1280px;
+        margin: 2rem auto 5rem;
+        padding: 0 1.5rem;
+    }
+
+    .stats-container {
+        background: rgba(15, 27, 49, 0.5);
+        border: 1px solid var(--card-border);
+        backdrop-filter: blur(12px);
+        border-radius: var(--radius-md);
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.75rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ffffff 40%, #fb923c 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    /* Section Headers */
+    .section-head {
+        text-align: center;
+        max-width: 720px;
+        margin: 0 auto 3.5rem;
+        padding: 0 1.5rem;
+    }
+
+    .section-tag {
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .section-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin-bottom: 1rem;
+    }
+
+    .section-desc {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+
+    /* Modules Grid */
+    .modules-section {
+        max-width: 1280px;
+        margin: 0 auto 6rem;
+        padding: 0 1.5rem;
+    }
+
+    .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .module-card {
+        background: rgba(15, 27, 49, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-md);
+        padding: 2.25rem;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+    }
+
+    .module-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--card-hover-border);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow);
+    }
+
+    .module-badge-owner {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(249, 115, 22, 0.15);
+        color: #fb923c;
+        border: 1px solid rgba(249, 115, 22, 0.3);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .module-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.85rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .module-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.75rem;
+    }
+
+    .module-desc {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .module-features {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .module-features li {
+        font-size: 0.85rem;
+        color: var(--text-sub);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .module-features li span.check {
+        color: var(--accent);
+        font-weight: 800;
+    }
+
+    /* Valeurs Ajoutees */
+    .valeur-section {
+        max-width: 1280px;
+        margin: 0 auto 6rem;
+        padding: 0 1.5rem;
+    }
+
+    .valeur-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .valeur-card {
+        background: rgba(15, 27, 49, 0.5);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-md);
+        padding: 1.75rem;
+        text-align: center;
+        transition: transform 0.25s ease;
+    }
+
+    .valeur-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(37, 99, 235, 0.4);
+    }
+
+    .valeur-icon {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .valeur-name {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+    }
+
+    .valeur-text {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    /* Role Selection Banner */
+    .roles-banner {
+        max-width: 1280px;
+        margin: 0 auto 6rem;
+        padding: 0 1.5rem;
+    }
+
+    .roles-box {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(249, 115, 22, 0.15));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: var(--radius-lg);
+        padding: 3.5rem 2.5rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .roles-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+    }
+
+    .role-btn-card {
+        background: rgba(15, 27, 49, 0.8);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-md);
+        padding: 2rem 1.5rem;
+        text-decoration: none;
+        color: #ffffff;
+        transition: all 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .role-btn-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent);
+        box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);
+    }
+
+    .role-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .role-name {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+    }
+
+    .role-sub {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1.25rem;
+    }
+
+    .role-link-text {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    @media (max-width: 992px) {
+        .hero { grid-template-columns: 1fr; text-align: center; padding-top: 3rem; }
+        .hero-title { font-size: 2.75rem; }
+        .hero-subtitle { margin: 0 auto 2rem; }
+        .hero-actions { justify-content: center; }
+        .hero-tags { justify-content: center; }
+        .stats-container { grid-template-columns: repeat(2, 1fr); }
+        .modules-grid { grid-template-columns: 1fr; }
+        .roles-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="hero">
+    <div>
+        <div class="hero-badge">
+            <span class="hero-badge-pulse"></span>
+            <span>Digitalisation Fret & Quais &bull; ESPRIT 2026</span>
+        </div>
+
+        <h1 class="hero-title">
+            Connecter, Planifier,<br>
+            <span class="gradient-text">Optimiser la Logistique.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            CargoLink synchronise les entrepôts, les transporteurs et les créneaux horaires pour éliminer les files d'attente aux quais et fluidifier le transport de marchandises en temps réel.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{% url 'signup' %}" class="btn btn-accent hero-cta">
+                Commencer &bull; Inscription &rarr;
+            </a>
+            <a href="#modules" class="btn btn-outline hero-cta">
+                Découvrir les Modules
+            </a>
+        </div>
+
+        <div class="hero-tags">
+            <div class="hero-tag-item">
+                <span style="color: #6ee7b7;">✔</span> Django 5.2 LTS
+            </div>
+            <div class="hero-tag-item">
+                <span style="color: #6ee7b7;">✔</span> PostgreSQL sur Supabase
+            </div>
+            <div class="hero-tag-item">
+                <span style="color: #6ee7b7;">✔</span> Équipe CodeCraft
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Interactive Mockup Card -->
+    <div class="hero-visual">
+        <div class="visual-card">
+            <div class="visual-header">
+                <div class="visual-title">
+                    <span class="live-dot"></span>
+                    <span>Monitoring Quais en Direct</span>
+                </div>
+                <span style="font-size: 0.75rem; color: #94a3b8; font-family: monospace;">ENT-RADES-01</span>
+            </div>
+
+            <div class="dock-slot">
+                <div class="dock-info">
+                    <span class="dock-id">Quai A1 &bull; Déchargement</span>
+                    <span class="dock-sub">Camion 245-TUN-128 &bull; Arrivé à 08:30</span>
+                </div>
+                <span class="badge-status status-occupe">Occupé</span>
+            </div>
+
+            <div class="dock-slot">
+                <div class="dock-info">
+                    <span class="dock-id">Quai A2 &bull; Chargement</span>
+                    <span class="dock-sub">Créneau prêt &bull; Attente chauffeur</span>
+                </div>
+                <span class="badge-status status-dispo">Disponible</span>
+            </div>
+
+            <div class="dock-slot">
+                <div class="dock-info">
+                    <span class="dock-id">Quai B1 &bull; Mixte / Frigo</span>
+                    <span class="dock-sub">Réservé TransLog Sud &bull; Créneau 10:00</span>
+                </div>
+                <span class="badge-status status-reserve">Réservé</span>
+            </div>
+
+            <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Capacité instantanée</span>
+                <span style="font-size: 0.9rem; font-weight: 800; color: var(--accent);">78% Rempli (3 450 Palettes)</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS BAR -->
+<section class="stats-bar">
+    <div class="stats-container">
+        <div>
+            <div class="stat-number">-45%</div>
+            <div class="stat-label">Temps d'attente aux quais</div>
+        </div>
+        <div>
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Traçabilité des opérations</div>
+        </div>
+        <div>
+            <div class="stat-number">0</div>
+            <div class="stat-label">Conflits de créneaux horaires</div>
+        </div>
+        <div>
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Cloud Supabase & Django</div>
+        </div>
+    </div>
+</section>
+
+<!-- MODULES SHOWCASE (Slide 8 & 16) -->
+<section class="modules-section" id="modules">
+    <div class="section-head">
+        <span class="section-tag">Piliers Fonctionnels</span>
+        <h2 class="section-title">Les 4 Modules de la Plateforme</h2>
+        <p class="section-desc">
+            Une architecture modulaire conçue pour coordonner harmonieusement chaque maillon de la chaîne logistique.
+        </p>
+    </div>
+
+    <div class="modules-grid">
+        <!-- Module Aziz -->
+        <div class="module-card" style="border-top: 3px solid #f97316;">
+            <span class="module-badge-owner">Aziz Hammami</span>
+            <div class="module-icon" style="color: #f97316;">🏢</div>
+            <h3 class="module-title">Gestion des Entrepôts & Quais</h3>
+            <p class="module-desc">
+                Supervisez vos infrastructures de stockage, configurez les horaires d'ouverture, la capacité en palettes et gérez la disponibilité des quais associés en direct.
+            </p>
+            <ul class="module-features">
+                <li><span class="check">✔</span> CRUD complet des entrepôts et adresses</li>
+                <li><span class="check">✔</span> Gestion des quais de chargement/déchargement</li>
+                <li><span class="check">✔</span> Suivi des capacités (surface m² & palettes)</li>
+            </ul>
+        </div>
+
+        <!-- Module Rahma -->
+        <div class="module-card" style="border-top: 3px solid #3b82f6;">
+            <span class="module-badge-owner">Rahma Ayed</span>
+            <div class="module-icon" style="color: #3b82f6;">🚚</div>
+            <h3 class="module-title">Gestion des Camions & Flotte</h3>
+            <p class="module-desc">
+                Centralisez la flotte de véhicules de transport, contrôlez les types de remorques, les capacités de charge utile et conservez un historique précis de chaque passage.
+            </p>
+            <ul class="module-features">
+                <li><span class="check">✔</span> Suivi des immatriculations et types de camions</li>
+                <li><span class="check">✔</span> Gestion des transporteurs et états de service</li>
+                <li><span class="check">✔</span> Historique complet des passages aux quais</li>
+            </ul>
+        </div>
+
+        <!-- Module Khalil -->
+        <div class="module-card" style="border-top: 3px solid #10b981;">
+            <span class="module-badge-owner">Khalil Hlila</span>
+            <div class="module-icon" style="color: #10b981;">👨‍✈️</div>
+            <h3 class="module-title">Gestion des Chauffeurs</h3>
+            <p class="module-desc">
+                Identifiez les conducteurs, rattachez-les aux entreprises partenaires et facilitez la communication via des profils dédiés et réactifs sur mobile.
+            </p>
+            <ul class="module-features">
+                <li><span class="check">✔</span> Coordonnées, permis et informations de contact</li>
+                <li><span class="check">✔</span> Association dynamique camion / chauffeur</li>
+                <li><span class="check">✔</span> Journal des visites et historique de conformité</li>
+            </ul>
+        </div>
+
+        <!-- Module Kacem -->
+        <div class="module-card" style="border-top: 3px solid #8b5cf6;">
+            <span class="module-badge-owner">Kacem Trabelsi</span>
+            <div class="module-icon" style="color: #8b5cf6;">⏱️</div>
+            <h3 class="module-title">Gestion des Créneaux Horaires</h3>
+            <p class="module-desc">
+                Régulez l'afflux des transporteurs grâce à une réservation de créneaux intelligente évitant les congestions physiques et prévenant les chevauchements.
+            </p>
+            <ul class="module-features">
+                <li><span class="check">✔</span> Demande, confirmation et annulation de créneau</li>
+                <li><span class="check">✔</span> Détection automatique des conflits d'horaires</li>
+                <li><span class="check">✔</span> Lissage des pics d'activité sur la journée</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- VALEUR AJOUTEE (Slide 11) -->
+<section class="valeur-section" id="valeur">
+    <div class="section-head">
+        <span class="section-tag">Avantages Clés</span>
+        <h2 class="section-title">Pourquoi Choisir CargoLink ?</h2>
+        <p class="section-desc">
+            Les 5 clés du succès qui font la force et la modernité de notre solution.
+        </p>
+    </div>
+
+    <div class="valeur-grid">
+        <div class="valeur-card">
+            <div class="valeur-icon">⚡</div>
+            <h4 class="valeur-name">Optimisation</h4>
+            <p class="valeur-text">Meilleure organisation des créneaux et affectation dynamique des quais.</p>
+        </div>
+
+        <div class="valeur-card">
+            <div class="valeur-icon">📍</div>
+            <h4 class="valeur-name">Traçabilité</h4>
+            <p class="valeur-text">Historique instantané de chaque arrivée, étape de déchargement et départ.</p>
+        </div>
+
+        <div class="valeur-card">
+            <div class="valeur-icon">🌐</div>
+            <h4 class="valeur-name">Centralisation</h4>
+            <p class="valeur-text">Toutes les informations logistiques unifiées sur une seule plateforme cloud.</p>
+        </div>
+
+        <div class="valeur-card">
+            <div class="valeur-icon">🧠</div>
+            <h4 class="valeur-name">Intelligence</h4>
+            <p class="valeur-text">Aide à la décision et anticipation des congestions pour les managers.</p>
+        </div>
+
+        <div class="valeur-card">
+            <div class="valeur-icon">⚙️</div>
+            <h4 class="valeur-name">Automatisation</h4>
+            <p class="valeur-text">Notifications automatiques des statuts (planifié, en cours, terminé).</p>
+        </div>
+    </div>
+</section>
+
+<!-- ROLES SELECTION CALLOUT (Slide 8 & 9) -->
+<section class="roles-banner" id="roles">
+    <div class="roles-box">
+        <span class="section-tag">Accès Selon Votre Rôle</span>
+        <h2 class="section-title" style="font-size: 2.25rem;">Rejoignez l'Écosystème CargoLink</h2>
+        <p class="section-desc" style="max-width: 600px; margin: 0 auto;">
+            Sélectionnez votre profil d'activité pour une expérience sur mesure.
+        </p>
+
+        <div class="roles-grid">
+            <a href="{% url 'signup' %}?role=ENTREPOT" class="role-btn-card">
+                <div class="role-icon">🏢</div>
+                <div class="role-name">Gestionnaire d'Entrepôt</div>
+                <div class="role-sub">Gérez vos sites, capacités et quais de déchargement.</div>
+                <div class="role-link-text">S'inscrire comme Gestionnaire &rarr;</div>
+            </a>
+
+            <a href="{% url 'signup' %}?role=TRANSPORTEUR" class="role-btn-card">
+                <div class="role-icon">🚚</div>
+                <div class="role-name">Transporteur / Chauffeur</div>
+                <div class="role-sub">Consultez vos créneaux et optimisez vos trajets.</div>
+                <div class="role-link-text">S'inscrire comme Transporteur &rarr;</div>
+            </a>
+
+            <a href="{% url 'signup' %}?role=PLANIFICATEUR" class="role-btn-card">
+                <div class="role-icon">⏱️</div>
+                <div class="role-name">Planificateur de Créneaux</div>
+                <div class="role-sub">Programmez les réceptions et évitez les retards.</div>
+                <div class="role-link-text">S'inscrire comme Planificateur &rarr;</div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ODD (Slide 12) -->
+<section style="max-width: 1280px; margin: 0 auto 5rem; padding: 0 1.5rem;" id="odd">
+    <div class="section-head" style="margin-bottom: 2.5rem;">
+        <span class="section-tag">Engagement Durable</span>
+        <h2 class="section-title" style="font-size: 2rem;">Nos Objectifs de Développement Durable</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+        <div style="background: rgba(15, 27, 49, 0.4); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #f59e0b; margin-bottom: 0.5rem;">SDG 8</div>
+            <h4 style="color: white; margin-bottom: 0.5rem;">Travail Décent</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Réduction du stress des chauffeurs et conditions d'accueil optimales aux quais.</p>
+        </div>
+
+        <div style="background: rgba(15, 27, 49, 0.4); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #3b82f6; margin-bottom: 0.5rem;">SDG 9</div>
+            <h4 style="color: white; margin-bottom: 0.5rem;">Industrie & Innovation</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Digitalisation moderne des processus logistiques et cloud PostgreSQL.</p>
+        </div>
+
+        <div style="background: rgba(15, 27, 49, 0.4); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #10b981; margin-bottom: 0.5rem;">SDG 12</div>
+            <h4 style="color: white; margin-bottom: 0.5rem;">Consommation Responsable</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Diminution drastique des émissions de CO2 dues aux moteurs tournant à l'arrêt.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
