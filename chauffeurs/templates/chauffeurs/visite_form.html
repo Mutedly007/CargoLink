@@ -1,0 +1,105 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Enregistrer une Visite &bull; {{ chauffeur.nom_complet }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chauffeur-form-container" style="max-width: 760px;">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+            &larr; Retour à la fiche de {{ chauffeur.nom_complet }}
+        </a>
+    </div>
+
+    <div class="form-card-box">
+        <h1 style="font-size: 1.7rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.35rem;">
+            Enregistrer une Visite / Passage à Quai
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+            Conducteur : <strong style="color: #ffffff;">{{ chauffeur.nom_complet }}</strong> &bull; Camion : <code style="color: #fb923c;">{{ chauffeur.immatriculation_camion|default:"N/A" }}</code>
+        </p>
+
+        {% if form.errors %}
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5;">
+                Veuillez vérifier les champs du formulaire.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-grid-2col">
+                <div class="form-group">
+                    <label class="form-label">Entrepôt Logistique Visité *</label>
+                    {{ form.entrepot }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Numéro de Quai / Emplacement</label>
+                    {{ form.quai_numero }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">N° Bon de Livraison / CMR</label>
+                    {{ form.numero_bl }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Type d'opération *</label>
+                    {{ form.type_operation }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Statut du passage *</label>
+                    {{ form.statut }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Date de la visite *</label>
+                    {{ form.date_visite }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Heure d'arrivée constatée</label>
+                    {{ form.heure_arrivee }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Heure de départ constatée</label>
+                    {{ form.heure_depart }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Durée totale (minutes)</label>
+                    {{ form.duree_minutes }}
+                </div>
+
+                <div class="form-group" style="justify-content: center;">
+                    <label style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
+                        {{ form.emargement_valide }}
+                        <span>Émargement et contrôle conformes</span>
+                    </label>
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="form-label">Observations / Notes de contrôle</label>
+                    {{ form.notes }}
+                </div>
+            </div>
+
+            <div class="form-actions-bottom">
+                <a href="{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}" class="btn btn-outline">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-accent" style="padding: 0.75rem 2rem;">
+                    Valider le Passage
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

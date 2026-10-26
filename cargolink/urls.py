@@ -12,6 +12,7 @@ urlpatterns = [
     path('entrepots/', include('entrepots.urls')),
     path('creneaux/', include('creneaux.urls')),
     path('camions/', include('camions.urls')),
+    path('chauffeurs/', include('chauffeurs.urls')),
 ]
 
 if settings.DEBUG:
