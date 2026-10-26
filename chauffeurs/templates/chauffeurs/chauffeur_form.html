@@ -5,27 +5,118 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+<style>
+    /* Trilingual switcher in Chauffeur Form */
+    .lang-switcher-pill {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(15, 23, 42, 0.7);
+        padding: 0.25rem 0.35rem;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        gap: 0.25rem;
+    }
+
+    .lang-switcher-pill button {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 0.35rem 0.65rem;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .lang-switcher-pill button:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .lang-switcher-pill button.active {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    /* RTL Support for Form */
+    .chauffeur-form-container[dir="rtl"] {
+        text-align: right;
+    }
+
+    .chauffeur-form-container[dir="rtl"] .top-bar-nav {
+        flex-direction: row-reverse;
+    }
+
+    .chauffeur-form-container[dir="rtl"] .form-section-title {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .chauffeur-form-container[dir="rtl"] .form-group {
+        text-align: right;
+    }
+
+    .chauffeur-form-container[dir="rtl"] .form-label {
+        text-align: right;
+    }
+
+    .chauffeur-form-container[dir="rtl"] input[type="text"],
+    .chauffeur-form-container[dir="rtl"] input[type="email"],
+    .chauffeur-form-container[dir="rtl"] input[type="tel"],
+    .chauffeur-form-container[dir="rtl"] input[type="number"],
+    .chauffeur-form-container[dir="rtl"] input[type="date"],
+    .chauffeur-form-container[dir="rtl"] select,
+    .chauffeur-form-container[dir="rtl"] textarea {
+        text-align: right;
+        direction: rtl;
+    }
+
+    .chauffeur-form-container[dir="rtl"] .checkbox-label {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .chauffeur-form-container[dir="rtl"] .form-actions-bottom {
+        flex-direction: row-reverse;
+    }
+
+    .chauffeur-form-container[dir="rtl"] .form-errors-box ul {
+        margin: 0.5rem 1.25rem 0 0;
+        padding-right: 1.25rem;
+        padding-left: 0;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="chauffeur-form-container">
-    <div style="margin-bottom: 1.5rem;">
+<div class="chauffeur-form-container" id="chauffeurFormContainer" dir="ltr" data-is-edit="{% if chauffeur %}1{% else %}0{% endif %}" data-chauffeur-name="{{ chauffeur.nom_complet|default:'' }}" data-initial-lang="{{ current_lang|default:'fr' }}">
+    <!-- Top Bar with Back Button & Language Switcher -->
+    <div class="top-bar-nav" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-            &larr; Annuler et retourner
+            <span id="formBackArrow">&larr;</span> <span data-i18n="btn_cancel_back">Annuler et retourner</span>
         </a>
+
+        <!-- Language Switcher Pill -->
+        <div class="lang-switcher-pill" title="Changer la langue / Switch language / تغيير اللغة">
+            <button type="button" id="btnFormLangFr" class="active" onclick="setChauffeurFormLanguage('fr')">🇫🇷 FR</button>
+            <button type="button" id="btnFormLangEn" onclick="setChauffeurFormLanguage('en')">🇬🇧 EN</button>
+            <button type="button" id="btnFormLangAr" onclick="setChauffeurFormLanguage('ar')">🇹🇳 AR</button>
+        </div>
     </div>
 
     <div class="form-card-box">
-        <h1 style="font-size: 1.8rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;">
+        <h1 id="formMainTitle" style="font-size: 1.8rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;" data-chauffeur-name="{{ chauffeur.nom_complet|default:'' }}">
             {{ action_title }}
         </h1>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+        <p data-i18n="form_subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
             Renseignez les données administratives, les catégories de permis et le véhicule attitré du conducteur.
         </p>
 
         {% if form.errors %}
-            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5; font-size: 0.9rem;">
-                <strong>Erreurs détectées :</strong>
+            <div class="form-errors-box" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5; font-size: 0.9rem;">
+                <strong data-i18n="form_errors_title">Erreurs détectées :</strong>
                 <ul style="margin: 0.5rem 0 0 1.25rem;">
                     {% for field, errors in form.errors.items %}
                         {% for error in errors %}
@@ -45,48 +136,48 @@
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
-                1. Informations Personnelles & Contact
+                <span data-i18n="sec1_title">1. Informations Personnelles & Contact</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Prénom *</label>
+                    <label class="form-label" data-i18n="lbl_prenom">Prénom *</label>
                     {{ form.prenom }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nom de famille *</label>
+                    <label class="form-label" data-i18n="lbl_nom">Nom de famille *</label>
                     {{ form.nom }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Numéro CIN / Passeport</label>
+                    <label class="form-label" data-i18n="lbl_cin">Numéro CIN / Passeport</label>
                     {{ form.cin }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Adresse Email</label>
+                    <label class="form-label" data-i18n="lbl_email">Adresse Email</label>
                     {{ form.email }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Téléphone principal *</label>
+                    <label class="form-label" data-i18n="lbl_phone">Téléphone principal *</label>
                     {{ form.telephone }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Téléphone d'urgence</label>
+                    <label class="form-label" data-i18n="lbl_emergency_phone">Téléphone d'urgence</label>
                     {{ form.telephone_urgence }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date de naissance</label>
+                    <label class="form-label" data-i18n="lbl_birthdate">Date de naissance</label>
                     {{ form.date_naissance }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date d'embauche</label>
+                    <label class="form-label" data-i18n="lbl_hiredate">Date d'embauche</label>
                     {{ form.date_embauche }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Ville de résidence</label>
+                    <label class="form-label" data-i18n="lbl_residence">Ville de résidence</label>
                     {{ form.ville_residence }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Photo du chauffeur</label>
+                    <label class="form-label" data-i18n="lbl_photo">Photo du chauffeur</label>
                     {{ form.photo }}
                 </div>
             </div>
@@ -98,24 +189,24 @@
                     <line x1="7" y1="8" x2="17" y2="8"/>
                     <line x1="7" y1="12" x2="13" y2="12"/>
                 </svg>
-                2. Permis de Conduire & Validité
+                <span data-i18n="sec2_title">2. Permis de Conduire & Validité</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Numéro de Permis *</label>
+                    <label class="form-label" data-i18n="lbl_license_num">Numéro de Permis *</label>
                     {{ form.numero_permis }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Catégorie de Permis *</label>
+                    <label class="form-label" data-i18n="lbl_license_cat">Catégorie de Permis *</label>
                     {{ form.categorie_permis }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date de délivrance</label>
+                    <label class="form-label" data-i18n="lbl_license_issued">Date de délivrance</label>
                     {{ form.date_delivrance_permis }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date d'expiration / Validité *</label>
+                    <label class="form-label" data-i18n="lbl_license_expiry">Date d'expiration / Validité *</label>
                     {{ form.date_expiration_permis }}
                 </div>
             </div>
@@ -128,32 +219,32 @@
                     <circle cx="5.5" cy="18.5" r="2.5"/>
                     <circle cx="18.5" cy="18.5" r="2.5"/>
                 </svg>
-                3. Entreprise de Transport & Véhicule Associé
+                <span data-i18n="sec3_title">3. Entreprise de Transport & Véhicule Associé</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Société / Entreprise de Transport *</label>
+                    <label class="form-label" data-i18n="lbl_company">Société / Entreprise de Transport *</label>
                     {{ form.entreprise_transport }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Compte Utilisateur Transporteur</label>
+                    <label class="form-label" data-i18n="lbl_carrier_account">Compte Utilisateur Transporteur</label>
                     {{ form.transporteur_user }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Immatriculation du Camion</label>
+                    <label class="form-label" data-i18n="lbl_truck_plate">Immatriculation du Camion</label>
                     {{ form.immatriculation_camion }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Marque / Modèle</label>
+                    <label class="form-label" data-i18n="lbl_truck_model">Marque / Modèle</label>
                     {{ form.marque_camion }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Type de gabarit</label>
+                    <label class="form-label" data-i18n="lbl_truck_type">Type de gabarit</label>
                     {{ form.type_camion }}
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Capacité (Tonnes)</label>
+                    <label class="form-label" data-i18n="lbl_truck_capacity">Capacité (Tonnes)</label>
                     {{ form.capacite_camion_tonnes }}
                 </div>
             </div>
@@ -164,22 +255,22 @@
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                 </svg>
-                4. Statut Opérationnel & Sécurité
+                <span data-i18n="sec4_title">4. Statut Opérationnel & Sécurité</span>
             </div>
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label">Statut Opérationnel *</label>
+                    <label class="form-label" data-i18n="lbl_statut">Statut Opérationnel *</label>
                     {{ form.statut }}
                 </div>
                 <div class="form-group" style="justify-content: center;">
-                    <label style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
                         {{ form.badge_acces_portuaire }}
-                        <span>Badge d'accès portuaire / sécurisé actif</span>
+                        <span data-i18n="lbl_badge_portuaire">Badge d'accès portuaire / sécurisé actif</span>
                     </label>
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
-                    <label class="form-label">Remarques & Habilitations particulières</label>
+                    <label class="form-label" data-i18n="lbl_remarks">Remarques & Habilitations particulières</label>
                     {{ form.observations }}
                 </div>
             </div>
@@ -187,13 +278,232 @@
             <!-- Bottom Actions -->
             <div class="form-actions-bottom">
                 <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline">
-                    Annuler
+                    <span data-i18n="btn_cancel">Annuler</span>
                 </a>
-                <button type="submit" class="btn btn-accent" style="padding: 0.75rem 2rem;">
+                <button type="submit" id="btnSubmitForm" class="btn btn-accent" style="padding: 0.75rem 2rem;">
                     {{ button_text }}
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Trilingual JS Engine for Chauffeur Form -->
+<script>
+    const formRoot = document.getElementById('chauffeurFormContainer');
+    const IS_EDIT_MODE = formRoot ? formRoot.getAttribute('data-is-edit') === '1' : false;
+    const CHAUFFEUR_NAME = formRoot ? (formRoot.getAttribute('data-chauffeur-name') || '') : '';
+
+    const CHAUFFEUR_FORM_I18N = {
+        fr: {
+            btn_cancel_back: "Annuler et retourner",
+            form_subtitle: "Renseignez les données administratives, les catégories de permis et le véhicule attitré du conducteur.",
+            form_errors_title: "Erreurs détectées :",
+            sec1_title: "1. Informations Personnelles & Contact",
+            lbl_prenom: "Prénom *",
+            lbl_nom: "Nom de famille *",
+            lbl_cin: "Numéro CIN / Passeport",
+            lbl_email: "Adresse Email",
+            lbl_phone: "Téléphone principal *",
+            lbl_emergency_phone: "Téléphone d'urgence",
+            lbl_birthdate: "Date de naissance",
+            lbl_hiredate: "Date d'embauche",
+            lbl_residence: "Ville de résidence",
+            lbl_photo: "Photo du chauffeur",
+            sec2_title: "2. Permis de Conduire & Validité",
+            lbl_license_num: "Numéro de Permis *",
+            lbl_license_cat: "Catégorie de Permis *",
+            lbl_license_issued: "Date de délivrance",
+            lbl_license_expiry: "Date d'expiration / Validité *",
+            sec3_title: "3. Entreprise de Transport & Véhicule Associé",
+            lbl_company: "Société / Entreprise de Transport *",
+            lbl_carrier_account: "Compte Utilisateur Transporteur",
+            lbl_truck_plate: "Immatriculation du Camion",
+            lbl_truck_model: "Marque / Modèle",
+            lbl_truck_type: "Type de gabarit",
+            lbl_truck_capacity: "Capacité (Tonnes)",
+            sec4_title: "4. Statut Opérationnel & Sécurité",
+            lbl_statut: "Statut Opérationnel *",
+            lbl_badge_portuaire: "Badge d'accès portuaire / sécurisé actif",
+            lbl_remarks: "Remarques & Habilitations particulières",
+            btn_cancel: "Annuler",
+            btn_submit_create: "Enregistrer le Chauffeur",
+            btn_submit_update: "Enregistrer les Modifications",
+            title_create: "Nouveau Chauffeur",
+            title_update_prefix: "Modifier "
+        },
+        en: {
+            btn_cancel_back: "Cancel and return",
+            form_subtitle: "Fill in administrative data, license categories, and the driver's assigned vehicle.",
+            form_errors_title: "Errors detected:",
+            sec1_title: "1. Personal & Contact Information",
+            lbl_prenom: "First Name *",
+            lbl_nom: "Last Name *",
+            lbl_cin: "National ID / Passport",
+            lbl_email: "Email Address",
+            lbl_phone: "Primary Phone *",
+            lbl_emergency_phone: "Emergency Phone",
+            lbl_birthdate: "Date of Birth",
+            lbl_hiredate: "Hire Date",
+            lbl_residence: "City of Residence",
+            lbl_photo: "Driver Photo",
+            sec2_title: "2. Driving License & Validity",
+            lbl_license_num: "License Number *",
+            lbl_license_cat: "License Category *",
+            lbl_license_issued: "Issue Date",
+            lbl_license_expiry: "Expiration Date / Validity *",
+            sec3_title: "3. Transport Company & Assigned Vehicle",
+            lbl_company: "Transport / Logistics Company *",
+            lbl_carrier_account: "Carrier User Account",
+            lbl_truck_plate: "Truck License Plate",
+            lbl_truck_model: "Make / Model",
+            lbl_truck_type: "Vehicle Type / Size",
+            lbl_truck_capacity: "Capacity (Tons)",
+            sec4_title: "4. Operational Status & Security",
+            lbl_statut: "Operational Status *",
+            lbl_badge_portuaire: "Active port / secure access badge",
+            lbl_remarks: "Remarks & Special Authorizations",
+            btn_cancel: "Cancel",
+            btn_submit_create: "Save Driver",
+            btn_submit_update: "Save Changes",
+            title_create: "New Driver",
+            title_update_prefix: "Edit "
+        },
+        ar: {
+            btn_cancel_back: "إلغاء والعودة",
+            form_subtitle: "يرجى إدخال البيانات الإدارية وأصناف رخصة القيادة والمركبة المخصصة للسائق.",
+            form_errors_title: "أخطاء تم اكتشافها :",
+            sec1_title: "1. البيانات الشخصية ومعلومات الاتصال",
+            lbl_prenom: "الاسم *",
+            lbl_nom: "اللقب *",
+            lbl_cin: "رقم ب.ت.و / جواز السفر",
+            lbl_email: "البريد الإلكتروني",
+            lbl_phone: "الهاتف الرئيسي *",
+            lbl_emergency_phone: "هاتف الطوارئ",
+            lbl_birthdate: "تاريخ الولادة",
+            lbl_hiredate: "تاريخ التوظيف",
+            lbl_residence: "مدينة الإقامة",
+            lbl_photo: "صورة السائق",
+            sec2_title: "2. رخصة القيادة وصلاحيتها",
+            lbl_license_num: "رقم الرخصة *",
+            lbl_license_cat: "صنف الرخصة *",
+            lbl_license_issued: "تاريخ الإصدار",
+            lbl_license_expiry: "تاريخ انتهاء الصلاحية *",
+            sec3_title: "3. شركة النقل والمركبة المرتبطة",
+            lbl_company: "شركة النقل / الشحن *",
+            lbl_carrier_account: "حساب مستخدم الناقل",
+            lbl_truck_plate: "رقم لوحة الشاحنة",
+            lbl_truck_model: "العلامة / الطراز",
+            lbl_truck_type: "صنف وحجم الشاحنة",
+            lbl_truck_capacity: "الحمولة (أطنان)",
+            sec4_title: "4. الحالة التشغيلية والأمان",
+            lbl_statut: "الحالة التشغيلية *",
+            lbl_badge_portuaire: "شارة العبور المينائي / المؤمن نشطة",
+            lbl_remarks: "ملاحظات وتراخيص خاصة",
+            btn_cancel: "إلغاء",
+            btn_submit_create: "حفظ بيانات السائق",
+            btn_submit_update: "حفظ التعديلات",
+            title_create: "سائق جديد",
+            title_update_prefix: "تعديل ملف "
+        }
+    };
+
+    const STATUS_SELECT_TRANSLATIONS = {
+        DISPONIBLE: { fr: "Disponible", en: "Available", ar: "متاح" },
+        EN_MISSION: { fr: "En mission", en: "On mission", ar: "في مهمة" },
+        A_QUAI: { fr: "À quai", en: "At dock", ar: "على الرصيف" },
+        EN_REPOS: { fr: "En repos", en: "On rest", ar: "في راحة" },
+        INACTIF: { fr: "Inactif", en: "Inactive", ar: "غير نشط" }
+    };
+
+    const CATEGORIE_SELECT_TRANSLATIONS = {
+        C: { fr: "Permis C (Poids lourd > 3.5t)", en: "Class C (Heavy truck > 3.5t)", ar: "صنف C (وزن ثقيل > 3.5 طن)" },
+        CE: { fr: "Permis CE (Poids lourd avec remorque)", en: "Class CE (Heavy truck with trailer)", ar: "صنف CE (شاحنة مقطورة)" },
+        C1: { fr: "Permis C1 (Poids lourd intermédiaire)", en: "Class C1 (Intermediate heavy truck)", ar: "صنف C1 (وزن ثقيل متوسط)" },
+        C1E: { fr: "Permis C1E (Intermédiaire avec remorque)", en: "Class C1E (Intermediate with trailer)", ar: "صنف C1E (متوسط بمقطورة)" },
+        D: { fr: "Permis D (Transport en commun)", en: "Class D (Passenger transport)", ar: "صنف D (نقل جماعي)" },
+        ADR: { fr: "Certificat ADR (Matières Dangereuses)", en: "ADR Certificate (Hazardous materials)", ar: "شهادة ADR (مواد خطرة)" }
+    };
+
+    function setChauffeurFormLanguage(lang) {
+        if (!CHAUFFEUR_FORM_I18N[lang]) lang = 'fr';
+        localStorage.setItem('cargolink_chauffeur_lang', lang);
+
+        const dict = CHAUFFEUR_FORM_I18N[lang];
+        const container = document.getElementById('chauffeurFormContainer');
+
+        // RTL / LTR management
+        if (lang === 'ar') {
+            container.setAttribute('dir', 'rtl');
+            const arrow = document.getElementById('formBackArrow');
+            if (arrow) arrow.innerHTML = '&rarr;';
+        } else {
+            container.setAttribute('dir', 'ltr');
+            const arrow = document.getElementById('formBackArrow');
+            if (arrow) arrow.innerHTML = '&larr;';
+        }
+
+        // Toggle button states
+        document.getElementById('btnFormLangFr').classList.toggle('active', lang === 'fr');
+        document.getElementById('btnFormLangEn').classList.toggle('active', lang === 'en');
+        document.getElementById('btnFormLangAr').classList.toggle('active', lang === 'ar');
+
+        // Translate elements with data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) {
+                el.textContent = dict[key];
+            }
+        });
+
+        // Translate main page title
+        const mainTitle = document.getElementById('formMainTitle');
+        if (mainTitle) {
+            if (IS_EDIT_MODE) {
+                mainTitle.textContent = dict.title_update_prefix + CHAUFFEUR_NAME;
+            } else {
+                mainTitle.textContent = dict.title_create;
+            }
+        }
+
+        // Translate submit button text
+        const submitBtn = document.getElementById('btnSubmitForm');
+        if (submitBtn) {
+            submitBtn.textContent = IS_EDIT_MODE ? dict.btn_submit_update : dict.btn_submit_create;
+        }
+
+        // Translate Status select options
+        const statutSelect = document.querySelector('select[name="statut"]');
+        if (statutSelect) {
+            Array.from(statutSelect.options).forEach(opt => {
+                const val = opt.value;
+                if (STATUS_SELECT_TRANSLATIONS[val] && STATUS_SELECT_TRANSLATIONS[val][lang]) {
+                    opt.textContent = STATUS_SELECT_TRANSLATIONS[val][lang];
+                }
+            });
+        }
+
+        // Translate Categorie Permis select options
+        const catSelect = document.querySelector('select[name="categorie_permis"]');
+        if (catSelect) {
+            Array.from(catSelect.options).forEach(opt => {
+                const val = opt.value;
+                if (CATEGORIE_SELECT_TRANSLATIONS[val] && CATEGORIE_SELECT_TRANSLATIONS[val][lang]) {
+                    opt.textContent = CATEGORIE_SELECT_TRANSLATIONS[val][lang];
+                }
+            });
+        }
+    }
+
+    // Auto-initialize language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+        const savedLang = localStorage.getItem('cargolink_chauffeur_lang');
+        const c = document.getElementById('chauffeurFormContainer');
+        const defaultLang = (c && c.getAttribute('data-initial-lang')) || 'fr';
+        const initialLang = urlLang || savedLang || defaultLang;
+        setChauffeurFormLanguage(initialLang);
+    });
+</script>
 {% endblock %}

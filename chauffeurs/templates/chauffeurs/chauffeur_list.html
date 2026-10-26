@@ -5,10 +5,98 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+<style>
+    /* Trilingual switcher in Chauffeur List */
+    .lang-switcher-pill {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(15, 23, 42, 0.7);
+        padding: 0.25rem 0.35rem;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        gap: 0.25rem;
+    }
+
+    .lang-switcher-pill button {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 0.35rem 0.65rem;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .lang-switcher-pill button:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .lang-switcher-pill button.active {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    /* RTL Support when Arabic is selected */
+    .chauffeurs-container[dir="rtl"] {
+        text-align: right;
+    }
+
+    .chauffeurs-container[dir="rtl"] .page-title-box h1 {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .chauffeurs-container[dir="rtl"] .search-input-wrapper svg {
+        left: auto;
+        right: 1rem;
+    }
+
+    .chauffeurs-container[dir="rtl"] .search-input-wrapper input {
+        padding-left: 1rem;
+        padding-right: 2.85rem;
+        text-align: right;
+    }
+
+    .chauffeurs-container[dir="rtl"] .chauffeur-card-header {
+        flex-direction: row-reverse;
+    }
+
+    .chauffeurs-container[dir="rtl"] .driver-info-main {
+        text-align: right;
+    }
+
+    .chauffeurs-container[dir="rtl"] .spec-item {
+        text-align: right;
+    }
+
+    .chauffeurs-container[dir="rtl"] .chauffeur-contact-row {
+        flex-direction: row-reverse;
+    }
+
+    .chauffeurs-container[dir="rtl"] .kpi-card {
+        flex-direction: row-reverse;
+    }
+
+    .chauffeurs-container[dir="rtl"] .kpi-info {
+        text-align: right;
+    }
+
+    .chauffeurs-container[dir="rtl"] .top-actions-group {
+        flex-direction: row-reverse;
+    }
+
+    .chauffeurs-container[dir="rtl"] .filters-form {
+        flex-direction: row-reverse;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="chauffeurs-container">
+<div class="chauffeurs-container" id="chauffeursContainer" dir="ltr" data-initial-lang="{{ current_lang|default:'fr' }}">
     <!-- Top Bar -->
     <div class="page-top-bar">
         <div class="page-title-box">
@@ -17,39 +105,50 @@
                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
-                Gestion des Chauffeurs
+                <span data-i18n="page_title">Gestion des Chauffeurs</span>
             </h1>
-            <p>Supervisez les conducteurs de fret, contrôlez la conformité des permis (C, CE, ADR) et suivez l'historique de passage sur vos sites logistiques.</p>
+            <p data-i18n="page_subtitle">Supervisez les conducteurs de fret, contrôlez la conformité des permis (C, CE, ADR) et suivez l'historique de passage sur vos sites logistiques.</p>
         </div>
 
         <div class="top-actions-group">
+            <!-- Language Switcher Pill -->
+            <div class="lang-switcher-pill" title="Changer la langue / Switch language / تغيير اللغة">
+                <button type="button" id="btnListLangFr" class="active" onclick="setChauffeursListLanguage('fr')">🇫🇷 FR</button>
+                <button type="button" id="btnListLangEn" onclick="setChauffeursListLanguage('en')">🇬🇧 EN</button>
+                <button type="button" id="btnListLangAr" onclick="setChauffeursListLanguage('ar')">🇹🇳 AR</button>
+            </div>
+
+            <!-- AI Assistant Button -->
             <a href="{% url 'chauffeurs:chauffeur_ai_assistant' %}" class="btn btn-outline" style="font-size: 0.875rem; border-color: rgba(139, 92, 246, 0.5); color: #c4b5fd; background: rgba(139, 92, 246, 0.1);" title="Assistant conversationnel IA en langage naturel (FR / AR / EN)">
-                🤖 Assistant IA
+                🤖 <span data-i18n="btn_ai">Assistant IA</span>
             </a>
 
+            <!-- Mobile Portal Button -->
             <a href="{% url 'chauffeurs:chauffeur_portal_mobile' %}" class="btn btn-outline" style="font-size: 0.875rem;" title="Vue ergonomique smartphone pour les chauffeurs">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                     <line x1="12" y1="18" x2="12.01" y2="18"/>
                 </svg>
-                Portail Mobile
+                <span data-i18n="btn_mobile">Portail Mobile</span>
             </a>
 
+            <!-- Export CSV Button -->
             <a href="{% url 'chauffeurs:chauffeurs_export' %}" class="btn btn-outline" style="font-size: 0.875rem;" title="Exporter la liste au format CSV">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Export CSV
+                <span data-i18n="btn_export">Export CSV</span>
             </a>
 
+            <!-- Add Chauffeur Button -->
             <a href="{% url 'chauffeurs:chauffeur_create' %}" class="btn btn-accent" style="font-size: 0.875rem;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
-                Ajouter un Chauffeur
+                <span data-i18n="btn_add">Ajouter un Chauffeur</span>
             </a>
         </div>
     </div>
@@ -67,7 +166,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ total_chauffeurs }}</span>
-                <span class="kpi-label">Chauffeurs Enregistrés</span>
+                <span class="kpi-label" data-i18n="kpi_registered">Chauffeurs Enregistrés</span>
             </div>
         </div>
 
@@ -80,7 +179,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ chauffeurs_disponibles }}</span>
-                <span class="kpi-label">Disponibles de suite</span>
+                <span class="kpi-label" data-i18n="kpi_available">Disponibles de suite</span>
             </div>
         </div>
 
@@ -95,7 +194,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ chauffeurs_en_mission|add:chauffeurs_a_quai }}</span>
-                <span class="kpi-label">En Mission / À Quai</span>
+                <span class="kpi-label" data-i18n="kpi_on_mission">En Mission / À Quai</span>
             </div>
         </div>
 
@@ -109,7 +208,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ permis_alertes_total }}</span>
-                <span class="kpi-label">Alertes Permis (&le; 30j)</span>
+                <span class="kpi-label" data-i18n="kpi_alerts">Alertes Permis (&le; 30j)</span>
             </div>
         </div>
 
@@ -125,7 +224,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ total_visites }}</span>
-                <span class="kpi-label">Visites Effectuées</span>
+                <span class="kpi-label" data-i18n="kpi_visits">Visites Effectuées</span>
             </div>
         </div>
     </div>
@@ -138,37 +237,37 @@
                     <circle cx="11" cy="11" r="8"/>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
-                <input type="text" name="q" value="{{ query }}" placeholder="Rechercher par nom, permis, matricule, société, ville...">
+                <input type="text" name="q" id="searchFilterInput" value="{{ query }}" placeholder="Rechercher par nom, permis, matricule, société, ville..." data-i18n-placeholder="search_placeholder">
             </div>
 
-            <select name="statut" class="filter-select">
-                <option value="">Tous les statuts</option>
+            <select name="statut" class="filter-select" id="selectStatut">
+                <option value="" data-i18n="all_statuses">Tous les statuts</option>
                 {% for code, label in statuts %}
-                    <option value="{{ code }}" {% if statut_filter == code %}selected{% endif %}>{{ label }}</option>
+                    <option value="{{ code }}" data-status-opt="{{ code }}" {% if statut_filter == code %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
 
-            <select name="categorie" class="filter-select">
-                <option value="">Toutes catégories de permis</option>
+            <select name="categorie" class="filter-select" id="selectCategorie">
+                <option value="" data-i18n="all_categories">Toutes catégories de permis</option>
                 {% for code, label in categories %}
                     <option value="{{ code }}" {% if categorie_filter == code %}selected{% endif %}>{{ code }} ({{ label|truncatechars:28 }})</option>
                 {% endfor %}
             </select>
 
-            <select name="permis" class="filter-select">
-                <option value="">Conformité Permis</option>
-                <option value="expire" {% if permis_alert_filter == 'expire' %}selected{% endif %}>🚨 Permis Expiré</option>
-                <option value="bientot" {% if permis_alert_filter == 'bientot' %}selected{% endif %}>⚠️ Expire sous 30 jours</option>
-                <option value="valide" {% if permis_alert_filter == 'valide' %}selected{% endif %}>✅ Permis Valide</option>
+            <select name="permis" class="filter-select" id="selectPermis">
+                <option value="" data-i18n="compliance_placeholder">Conformité Permis</option>
+                <option value="expire" data-i18n="filter_expire" {% if permis_alert_filter == 'expire' %}selected{% endif %}>🚨 Permis Expiré</option>
+                <option value="bientot" data-i18n="filter_soon" {% if permis_alert_filter == 'bientot' %}selected{% endif %}>⚠️ Expire sous 30 jours</option>
+                <option value="valide" data-i18n="filter_valid" {% if permis_alert_filter == 'valide' %}selected{% endif %}>✅ Permis Valide</option>
             </select>
 
             <button type="submit" class="btn btn-primary" style="padding: 0.7rem 1.25rem;">
-                Filtrer
+                <span data-i18n="btn_filter">Filtrer</span>
             </button>
 
             {% if query or statut_filter or categorie_filter or permis_alert_filter %}
                 <a href="{% url 'chauffeurs:chauffeur_list' %}" class="btn btn-outline" style="padding: 0.7rem 1rem;">
-                    Réinitialiser
+                    <span data-i18n="btn_reset">Réinitialiser</span>
                 </a>
             {% endif %}
         </form>
@@ -198,20 +297,20 @@
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                                 </svg>
-                                {{ c.entreprise_transport|truncatechars:26 }}
+                                <span>{{ c.entreprise_transport|truncatechars:26 }}</span>
                             </div>
                         </div>
 
-                        <span class="status-pill {{ c.badge_statut_css }}">
+                        <span class="status-pill {{ c.badge_statut_css }}" data-status-badge="{{ c.statut }}">
                             <span class="status-dot-pulse"></span>
-                            {{ c.get_statut_display|truncatechars:18 }}
+                            <span class="status-badge-text">{{ c.get_statut_display|truncatechars:18 }}</span>
                         </span>
                     </div>
 
                     <!-- Specs: License & Truck -->
                     <div class="chauffeur-card-specs">
                         <div class="spec-item">
-                            <span class="spec-title">Permis</span>
+                            <span class="spec-title" data-i18n="spec_license">Permis</span>
                             <span class="spec-content">
                                 <span style="color: #60a5fa; font-weight: 700;">{{ c.categorie_permis }}</span>
                                 <small style="color: var(--text-muted); font-size: 0.75rem;">({{ c.numero_permis }})</small>
@@ -219,29 +318,31 @@
                         </div>
 
                         <div class="spec-item">
-                            <span class="spec-title">Validité Permis</span>
+                            <span class="spec-title" data-i18n="spec_validity">Validité Permis</span>
                             <span class="spec-content">
-                                {% if c.est_permis_expire %}
-                                    <span class="badge-permis-expire">🚨 Expiré</span>
-                                {% elif c.expire_bientot %}
-                                    <span class="badge-permis-bientot">⚠️ Dans {{ c.jours_avant_expiration }}j</span>
-                                {% else %}
-                                    <span class="badge-permis-valide">✅ Valide</span>
-                                {% endif %}
+                                <span class="license-validity-badge" data-license-status="{% if c.est_permis_expire %}expire{% elif c.expire_bientot %}bientot{% else %}valide{% endif %}" data-days="{{ c.jours_avant_expiration }}">
+                                    {% if c.est_permis_expire %}
+                                        <span class="badge-permis-expire">🚨 Expiré</span>
+                                    {% elif c.expire_bientot %}
+                                        <span class="badge-permis-bientot">⚠️ Dans {{ c.jours_avant_expiration }}j</span>
+                                    {% else %}
+                                        <span class="badge-permis-valide">✅ Valide</span>
+                                    {% endif %}
+                                </span>
                             </span>
                         </div>
 
                         <div class="spec-item">
-                            <span class="spec-title">Camion Associé</span>
+                            <span class="spec-title" data-i18n="spec_truck">Camion Associé</span>
                             <span class="spec-content" title="{{ c.immatriculation_camion|default:'Non assigné' }}">
-                                🚛 {{ c.immatriculation_camion|default:"Aucun" }}
+                                🚛 {% if c.immatriculation_camion %}{{ c.immatriculation_camion }}{% else %}<span data-i18n="none">Aucun</span>{% endif %}
                             </span>
                         </div>
 
                         <div class="spec-item">
-                            <span class="spec-title">Passages / Visites</span>
+                            <span class="spec-title" data-i18n="spec_visits">Passages / Visites</span>
                             <span class="spec-content">
-                                📋 {{ c.total_visites_count }} visite{{ c.total_visites_count|pluralize }}
+                                📋 <span class="visits-count-text" data-count="{{ c.total_visites_count }}">{{ c.total_visites_count }} visite{{ c.total_visites_count|pluralize }}</span>
                             </span>
                         </div>
                     </div>
@@ -262,7 +363,7 @@
                     <!-- Actions -->
                     <div class="chauffeur-card-actions">
                         <a href="{% url 'chauffeurs:chauffeur_detail' c.pk %}" class="btn btn-outline" style="flex: 1; justify-content: center; font-size: 0.82rem; padding: 0.55rem;">
-                            Fiche Complète
+                            <span data-i18n="btn_full_profile">Fiche Complète</span>
                         </a>
                         <a href="{% url 'chauffeurs:chauffeur_update' c.pk %}" class="btn btn-outline" style="padding: 0.55rem 0.75rem;" title="Modifier le chauffeur">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -277,14 +378,232 @@
     {% else %}
         <div style="text-align: center; padding: 4rem 1.5rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-lg);">
             <div style="font-size: 3rem; margin-bottom: 1rem;">🚛</div>
-            <h3 style="color: #ffffff; font-size: 1.3rem; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Aucun chauffeur trouvé</h3>
-            <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem;">
+            <h3 style="color: #ffffff; font-size: 1.3rem; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;" data-i18n="no_driver_title">Aucun chauffeur trouvé</h3>
+            <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem;" data-i18n="no_driver_desc">
                 Aucun profil de chauffeur ne correspond à vos critères de recherche ou de filtre.
             </p>
             <a href="{% url 'chauffeurs:chauffeur_create' %}" class="btn btn-accent">
-                Enregistrer un premier Chauffeur
+                <span data-i18n="btn_add_first">Enregistrer un premier Chauffeur</span>
             </a>
         </div>
     {% endif %}
 </div>
+
+<!-- Trilingual JavaScript Engine for Chauffeur List -->
+<script>
+    const CHAUFFEUR_I18N = {
+        fr: {
+            page_title: "Gestion des Chauffeurs",
+            page_subtitle: "Supervisez les conducteurs de fret, contrôlez la conformité des permis (C, CE, ADR) et suivez l'historique de passage sur vos sites logistiques.",
+            btn_ai: "Assistant IA",
+            btn_mobile: "Portail Mobile",
+            btn_export: "Export CSV",
+            btn_add: "Ajouter un Chauffeur",
+            kpi_registered: "Chauffeurs Enregistrés",
+            kpi_available: "Disponibles de suite",
+            kpi_on_mission: "En Mission / À Quai",
+            kpi_alerts: "Alertes Permis (≤ 30j)",
+            kpi_visits: "Visites Effectuées",
+            search_placeholder: "Rechercher par nom, permis, matricule, société, ville...",
+            all_statuses: "Tous les statuts",
+            all_categories: "Toutes catégories de permis",
+            compliance_placeholder: "Conformité Permis",
+            filter_expire: "🚨 Permis Expiré",
+            filter_soon: "⚠️ Expire sous 30 jours",
+            filter_valid: "✅ Permis Valide",
+            btn_filter: "Filtrer",
+            btn_reset: "Réinitialiser",
+            spec_license: "Permis",
+            spec_validity: "Validité Permis",
+            badge_expire: "🚨 Expiré",
+            badge_soon_prefix: "⚠️ Dans ",
+            badge_soon_suffix: "j",
+            badge_valid: "✅ Valide",
+            spec_truck: "Camion Associé",
+            none: "Aucun",
+            spec_visits: "Passages / Visites",
+            visits_suffix: "visite",
+            visits_plural_suffix: "visites",
+            btn_full_profile: "Fiche Complète",
+            btn_edit_tooltip: "Modifier le chauffeur",
+            no_driver_title: "Aucun chauffeur trouvé",
+            no_driver_desc: "Aucun profil de chauffeur ne correspond à vos critères de recherche ou de filtre.",
+            btn_add_first: "Enregistrer un premier Chauffeur"
+        },
+        en: {
+            page_title: "Driver Fleet Management",
+            page_subtitle: "Supervise freight drivers, monitor license compliance (C, CE, ADR), and track warehouse passage history.",
+            btn_ai: "AI Assistant",
+            btn_mobile: "Mobile Portal",
+            btn_export: "Export CSV",
+            btn_add: "Add New Driver",
+            kpi_registered: "Registered Drivers",
+            kpi_available: "Available Now",
+            kpi_on_mission: "On Mission / At Dock",
+            kpi_alerts: "License Alerts (≤ 30d)",
+            kpi_visits: "Completed Visits",
+            search_placeholder: "Search by name, license, plate, carrier, city...",
+            all_statuses: "All Statuses",
+            all_categories: "All License Categories",
+            compliance_placeholder: "License Compliance",
+            filter_expire: "🚨 Expired License",
+            filter_soon: "⚠️ Expires within 30 days",
+            filter_valid: "✅ Valid License",
+            btn_filter: "Filter",
+            btn_reset: "Reset",
+            spec_license: "License",
+            spec_validity: "License Validity",
+            badge_expire: "🚨 Expired",
+            badge_soon_prefix: "⚠️ In ",
+            badge_soon_suffix: "d",
+            badge_valid: "✅ Valid",
+            spec_truck: "Assigned Truck",
+            none: "None",
+            spec_visits: "Passages / Visits",
+            visits_suffix: "visit",
+            visits_plural_suffix: "visits",
+            btn_full_profile: "Full Profile",
+            btn_edit_tooltip: "Edit driver",
+            no_driver_title: "No drivers found",
+            no_driver_desc: "No driver profile matches your search or filter criteria.",
+            btn_add_first: "Register First Driver"
+        },
+        ar: {
+            page_title: "إدارة أسطول السائقين",
+            page_subtitle: "الإشراف على سائقي النقل الثقيل، مراقبة صلاحية رخص القيادة (C, CE, ADR) وتتبع سجل الزيارات في المستودعات والموانئ.",
+            btn_ai: "مساعد الذكاء الاصطناعي",
+            btn_mobile: "بوابة الجوال",
+            btn_export: "تصدير CSV",
+            btn_add: "إضافة سائق جديد",
+            kpi_registered: "سائق مسجل",
+            kpi_available: "متاح فوراً",
+            kpi_on_mission: "في مهمة / على الرصيف",
+            kpi_alerts: "تنبيهات الرخص (≤ 30 يوم)",
+            kpi_visits: "زيارة منجزة",
+            search_placeholder: "بحث بالاسم، رقم الرخصة، اللوحة، الشركة، المدينة...",
+            all_statuses: "جميع الحالات",
+            all_categories: "جميع أصناف الرخص",
+            compliance_placeholder: "مطابقة رخص القيادة",
+            filter_expire: "🚨 رخصة منتهية",
+            filter_soon: "⚠️ تنتهي خلال 30 يوم",
+            filter_valid: "✅ رخصة صالحة",
+            btn_filter: "تصفية",
+            btn_reset: "إعادة ضبط",
+            spec_license: "الرخصة",
+            spec_validity: "صلاحية الرخصة",
+            badge_expire: "🚨 منتهية",
+            badge_soon_prefix: "⚠️ خلال ",
+            badge_soon_suffix: " يوم",
+            badge_valid: "✅ صالحة",
+            spec_truck: "الشاحنة المخصصة",
+            none: "لا يوجد",
+            spec_visits: "الزيارات والعمليات",
+            visits_suffix: "زيارة",
+            visits_plural_suffix: "زيارة",
+            btn_full_profile: "الملف الكامل",
+            btn_edit_tooltip: "تعديل بيانات السائق",
+            no_driver_title: "لم يتم العثور على أي سائق",
+            no_driver_desc: "لا يوجد أي ملف سائق يطابق معايير البحث أو التصفية المحددة.",
+            btn_add_first: "تسجيل أول سائق"
+        }
+    };
+
+    const STATUS_TRANSLATIONS = {
+        DISPONIBLE: { fr: "Disponible", en: "Available", ar: "متاح" },
+        EN_MISSION: { fr: "En mission", en: "On mission", ar: "في مهمة" },
+        A_QUAI: { fr: "À quai", en: "At dock", ar: "على الرصيف" },
+        EN_REPOS: { fr: "En repos", en: "On rest", ar: "في راحة" },
+        INACTIF: { fr: "Inactif", en: "Inactive", ar: "غير نشط" }
+    };
+
+    function setChauffeursListLanguage(lang) {
+        if (!CHAUFFEUR_I18N[lang]) lang = 'fr';
+        localStorage.setItem('cargolink_chauffeur_lang', lang);
+
+        const dict = CHAUFFEUR_I18N[lang];
+        const container = document.getElementById('chauffeursContainer');
+
+        // RTL / LTR management
+        if (lang === 'ar') {
+            container.setAttribute('dir', 'rtl');
+        } else {
+            container.setAttribute('dir', 'ltr');
+        }
+
+        // Toggle button states
+        document.getElementById('btnListLangFr').classList.toggle('active', lang === 'fr');
+        document.getElementById('btnListLangEn').classList.toggle('active', lang === 'en');
+        document.getElementById('btnListLangAr').classList.toggle('active', lang === 'ar');
+
+        // Translate elements with data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) {
+                el.textContent = dict[key];
+            }
+        });
+
+        // Translate inputs with data-i18n-placeholder
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (dict[key]) {
+                el.placeholder = dict[key];
+            }
+        });
+
+        // Translate status pills
+        document.querySelectorAll('[data-status-badge]').forEach(badge => {
+            const code = badge.getAttribute('data-status-badge');
+            const labelSpan = badge.querySelector('.status-badge-text');
+            if (labelSpan && STATUS_TRANSLATIONS[code] && STATUS_TRANSLATIONS[code][lang]) {
+                labelSpan.textContent = STATUS_TRANSLATIONS[code][lang];
+            }
+        });
+
+        // Translate status select options
+        document.querySelectorAll('#selectStatut option[data-status-opt]').forEach(opt => {
+            const code = opt.getAttribute('data-status-opt');
+            if (STATUS_TRANSLATIONS[code] && STATUS_TRANSLATIONS[code][lang]) {
+                opt.textContent = STATUS_TRANSLATIONS[code][lang];
+            }
+        });
+
+        // Translate license validity badges
+        document.querySelectorAll('.license-validity-badge').forEach(badge => {
+            const status = badge.getAttribute('data-license-status');
+            const days = badge.getAttribute('data-days');
+
+            if (status === 'expire') {
+                badge.innerHTML = `<span class="badge-permis-expire">${dict.badge_expire}</span>`;
+            } else if (status === 'bientot') {
+                badge.innerHTML = `<span class="badge-permis-bientot">${dict.badge_soon_prefix}${days}${dict.badge_soon_suffix}</span>`;
+            } else {
+                badge.innerHTML = `<span class="badge-permis-valide">${dict.badge_valid}</span>`;
+            }
+        });
+
+        // Translate visits count text
+        document.querySelectorAll('.visits-count-text').forEach(el => {
+            const count = parseInt(el.getAttribute('data-count') || '0', 10);
+            if (lang === 'ar') {
+                el.textContent = `${count} ${dict.visits_suffix}`;
+            } else if (lang === 'en') {
+                el.textContent = `${count} ${count > 1 ? dict.visits_plural_suffix : dict.visits_suffix}`;
+            } else {
+                el.textContent = `${count} ${count > 1 ? dict.visits_plural_suffix : dict.visits_suffix}`;
+            }
+        });
+    }
+
+    // Auto-initialize language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+        const savedLang = localStorage.getItem('cargolink_chauffeur_lang');
+        const c = document.getElementById('chauffeursContainer');
+        const defaultLang = (c && c.getAttribute('data-initial-lang')) || 'fr';
+        const initialLang = urlLang || savedLang || defaultLang;
+        setChauffeursListLanguage(initialLang);
+    });
+</script>
 {% endblock %}
