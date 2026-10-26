@@ -737,3 +737,181 @@
     background: rgba(139, 92, 246, 0.1);
 }
 
+/* Classes pour le texte des cellules du tableau */
+.cell-title-text {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.cell-primary-text {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.truck-plate-badge {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.06);
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-top: 2px;
+}
+
+/* ==============================================================================
+   LIGHT MODE DÉDIÉ POUR LE MODULE CRÉNEAUX ([data-theme="light"])
+   ============================================================================== */
+
+[data-theme="light"] .page-title-box h1 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .page-title-box p {
+    color: #64748b !important;
+}
+
+/* KPI Cards */
+[data-theme="light"] .kpi-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .kpi-card:hover {
+    border-color: rgba(249, 115, 22, 0.45) !important;
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="light"] .kpi-value {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .kpi-label {
+    color: #64748b !important;
+}
+
+/* Filter Toolbar */
+[data-theme="light"] .filter-toolbar {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="light"] .search-input-field,
+[data-theme="light"] .filter-date-input,
+[data-theme="light"] .filter-select {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .search-input-field:focus,
+[data-theme="light"] .filter-date-input:focus,
+[data-theme="light"] .filter-select:focus {
+    background: #ffffff !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.16) !important;
+}
+
+[data-theme="light"] .search-icon-inside {
+    color: #94a3b8 !important;
+}
+
+/* TABLEAU DES CRÉNEAUX EN LIGHT MODE */
+[data-theme="light"] .creneaux-table-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="light"] .creneaux-table th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    font-weight: 700 !important;
+}
+
+[data-theme="light"] .creneaux-table td {
+    background: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #1e293b !important;
+}
+
+[data-theme="light"] .creneaux-table tr:hover td {
+    background: #f8fafc !important;
+}
+
+/* Liens & Éléments textuels du tableau */
+[data-theme="light"] .creneau-ref-link {
+    color: #2563eb !important;
+}
+
+[data-theme="light"] .creneau-ref-link:hover {
+    color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .cell-title-text {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .cell-primary-text {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .slot-time-badge {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .truck-plate-badge {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+/* Badges de statut des créneaux en Light Mode */
+[data-theme="light"] .badge-warning {
+    background: #fef3c7 !important;
+    border: 1px solid #fcd34d !important;
+    color: #b45309 !important;
+}
+
+[data-theme="light"] .badge-info {
+    background: #dbeafe !important;
+    border: 1px solid #93c5fd !important;
+    color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .badge-primary {
+    background: #ede9fe !important;
+    border: 1px solid #c4b5fd !important;
+    color: #6d28d9 !important;
+}
+
+[data-theme="light"] .badge-success {
+    background: #dcfce7 !important;
+    border: 1px solid #86efac !important;
+    color: #15803d !important;
+}
+
+[data-theme="light"] .badge-secondary {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+[data-theme="light"] .badge-danger {
+    background: #fee2e2 !important;
+    border: 1px solid #fca5a5 !important;
+    color: #b91c1c !important;
+}
+
+[data-theme="light"] .badge-muted {
+    background: #f3f4f6 !important;
+    border: 1px solid #e5e7eb !important;
+    color: #6b7280 !important;
+}
+
+

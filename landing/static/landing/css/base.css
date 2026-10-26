@@ -828,6 +828,8 @@ footer.site-footer {
 /* Light Mode Cards, KPI and Containers (All Modules) */
 [data-theme="light"] .kpi-card,
 [data-theme="light"] .filter-toolbar,
+[data-theme="light"] .toolbar-card,
+[data-theme="light"] .creneaux-table-card,
 [data-theme="light"] .slots-table-card,
 [data-theme="light"] .detail-main-card,
 [data-theme="light"] .detail-side-card,
@@ -915,23 +917,35 @@ footer.site-footer {
 }
 
 /* Light Mode Tables */
+[data-theme="light"] .creneaux-table-card,
+[data-theme="light"] .slots-table-card {
+    background: #ffffff !important;
+    border-color: rgba(203, 213, 225, 0.85) !important;
+    box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="light"] .creneaux-table th,
 [data-theme="light"] .slots-table th,
 [data-theme="light"] .data-table th,
 [data-theme="light"] .timeline-hours-header,
 [data-theme="light"] table th {
-    background: #f1f5f9 !important;
+    background: #f8fafc !important;
     color: #475569 !important;
-    border-bottom: 1px solid #cbd5e1 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
 }
 
+[data-theme="light"] .creneaux-table,
+[data-theme="light"] .creneaux-table td,
 [data-theme="light"] .slots-table td,
 [data-theme="light"] .data-table td,
 [data-theme="light"] .timeline-quai-row,
 [data-theme="light"] table td {
+    background: #ffffff !important;
     border-bottom: 1px solid #f1f5f9 !important;
-    color: #334155 !important;
+    color: #1e293b !important;
 }
 
+[data-theme="light"] .creneaux-table tr:hover td,
 [data-theme="light"] .slots-table tr:hover td,
 [data-theme="light"] .data-table tr:hover td,
 [data-theme="light"] table tr:hover td {
@@ -939,7 +953,7 @@ footer.site-footer {
 }
 
 [data-theme="light"] .creneau-ref-link {
-    color: #1e40af !important;
+    color: #2563eb !important;
 }
 
 /* Light Mode Planning Timeline */
