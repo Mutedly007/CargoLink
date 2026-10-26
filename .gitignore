@@ -18,6 +18,11 @@ db.sqlite3-journal
 media/
 staticfiles/
 
+# Environment & Secrets
+.env
+.env.*
+
 # Binaries & Installers
 *.exe
+
 
