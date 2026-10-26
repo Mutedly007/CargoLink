@@ -14,13 +14,13 @@
             <line x1="19" y1="12" x2="5" y2="12"/>
             <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Annuler et retourner
+        <span data-i18n="wh_back_list">Annuler et retourner</span>
     </a>
 
     <div class="form-main-card">
         <div class="form-title-area">
             <h1>{{ action_title }}</h1>
-            <p>Renseignez les caractéristiques techniques, la localisation et les capacités de stockage de l'entrepôt.</p>
+            <p data-i18n="wh_form_sub">Renseignez les caractéristiques techniques, la localisation et les capacités de stockage de l'entrepôt.</p>
         </div>
 
         {% if form.non_field_errors %}
@@ -46,7 +46,7 @@
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.nom.id_for_label }}">Nom de l'Entrepôt *</label>
+                    <label class="form-label" for="{{ form.nom.id_for_label }}"><span data-i18n="wh_lbl_nom">Nom de l'Entrepôt *</span></label>
                     {{ form.nom }}
                     <div class="field-error-msg" id="error_{{ form.nom.id_for_label }}">
                         {% if form.nom.errors %}
@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.code.id_for_label }}">Code d'Identification Unique *</label>
+                    <label class="form-label" for="{{ form.code.id_for_label }}"><span data-i18n="wh_lbl_code">Code d'Identification Unique *</span></label>
                     {{ form.code }}
                     <div class="field-error-msg" id="error_{{ form.code.id_for_label }}">
                         {% if form.code.errors %}
@@ -69,7 +69,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="{{ form.adresse.id_for_label }}">Adresse Postale Complète *</label>
+                <label class="form-label" for="{{ form.adresse.id_for_label }}"><span data-i18n="wh_lbl_adresse">Adresse Postale Complète *</span></label>
                 {{ form.adresse }}
                 <div class="field-error-msg" id="error_{{ form.adresse.id_for_label }}">
                     {% if form.adresse.errors %}
@@ -81,7 +81,7 @@
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.ville.id_for_label }}">Ville *</label>
+                    <label class="form-label" for="{{ form.ville.id_for_label }}"><span data-i18n="wh_lbl_ville">Ville *</span></label>
                     {{ form.ville }}
                     <div class="field-error-msg" id="error_{{ form.ville.id_for_label }}">
                         {% if form.ville.errors %}
@@ -92,7 +92,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.code_postal.id_for_label }}">Code Postal *</label>
+                    <label class="form-label" for="{{ form.code_postal.id_for_label }}"><span data-i18n="wh_lbl_code_postal">Code Postal *</span></label>
                     {{ form.code_postal }}
                     <div class="field-error-msg" id="error_{{ form.code_postal.id_for_label }}">
                         {% if form.code_postal.errors %}
@@ -105,7 +105,7 @@
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.telephone.id_for_label }}">Téléphone de Contact</label>
+                    <label class="form-label" for="{{ form.telephone.id_for_label }}"><span data-i18n="wh_lbl_telephone">Téléphone de Contact</span></label>
                     {{ form.telephone }}
                     <div class="field-error-msg" id="error_{{ form.telephone.id_for_label }}">
                         {% if form.telephone.errors %}
@@ -116,7 +116,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.email_contact.id_for_label }}">Email de Contact</label>
+                    <label class="form-label" for="{{ form.email_contact.id_for_label }}"><span data-i18n="wh_lbl_email">Email de Contact</span></label>
                     {{ form.email_contact }}
                     <div class="field-error-msg" id="error_{{ form.email_contact.id_for_label }}">
                         {% if form.email_contact.errors %}
@@ -129,7 +129,7 @@
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.statut.id_for_label }}">Statut d'Exploitation</label>
+                    <label class="form-label" for="{{ form.statut.id_for_label }}"><span data-i18n="wh_lbl_statut">Statut d'Exploitation</span></label>
                     {{ form.statut }}
                     <div class="field-error-msg" id="error_{{ form.statut.id_for_label }}">
                         {% if form.statut.errors %}
@@ -140,7 +140,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.gestionnaire.id_for_label }}">Responsable / Gestionnaire</label>
+                    <label class="form-label" for="{{ form.gestionnaire.id_for_label }}"><span data-i18n="wh_lbl_gestionnaire">Responsable / Gestionnaire</span></label>
                     {{ form.gestionnaire }}
                     <div class="field-error-msg" id="error_{{ form.gestionnaire.id_for_label }}">
                         {% if form.gestionnaire.errors %}
@@ -153,7 +153,7 @@
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.capacite_palettes.id_for_label }}">Capacité de Stockage (Palettes) *</label>
+                    <label class="form-label" for="{{ form.capacite_palettes.id_for_label }}"><span data-i18n="wh_lbl_capacite">Capacité de Stockage (Palettes) *</span></label>
                     {{ form.capacite_palettes }}
                     <div class="field-error-msg" id="error_{{ form.capacite_palettes.id_for_label }}">
                         {% if form.capacite_palettes.errors %}
@@ -164,7 +164,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.superficie_m2.id_for_label }}">Superficie en m²</label>
+                    <label class="form-label" for="{{ form.superficie_m2.id_for_label }}"><span data-i18n="wh_lbl_superficie">Superficie en m²</span></label>
                     {{ form.superficie_m2 }}
                     <div class="field-error-msg" id="error_{{ form.superficie_m2.id_for_label }}">
                         {% if form.superficie_m2.errors %}
@@ -177,7 +177,7 @@
 
             <div class="form-grid-2col">
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.horaire_ouverture.id_for_label }}">Heure d'Ouverture (Format HH:MM) *</label>
+                    <label class="form-label" for="{{ form.horaire_ouverture.id_for_label }}"><span data-i18n="wh_lbl_ouverture">Heure d'Ouverture (Format HH:MM) *</span></label>
                     {{ form.horaire_ouverture }}
                     <div class="field-error-msg" id="error_{{ form.horaire_ouverture.id_for_label }}">
                         {% if form.horaire_ouverture.errors %}
@@ -188,7 +188,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.horaire_fermeture.id_for_label }}">Heure de Fermeture (Format HH:MM) *</label>
+                    <label class="form-label" for="{{ form.horaire_fermeture.id_for_label }}"><span data-i18n="wh_lbl_fermeture">Heure de Fermeture (Format HH:MM) *</span></label>
                     {{ form.horaire_fermeture }}
                     <div class="field-error-msg" id="error_{{ form.horaire_fermeture.id_for_label }}">
                         {% if form.horaire_fermeture.errors %}
@@ -200,7 +200,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="{{ form.jours_ouverture.id_for_label }}">Jours d'Ouverture</label>
+                <label class="form-label" for="{{ form.jours_ouverture.id_for_label }}"><span data-i18n="wh_lbl_jours">Jours d'Ouverture</span></label>
                 {{ form.jours_ouverture }}
                 <div class="field-error-msg" id="error_{{ form.jours_ouverture.id_for_label }}">
                     {% if form.jours_ouverture.errors %}
@@ -212,10 +212,10 @@
 
             <div class="form-actions-footer">
                 <a href="{% if is_edit %}{% url 'entrepots:entrepot_detail' entrepot.pk %}{% else %}{% url 'entrepots:entrepot_list' %}{% endif %}" class="btn btn-outline">
-                    Annuler
+                    <span data-i18n="btn_cancel">Annuler</span>
                 </a>
                 <button type="submit" class="btn btn-accent" style="padding: 0.75rem 1.75rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                    <span>{{ btn_label }}</span>
+                    <span data-i18n="btn_save_warehouse">{{ btn_label }}</span>
                     <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="5" y1="12" x2="19" y2="12"/>
                         <polyline points="12 5 19 12 12 19"/>

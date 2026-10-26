@@ -11,8 +11,8 @@
 <div class="entrepots-container">
     <div class="page-top-bar">
         <div class="page-title-box">
-            <h1>Régulation des Quais de Chargement</h1>
-            <p>Vue d'ensemble et contrôle en temps réel de tous les quais du réseau logistique.</p>
+            <h1 data-i18n="quai_page_title">Régulation des Quais de Chargement</h1>
+            <p data-i18n="quai_page_sub">Vue d'ensemble et contrôle en temps réel de tous les quais du réseau logistique.</p>
         </div>
 
         <div class="top-actions-group">
@@ -22,7 +22,7 @@
                     <path d="M9 21v-7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/>
                     <path d="M9 10h6"/>
                 </svg>
-                Gérer les Entrepôts
+                <span data-i18n="quai_btn_manage_wh">Gérer les Entrepôts</span>
             </a>
 
             {% if can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}
@@ -31,7 +31,7 @@
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
-                Ajouter un Quai
+                <span data-i18n="wh_btn_add_quai">Ajouter un Quai</span>
             </a>
             {% endif %}
         </div>
@@ -42,7 +42,7 @@
         <form method="get" class="search-form">
             <div class="filters-group" style="width: 100%; justify-content: flex-start; flex-wrap: wrap;">
                 <select name="statut" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Tous les statuts de quai</option>
+                    <option value="" data-i18n="quai_filter_status_all">Tous les statuts de quai</option>
                     <option value="DISPONIBLE" {% if statut_filter == 'DISPONIBLE' %}selected{% endif %}>Disponibles / Libres</option>
                     <option value="OCCUPE" {% if statut_filter == 'OCCUPE' %}selected{% endif %}>Occupés (en cours)</option>
                     <option value="RESERVE" {% if statut_filter == 'RESERVE' %}selected{% endif %}>Réservés</option>
@@ -50,7 +50,7 @@
                 </select>
 
                 <select name="type" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Tous types de quais</option>
+                    <option value="" data-i18n="wh_filter_type_all">Tous types de quais</option>
                     <option value="STANDARD" {% if type_filter == 'STANDARD' %}selected{% endif %}>Standard (Sec)</option>
                     <option value="FRIGORIFIQUE" {% if type_filter == 'FRIGORIFIQUE' %}selected{% endif %}>Frigorifique</option>
                     <option value="ADR" {% if type_filter == 'ADR' %}selected{% endif %}>Matières Dangereuses (ADR)</option>
@@ -60,7 +60,7 @@
 
                 {% if entrepots %}
                 <select name="entrepot" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Tous les entrepôts</option>
+                    <option value="" data-i18n="quai_filter_wh_all">Tous les entrepôts</option>
                     {% for e in entrepots %}
                         <option value="{{ e.pk }}" {% if selected_entrepot_id == e.pk|stringformat:"s" %}selected{% endif %}>
                             {{ e.nom }} ({{ e.ville }})
@@ -75,7 +75,7 @@
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
-                    Réinitialiser
+                    <span data-i18n="btn_reset">Réinitialiser</span>
                 </a>
                 {% endif %}
             </div>
@@ -194,15 +194,15 @@
                 <line x1="15" y1="13" x2="15" y2="21"/>
             </svg>
         </div>
-        <h3>Aucun quai trouvé</h3>
-        <p>Aucun quai ne correspond aux critères de filtre sélectionnés.</p>
+        <h3 data-i18n="quai_empty_title">Aucun quai trouvé</h3>
+        <p data-i18n="quai_empty_desc">Aucun quai ne correspond aux critères de filtre sélectionnés.</p>
         {% if can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}
         <a href="{% url 'entrepots:quai_create' %}" class="btn btn-accent" style="display: inline-flex; align-items: center; gap: 0.4rem;">
             <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Ajouter un Nouveau Quai
+            <span data-i18n="quai_btn_add_first">Ajouter un Nouveau Quai</span>
         </a>
         {% endif %}
     </div>

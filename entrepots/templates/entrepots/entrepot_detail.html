@@ -14,7 +14,7 @@
             <line x1="19" y1="12" x2="5" y2="12"/>
             <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Retour à la liste des entrepôts
+        <span data-i18n="wh_back_list">Retour à la liste des entrepôts</span>
     </a>
 
     <!-- Warehouse Detail Header Card -->
@@ -55,13 +55,13 @@
                         <line x1="12" y1="5" x2="12" y2="19"/>
                         <line x1="5" y1="12" x2="19" y2="12"/>
                     </svg>
-                    Nouveau Quai
+                    <span data-i18n="wh_btn_add_quai">Nouveau Quai</span>
                 </a>
                 <a href="{% url 'entrepots:entrepot_update' entrepot.pk %}" class="btn btn-outline" style="font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                     <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
                     </svg>
-                    Modifier
+                    <span data-i18n="btn_edit">Modifier</span>
                 </a>
                 <a href="{% url 'entrepots:entrepot_delete' entrepot.pk %}" class="btn btn-outline" style="color: #f87171; border-color: rgba(239, 68, 68, 0.3); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                     <svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -70,7 +70,7 @@
                         <line x1="10" y1="11" x2="10" y2="17"/>
                         <line x1="14" y1="11" x2="14" y2="17"/>
                     </svg>
-                    Supprimer
+                    <span data-i18n="btn_delete">Supprimer</span>
                 </a>
                 {% endif %}
             </div>
@@ -84,7 +84,7 @@
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12 6 12 12 16 14"/>
                     </svg>
-                    Horaires d'Exploitation
+                    <span data-i18n="wh_meta_hours">Horaires d'Exploitation</span>
                 </span>
                 <span class="meta-block-value">{{ entrepot.horaire_ouverture|time:"H:i" }} — {{ entrepot.horaire_fermeture|time:"H:i" }}</span>
                 <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">{{ entrepot.jours_ouverture }}</span>
@@ -97,7 +97,7 @@
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
                         <line x1="12" y1="22.08" x2="12" y2="12"/>
                     </svg>
-                    Capacité de Stockage
+                    <span data-i18n="wh_meta_capacity">Capacité de Stockage</span>
                 </span>
                 <span class="meta-block-value">{{ entrepot.capacite_palettes }} Palettes</span>
                 {% if entrepot.superficie_m2 %}
@@ -112,7 +112,7 @@
                         <path d="M6 7V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/>
                         <line x1="2" y1="13" x2="22" y2="13"/>
                     </svg>
-                    Quais & Disponibilité
+                    <span data-i18n="wh_meta_quais">Quais & Disponibilité</span>
                 </span>
                 <span class="meta-block-value">
                     <span style="color: #4ade80;">{{ entrepot.nb_quais_disponibles }} libres</span> / {{ entrepot.nb_quais }} total
@@ -127,7 +127,7 @@
                     <svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                     </svg>
-                    Contact & Responsable
+                    <span data-i18n="wh_meta_contact">Contact & Responsable</span>
                 </span>
                 <span class="meta-block-value" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.95rem;">
                     {{ entrepot.telephone|default:"Non renseigné" }}
@@ -147,10 +147,10 @@
     <div class="section-quais-header">
         <div>
             <h2 style="font-size: 1.5rem; color: #ffffff; font-weight: 700; font-family: 'Outfit', sans-serif;">
-                Quais de Chargement & Déchargement ({{ quais.count }})
+                <span data-i18n="wh_sec_quais_title">Quais de Chargement & Déchargement</span> ({{ quais.count }})
             </h2>
             <p style="color: var(--text-muted); font-size: 0.875rem;">
-                Surveillez les caractéristiques techniques et le statut en direct de chaque quai rattaché à cet entrepôt.
+                <span data-i18n="wh_sec_quais_sub">Surveillez les caractéristiques techniques et le statut en direct de chaque quai rattaché à cet entrepôt.</span>
             </p>
         </div>
 
@@ -160,7 +160,7 @@
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Ajouter un Quai à cet Entrepôt
+            <span data-i18n="wh_btn_add_quai_this">Ajouter un Quai à cet Entrepôt</span>
         </a>
         {% endif %}
     </div>
@@ -277,8 +277,8 @@
                 <line x1="15" y1="13" x2="15" y2="21"/>
             </svg>
         </div>
-        <h3>Aucun quai configuré pour cet entrepôt</h3>
-        <p>Ajoutez un premier quai de déchargement pour commencer à réguler les arrivées de camions.</p>
+        <h3><span data-i18n="quai_empty_title">Aucun quai configuré pour cet entrepôt</span></h3>
+        <p><span data-i18n="quai_empty_desc">Ajoutez un premier quai de déchargement pour commencer à réguler les arrivées de camions.</span></p>
         {% if can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}
         <a href="{% url 'entrepots:quai_create_for_entrepot' entrepot.pk %}" class="btn btn-accent" style="display: inline-flex; align-items: center; gap: 0.35rem;">
             <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

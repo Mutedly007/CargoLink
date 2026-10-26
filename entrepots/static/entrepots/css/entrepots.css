@@ -1121,3 +1121,74 @@
     color: #475569 !important;
 }
 
+/* ==============================================================================
+   RTL (ARABIC) STYLES FOR ENTREPÔTS & QUAIS
+   ============================================================================== */
+html[dir="rtl"] .entrepots-container,
+.entrepots-container[dir="rtl"],
+html[dir="rtl"] .form-page-container,
+.form-page-container[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .page-title-box h1,
+.entrepots-container[dir="rtl"] .page-title-box h1,
+html[dir="rtl"] .page-title-box p,
+.entrepots-container[dir="rtl"] .page-title-box p {
+    text-align: right;
+}
+
+html[dir="rtl"] .search-input-box input,
+.entrepots-container[dir="rtl"] .search-input-box input {
+    padding-right: 2.5rem;
+    padding-left: 1rem;
+    text-align: right;
+}
+
+html[dir="rtl"] .search-input-box .search-icon,
+.entrepots-container[dir="rtl"] .search-input-box .search-icon {
+    right: 0.85rem;
+    left: auto;
+}
+
+html[dir="rtl"] .detail-back-link,
+.entrepots-container[dir="rtl"] .detail-back-link,
+html[dir="rtl"] .form-page-container .detail-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+html[dir="rtl"] .detail-back-link svg,
+.entrepots-container[dir="rtl"] .detail-back-link svg {
+    transform: rotate(180deg);
+}
+
+html[dir="rtl"] .btn-card-primary svg,
+.entrepots-container[dir="rtl"] .btn-card-primary svg {
+    transform: rotate(180deg);
+}
+
+html[dir="rtl"] .quai-specs,
+.entrepots-container[dir="rtl"] .quai-specs,
+html[dir="rtl"] .mini-stat,
+.entrepots-container[dir="rtl"] .mini-stat,
+html[dir="rtl"] .meta-block,
+.entrepots-container[dir="rtl"] .meta-block {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-label,
+html[dir="rtl"] .form-input,
+html[dir="rtl"] .form-select,
+html[dir="rtl"] .form-textarea {
+    text-align: right;
+}
+
+html[dir="rtl"] .field-error-msg,
+.form-page-container[dir="rtl"] .field-error-msg {
+    justify-content: flex-start;
+    text-align: right;
+}
+

@@ -12,8 +12,8 @@
     <!-- Top Bar -->
     <div class="page-top-bar">
         <div class="page-title-box">
-            <h1>Entrepôts & Régulation des Quais</h1>
-            <p>Supervisez vos infrastructures de stockage, surveillez l'état d'occupation des quais et optimisez les flux entrants.</p>
+            <h1 data-i18n="wh_page_title">Entrepôts & Régulation des Quais</h1>
+            <p data-i18n="wh_page_sub">Supervisez vos infrastructures de stockage, surveillez l'état d'occupation des quais et optimisez les flux entrants.</p>
         </div>
 
         <div class="top-actions-group">
@@ -21,7 +21,7 @@
                 <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
                 </svg>
-                Optimiseur IA
+                <span data-i18n="wh_btn_optimizer">Optimiseur IA</span>
             </a>
             <a href="{% url 'entrepots:quai_list' %}" class="btn btn-outline" style="font-size: 0.875rem;">
                 <svg class="ui-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -31,7 +31,7 @@
                     <line x1="9" y1="13" x2="9" y2="21"/>
                     <line x1="15" y1="13" x2="15" y2="21"/>
                 </svg>
-                Voir tous les Quais ({{ total_quais }})
+                <span data-i18n="wh_btn_all_quais">Voir tous les Quais</span> ({{ total_quais }})
             </a>
 
             {% if can_manage_entrepots or user.is_authenticated and user.profile.is_entrepot %}
@@ -40,7 +40,7 @@
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
-                Ajouter un Entrepôt
+                <span data-i18n="wh_btn_add_warehouse">Ajouter un Entrepôt</span>
             </a>
             {% endif %}
         </div>
@@ -58,7 +58,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ total_entrepots }}</span>
-                <span class="kpi-label">Entrepôts Opérationnels</span>
+                <span class="kpi-label" data-i18n="wh_kpi_operational">Entrepôts Opérationnels</span>
             </div>
         </div>
 
@@ -74,7 +74,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ total_quais }}</span>
-                <span class="kpi-label">Quais de Chargement</span>
+                <span class="kpi-label" data-i18n="wh_kpi_active_quais">Quais de Chargement</span>
             </div>
         </div>
 
@@ -87,7 +87,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ quais_disponibles }}</span>
-                <span class="kpi-label">Quais Actuellement Libres</span>
+                <span class="kpi-label" data-i18n="wh_kpi_available_quais">Quais Actuellement Libres</span>
             </div>
         </div>
 
@@ -101,7 +101,7 @@
             </div>
             <div class="kpi-info">
                 <span class="kpi-value">{{ capacite_globale|default:"0" }}</span>
-                <span class="kpi-label">Capacité Globale (Palettes)</span>
+                <span class="kpi-label" data-i18n="wh_kpi_total_capacity">Capacité Globale (Palettes)</span>
             </div>
         </div>
     </div>
@@ -116,20 +116,20 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                 </span>
-                <input type="text" name="q" value="{{ query }}" placeholder="Rechercher par nom, code (ENT-...), ville ou adresse...">
+                <input type="text" name="q" value="{{ query }}" placeholder="Rechercher par nom, code (ENT-...), ville ou adresse..." data-i18n-placeholder="wh_search_placeholder">
             </div>
             
             <div class="filters-group">
                 <select name="statut" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Tous les statuts</option>
-                    <option value="ACTIF" {% if statut_filter == 'ACTIF' %}selected{% endif %}>Opérationnels</option>
-                    <option value="MAINTENANCE" {% if statut_filter == 'MAINTENANCE' %}selected{% endif %}>En maintenance</option>
-                    <option value="FERME" {% if statut_filter == 'FERME' %}selected{% endif %}>Fermés</option>
+                    <option value="" data-i18n="wh_filter_status_all">Tous les statuts</option>
+                    <option value="ACTIF" {% if statut_filter == 'ACTIF' %}selected{% endif %} data-i18n="wh_status_actif">Opérationnels</option>
+                    <option value="MAINTENANCE" {% if statut_filter == 'MAINTENANCE' %}selected{% endif %} data-i18n="wh_status_maintenance">En maintenance</option>
+                    <option value="FERME" {% if statut_filter == 'FERME' %}selected{% endif %} data-i18n="wh_status_ferme">Fermés</option>
                 </select>
 
                 {% if villes %}
                 <select name="ville" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Toutes les villes</option>
+                    <option value="" data-i18n="wh_filter_city_all">Toutes les villes</option>
                     {% for v in villes %}
                         <option value="{{ v }}" {% if ville_filter == v %}selected{% endif %}>{{ v }}</option>
                     {% endfor %}
@@ -142,7 +142,7 @@
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
-                    Réinitialiser
+                    <span data-i18n="btn_reset">Réinitialiser</span>
                 </a>
                 {% endif %}
             </div>
