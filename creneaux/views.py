@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from django.db.models import Q, Count
 from django.urls import reverse
 
@@ -424,3 +426,39 @@ def api_ai_recommend_dock(request):
     )
 
     return JsonResponse(result)
+
+
+# ==============================================================================
+# ASSISTANT IA GOOGLE GEMINI (STRICTEMENT DÉDIÉ AU MODULE CRÉNEAUX)
+# ==============================================================================
+
+def assistant_creneaux(request):
+    """
+    Interface visuelle dédiée du Copilot IA Google Gemini pour la Gestion des Créneaux.
+    """
+    api_key_configured = bool(getattr(settings, 'GEMINI_API_KEY', ''))
+    return render(request, 'creneaux/assistant_gemini.html', {
+        'api_key_configured': api_key_configured
+    })
+
+
+@csrf_exempt
+def api_gemini_chat(request):
+    """
+    Endpoint AJAX interrogeant Google Gemini exclusivement sur le périmètre des créneaux.
+    """
+    from .gemini_service import GeminiSlotAssistant
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Méthode POST requise'}, status=405)
+
+    prompt = request.POST.get('prompt', '').strip()
+    api_key = request.POST.get('api_key', '').strip() or None
+
+    if not prompt:
+        return JsonResponse({'error': 'Veuillez saisir une question sur vos créneaux.'}, status=400)
+
+    assistant = GeminiSlotAssistant(api_key=api_key)
+    result = assistant.ask(prompt, user=request.user)
+    return JsonResponse(result)
+

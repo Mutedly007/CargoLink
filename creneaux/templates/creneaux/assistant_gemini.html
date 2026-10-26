@@ -1,0 +1,382 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+
+{% block title %}Assistant IA Gemini &bull; Module Créneaux &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+<style>
+    .gemini-chat-container {
+        max-width: 980px;
+        margin: 2rem auto 4rem;
+        padding: 0 1.5rem;
+    }
+
+    .gemini-header-card {
+        background: linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+        border: 1px solid rgba(139, 92, 246, 0.35);
+        border-radius: 18px;
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+    }
+
+    .gemini-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .gemini-icon-glow {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #4285f4, #9b72cb, #d96570);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        box-shadow: 0 0 20px rgba(155, 114, 203, 0.5);
+    }
+
+    .gemini-chat-box {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .chat-messages-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .message-row {
+        display: flex;
+        gap: 0.85rem;
+        max-width: 85%;
+    }
+
+    .message-user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .message-gemini {
+        align-self: flex-start;
+    }
+
+    .msg-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .msg-avatar-user {
+        background: #3b82f6;
+        color: #ffffff;
+    }
+
+    .msg-avatar-gemini {
+        background: linear-gradient(135deg, #4285f4, #9b72cb);
+        color: #ffffff;
+    }
+
+    .msg-bubble {
+        padding: 0.9rem 1.25rem;
+        border-radius: 14px;
+        font-size: 0.92rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+    }
+
+    .bubble-user {
+        background: #3b82f6;
+        color: #ffffff;
+        border-bottom-right-radius: 4px;
+    }
+
+    .bubble-gemini {
+        background: rgba(30, 41, 59, 0.85);
+        color: #f1f5f9;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom-left-radius: 4px;
+    }
+
+    .prompt-suggestions-row {
+        padding: 0.75rem 1.5rem;
+        background: rgba(15, 23, 42, 0.9);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .chip-suggestion {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        color: #c4b5fd;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .chip-suggestion:hover {
+        background: rgba(139, 92, 246, 0.25);
+        color: #ffffff;
+        border-color: #a78bfa;
+    }
+
+    .chat-input-bar {
+        padding: 1rem 1.5rem;
+        background: rgba(15, 23, 42, 0.95);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .chat-text-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        color: #ffffff;
+        font-size: 0.92rem;
+        outline: none;
+    }
+
+    .chat-text-input:focus {
+        border-color: #8b5cf6;
+    }
+
+    .typing-indicator {
+        display: none;
+        align-items: center;
+        gap: 4px;
+        padding: 0.5rem 1rem;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-style: italic;
+    }
+
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: #a78bfa;
+        border-radius: 50%;
+        animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingAnimation {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-4px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gemini-chat-container">
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+            ◀ Retour au tableau de bord des créneaux
+        </a>
+    </div>
+
+    <!-- Header Card -->
+    <div class="gemini-header-card">
+        <div class="gemini-brand">
+            <div class="gemini-icon-glow">✨</div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <h1 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; margin: 0; font-family: 'Outfit', sans-serif;">
+                        CargoLink Slot Copilot
+                    </h1>
+                    <span style="background: rgba(139, 92, 246, 0.25); border: 1px solid #8b5cf6; color: #c4b5fd; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700;">
+                        Google Gemini 1.5
+                    </span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.35rem 0 0 0;">
+                    Assistant conversationnel spécialisé <strong>strictement et exclusivement</strong> sur le module de Gestion des Créneaux (Kacem).
+                </p>
+            </div>
+        </div>
+
+        <div>
+            <details style="font-size: 0.8rem; color: var(--text-muted);">
+                <summary style="cursor: pointer; color: #a78bfa; font-weight: 600;">
+                    ⚙️ Configuration Clé API Gemini
+                </summary>
+                <div style="margin-top: 0.5rem; background: rgba(15,23,42,0.8); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <input type="password" id="customApiKey" placeholder="Coller votre clé Gemini API (Optionnel)" style="width: 220px; padding: 0.4rem 0.6rem; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.78rem;">
+                    <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">
+                        {% if api_key_configured %}
+                            ✅ Clé configurée dans settings.py.
+                        {% else %}
+                            Mode automatique actif avec connexion et fallback expert local.
+                        {% endif %}
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- Chat Box -->
+    <div class="gemini-chat-box">
+        <!-- Messages Area -->
+        <div class="chat-messages-area" id="chatMessages">
+            <!-- Message de bienvenue initial -->
+            <div class="message-row message-gemini">
+                <div class="msg-avatar msg-avatar-gemini">✨</div>
+                <div class="msg-bubble bubble-gemini">
+👋 Bonjour ! Je suis <strong>CargoLink Slot Copilot</strong>, votre assistant IA propulsé par Google Gemini.
+
+🎯 **Mon périmètre strict d'intervention** :
+Je réponds **exclusivement** aux questions relatives au **Module de Gestion des Créneaux** (conçu par Kacem) :
+• 📅 L'état du planning et les créneaux du jour
+• 📋 Les demandes de créneaux en attente de confirmation
+• 🏭 L'occupation et la disponibilité des quais
+• 🛡️ La détection de conflits horaires ou de retards
+
+*Posez-moi votre question ci-dessous ou cliquez sur un exemple !*
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <span>Gemini analyse les créneaux</span>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <!-- Prompt Suggestions / Questions types pour démo -->
+        <div class="prompt-suggestions-row">
+            <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Exemples de questions :</span>
+            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+                📋 Quels sont les créneaux en attente de confirmation ?
+            </button>
+            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+                📅 Fais-moi un résumé des créneaux prévus aujourd'hui
+            </button>
+            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+                🚛 Y a-t-il des camions actuellement à quai ?
+            </button>
+            <button type="button" class="chip-suggestion" onclick="sendQuickPrompt(this.innerText)">
+                🛡️ Y a-t-il des conflits ou quais saturés ?
+            </button>
+            <button type="button" class="chip-suggestion" style="border-color: rgba(239,68,68,0.4); color: #fca5a5;" onclick="sendQuickPrompt('Quelle est la recette de la pizza margherita ?')">
+                🍕 Test Filtrage Strict (Question hors créneaux)
+            </button>
+        </div>
+
+        <!-- Chat Input -->
+        <form class="chat-input-bar" id="chatForm">
+            <input type="text" id="userInput" class="chat-text-input" placeholder="Posez une question sur vos créneaux, les horaires ou les quais..." autocomplete="off">
+            <button type="submit" class="btn btn-accent" style="padding: 0.75rem 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <span>Envoyer</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const userInput = document.getElementById('userInput');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const customApiKeyInput = document.getElementById('customApiKey');
+
+    function appendMessage(text, sender) {
+        const row = document.createElement('div');
+        row.className = `message-row message-${sender}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = `msg-avatar msg-avatar-${sender}`;
+        avatar.innerHTML = sender === 'user' ? '👤' : '✨';
+
+        const bubble = document.createElement('div');
+        bubble.className = `msg-bubble bubble-${sender}`;
+        bubble.textContent = text;
+
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        chatMessages.appendChild(row);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function sendQuickPrompt(text) {
+        userInput.value = text;
+        submitChat();
+    }
+
+    function submitChat() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        appendMessage(text, 'user');
+        userInput.value = '';
+        typingIndicator.style.display = 'flex';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const formData = new FormData();
+        formData.append('prompt', text);
+        const customKey = customApiKeyInput ? customApiKeyInput.value.trim() : '';
+        if (customKey) {
+            formData.append('api_key', customKey);
+        }
+
+        fetch("{% url 'creneaux:api_gemini_chat' %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            typingIndicator.style.display = 'none';
+            if (data.response) {
+                appendMessage(data.response, 'gemini');
+            } else if (data.error) {
+                appendMessage("❌ Erreur : " + data.error, 'gemini');
+            }
+        })
+        .catch(err => {
+            typingIndicator.style.display = 'none';
+            appendMessage("❌ Erreur de communication : " + err, 'gemini');
+        });
+    }
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitChat();
+    });
+</script>
+{% endblock %}

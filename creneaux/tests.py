@@ -209,3 +209,24 @@ class CreneauxModuleTests(TestCase):
         json_data = api_res.json()
         self.assertTrue(json_data['success'])
         self.assertEqual(json_data['meilleur_quai_id'], rec['meilleur_quai_id'])
+
+    def test_gemini_slot_assistant(self):
+        """Vérifie l'assistant Gemini bridé strictement au module des créneaux."""
+        from .gemini_service import GeminiSlotAssistant
+
+        assistant = GeminiSlotAssistant()
+
+        # Test 1 : Question autorisée sur les créneaux
+        res_valid = assistant.ask("Combien de créneaux sont prévus aujourd'hui ?")
+        self.assertTrue(res_valid['success'])
+        self.assertIn("créneau", res_valid['response'].lower())
+
+        # Test 2 : Question hors-périmètre (doit être refusée par le garde-fou)
+        res_hors_sujet = assistant.ask("Donne-moi une recette de cuisine pour ce soir.")
+        self.assertTrue(res_hors_sujet['success'])
+        self.assertEqual(res_hors_sujet['source'], 'guardrail')
+        self.assertIn("exclusivement aux questions relatives au module de Gestion des Créneaux", res_hors_sujet['response'])
+
+        # Test 3 : Page assistant HTTP 200
+        res_page = self.client.get(reverse('creneaux:assistant_creneaux'))
+        self.assertEqual(res_page.status_code, 200)
