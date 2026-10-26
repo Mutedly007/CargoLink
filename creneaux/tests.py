@@ -20,6 +20,7 @@ class CreneauxModuleTests(TestCase):
         )
         self.user.profile.role = 'PLANIFICATEUR'
         self.user.profile.save()
+        self.client.login(username='kacem_planner', password='TestPassword123!')
 
         # Entrepôt Test
         self.entrepot = Entrepot.objects.create(
@@ -52,6 +53,29 @@ class CreneauxModuleTests(TestCase):
         )
 
         self.today = date.today()
+
+    def test_creneau_list_unauthenticated_redirects_to_landing(self):
+        """Vérifie qu'un visiteur non connecté est redirigé vers la page d'accueil principale."""
+        self.client.logout()
+        response = self.client.get(reverse('creneaux:creneau_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('landing'))
+
+    def test_creneau_list_unauthorized_role_redirects_to_landing(self):
+        """Vérifie qu'un rôle non autorisé (ex: Transporteur) est redirigé vers la page d'accueil principale."""
+        self.client.logout()
+        transporteur_user = User.objects.create_user(
+            username='user_transp_test',
+            email='transp@cargolink.tn',
+            password='TestPassword123!',
+        )
+        transporteur_user.profile.role = 'TRANSPORTEUR'
+        transporteur_user.profile.save()
+        self.client.login(username='user_transp_test', password='TestPassword123!')
+
+        response = self.client.get(reverse('creneaux:creneau_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('landing'))
 
     def test_creneau_creation_and_reference(self):
         """Vérifie la création d'un créneau et la génération automatique de sa référence."""
