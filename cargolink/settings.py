@@ -17,7 +17,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Google Gemini AI API Configuration (Module Créneaux)
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AQ.Ab8RN6IAoXdkgOL1hPynevF34zzbIy92LRgAUM9HGVc1RySoHg')
 
 
 # Quick-start development settings - unsuitable for production
