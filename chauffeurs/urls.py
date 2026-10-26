@@ -26,6 +26,11 @@ urlpatterns = [
     # Portail Mobile Chauffeur (Slide 9 - Responsive smartphone)
     path('portail-mobile/', views.chauffeur_portal_mobile, name='chauffeur_portal_mobile'),
     
+    # Assistant IA Conversationnel (Option 4 - Recherche en langage naturel & Support Trilingue FR/AR/EN)
+    path('assistant-ia/', views.chauffeur_ai_assistant, name='chauffeur_ai_assistant'),
+    path('api/chat/', views.chauffeur_ai_chat_api, name='chauffeur_ai_chat_api'),
+
     # Export CSV
     path('export/', views.chauffeurs_export, name='chauffeurs_export'),
 ]
+

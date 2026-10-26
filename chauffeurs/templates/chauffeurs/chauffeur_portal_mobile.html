@@ -38,9 +38,14 @@
                 Mon Espace Chauffeur
             </h1>
         </div>
-        <a href="{% url 'chauffeurs:chauffeur_list' %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
-            Vue Standard
-        </a>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'chauffeurs:chauffeur_ai_assistant' %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-color: rgba(139, 92, 246, 0.5); color: #c4b5fd; background: rgba(139, 92, 246, 0.1);" title="Assistant IA">
+                🤖 Assistant IA
+            </a>
+            <a href="{% url 'chauffeurs:chauffeur_list' %}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                Vue Standard
+            </a>
+        </div>
     </div>
 
     <!-- Chauffeur Selector (simulation multi-chauffeur) -->
