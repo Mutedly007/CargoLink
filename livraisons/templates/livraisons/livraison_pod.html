@@ -1,0 +1,61 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}Preuve de livraison {{ livraison.reference }} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'livraisons/css/livraisons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="liv-container liv-container-narrow">
+    <a class="liv-back-link" href="{% url 'livraisons:livraison_detail' livraison.pk %}">{% include "livraisons/_icone.html" with nom="arrow-left" %} {{ livraison.reference }}</a>
+    <header class="liv-top-bar">
+        <div class="liv-title">
+            <h1>{% include "livraisons/_icone.html" with nom="pen" %} Preuve de livraison</h1>
+            <p>{{ livraison.libelle_destination }} • {{ livraison.nb_palettes }} palettes{% if livraison.numero_bl %} • BL {{ livraison.numero_bl }}{% endif %}</p>
+        </div>
+    </header>
+
+    {% if form.non_field_errors %}
+    <div class="liv-form-errors">{% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="liv-card" id="podForm">
+        {% csrf_token %}
+        {{ form.signature_data }}
+        {% include "livraisons/_champ.html" with champ=form.receptionnaire_nom %}
+
+        <div style="margin-top: 1rem;">
+            <span class="liv-label">Signature du réceptionnaire</span>
+            <div class="liv-signature-wrap">
+                <canvas id="signaturePad" aria-label="Zone de signature"></canvas>
+                <div class="liv-signature-hint" id="signatureHint">Signez ici avec le doigt ou la souris</div>
+            </div>
+            <div class="liv-actions" style="margin-top: 0.5rem;">
+                <button type="button" class="btn btn-outline btn-sm" id="btnEffacerSignature">{% include "livraisons/_icone.html" with nom="refresh" %} Effacer</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 1rem;">
+            {% include "livraisons/_champ.html" with champ=form.photo_preuve %}
+        </div>
+
+        <label style="display:flex; gap:0.5rem; align-items:center; margin: 1rem 0; color: var(--text-main); font-weight: 600;">
+            {{ form.livraison_conforme }} {{ form.livraison_conforme.label }}
+        </label>
+        {% include "livraisons/_champ.html" with champ=form.reserves %}
+        <div style="margin-top: 1rem;">
+            {% include "livraisons/_champ.html" with champ=form.note_satisfaction %}
+        </div>
+
+        <div class="liv-form-actions">
+            <button type="submit" class="btn btn-success liv-big-btn">{% include "livraisons/_icone.html" with nom="check" %} Valider la livraison</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'livraisons/js/livraisons.js' %}"></script>
+{% endblock %}

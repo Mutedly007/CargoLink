@@ -328,3 +328,247 @@ class CreneauxModuleTests(TestCase):
         self.assertEqual(res_confirm.status_code, 302)
         self.assertRedirects(res_confirm, reverse('creneaux:creneau_detail', kwargs={'pk': creneau.pk}))
 
+    def test_form_validation_past_date(self):
+        """Vérifie que la sélection d'une date passée est rejetée par le contrôle de saisie."""
+        from .forms import CreneauForm, DemandeCreneauForm
+        hier = self.today - timedelta(days=1)
+        data = {
+            'entrepot': self.entrepot.id,
+            'quai': self.quai.id,
+            'date_creneau': hier,
+            'heure_debut': '10:00',
+            'heure_fin': '11:00',
+            'type_operation': 'DECHARGEMENT',
+            'transporteur_nom': 'Trans Express',
+            'immatriculation_camion': '123-TN-4567',
+            'type_camion': 'SEMI_REMORQUE',
+            'chauffeur_nom': 'Ali Ben Salah',
+            'chauffeur_telephone': '+216 98 123 456',
+            'type_marchandise': 'STANDARD',
+            'nb_palettes': 10,
+        }
+        form = DemandeCreneauForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('date_creneau', form.errors)
+        self.assertIn("antérieure à aujourd'hui", form.errors['date_creneau'][0])
+
+        form_plan = CreneauForm(data=data)
+        self.assertFalse(form_plan.is_valid())
+        self.assertIn('date_creneau', form_plan.errors)
+
+    def test_form_validation_hours_order_and_duration(self):
+        """Vérifie que l'heure de fin <= heure de début ou durée < 15min / > 8h sont rejetées."""
+        from .forms import DemandeCreneauForm
+        base_data = {
+            'entrepot': self.entrepot.id,
+            'quai': self.quai.id,
+            'date_creneau': self.today + timedelta(days=1),
+            'type_operation': 'DECHARGEMENT',
+            'transporteur_nom': 'Trans Express',
+            'immatriculation_camion': '123-TN-4567',
+            'type_camion': 'SEMI_REMORQUE',
+            'chauffeur_nom': 'Ali Ben Salah',
+            'chauffeur_telephone': '+216 98 123 456',
+            'type_marchandise': 'STANDARD',
+            'nb_palettes': 10,
+        }
+
+        # 1. Heure fin <= Heure début
+        data_incoherent = {**base_data, 'heure_debut': '11:00', 'heure_fin': '10:00'}
+        form = DemandeCreneauForm(data=data_incoherent)
+        self.assertFalse(form.is_valid())
+        self.assertIn('heure_fin', form.errors)
+        self.assertIn("strictement postérieure", form.errors['heure_fin'][0])
+
+        # 2. Durée < 15 min
+        data_trop_court = {**base_data, 'heure_debut': '10:00', 'heure_fin': '10:10'}
+        form = DemandeCreneauForm(data=data_trop_court)
+        self.assertFalse(form.is_valid())
+        self.assertIn('heure_fin', form.errors)
+        self.assertIn("Durée insuffisante", form.errors['heure_fin'][0])
+
+        # 3. Durée > 8 heures
+        data_trop_long = {**base_data, 'heure_debut': '07:00', 'heure_fin': '16:00'}
+        form = DemandeCreneauForm(data=data_trop_long)
+        self.assertFalse(form.is_valid())
+        self.assertIn('heure_fin', form.errors)
+        self.assertIn("Durée excessive", form.errors['heure_fin'][0])
+
+    def test_form_validation_outside_warehouse_hours(self):
+        """Vérifie qu'un créneau en dehors des horaires de l'entrepôt (06:00 - 22:00) est rejeté."""
+        from .forms import DemandeCreneauForm
+        base_data = {
+            'entrepot': self.entrepot.id,
+            'quai': self.quai.id,
+            'date_creneau': self.today + timedelta(days=1),
+            'type_operation': 'CHARGEMENT',
+            'transporteur_nom': 'Trans Nuit',
+            'immatriculation_camion': '123-TN-4567',
+            'type_camion': 'FOURGON',
+            'chauffeur_nom': 'Sami Khemir',
+            'type_marchandise': 'STANDARD',
+            'nb_palettes': 5,
+        }
+
+        # Début avant ouverture (05:30 < 06:00)
+        data_tot = {**base_data, 'heure_debut': '05:30', 'heure_fin': '06:30'}
+        form = DemandeCreneauForm(data=data_tot)
+        self.assertFalse(form.is_valid())
+        self.assertIn('heure_debut', form.errors)
+        self.assertIn("Site fermé", form.errors['heure_debut'][0])
+
+        # Fin après fermeture (22:30 > 22:00)
+        data_tard = {**base_data, 'heure_debut': '21:00', 'heure_fin': '22:30'}
+        form = DemandeCreneauForm(data=data_tard)
+        self.assertFalse(form.is_valid())
+        self.assertIn('heure_fin', form.errors)
+        self.assertIn("Site fermé", form.errors['heure_fin'][0])
+
+    def test_form_validation_formats_and_limits(self):
+        """Vérifie la validation des plaques d'immatriculation, téléphones, palettes et poids."""
+        from .forms import CreneauForm
+        base_data = {
+            'entrepot': self.entrepot.id,
+            'quai': self.quai.id,
+            'date_creneau': self.today + timedelta(days=2),
+            'heure_debut': '10:00',
+            'heure_fin': '11:00',
+            'type_operation': 'DECHARGEMENT',
+            'transporteur_nom': 'Trans Logistique',
+            'immatriculation_camion': 'AB',  # Trop court (< 3 caractères)
+            'type_camion': 'SEMI_REMORQUE',
+            'chauffeur_nom': '12345',  # Pas de lettres
+            'chauffeur_telephone': 'abc',  # Téléphone invalide
+            'type_marchandise': 'STANDARD',
+            'nb_palettes': 150,  # Dépasse 120
+            'poids_kg': 40000,  # Dépasse 35000 kg
+        }
+        form = CreneauForm(data=base_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('immatriculation_camion', form.errors)
+        self.assertIn('chauffeur_nom', form.errors)
+        self.assertIn('chauffeur_telephone', form.errors)
+        self.assertIn('nb_palettes', form.errors)
+        self.assertIn('poids_kg', form.errors)
+
+    def test_form_validation_dock_compatibility_and_anti_conflict(self):
+        """Vérifie l'incompatibilité marchandise/quai (ex: Frigo sur Standard) et l'anti-chevauchement."""
+        from .forms import CreneauForm, DemandeCreneauForm
+
+        # 1. Marchandise Frigorifique sur Quai Standard
+        data_incompatible = {
+            'entrepot': self.entrepot.id,
+            'quai': self.quai.id,  # Standard
+            'date_creneau': self.today + timedelta(days=3),
+            'heure_debut': '14:00',
+            'heure_fin': '15:00',
+            'type_operation': 'DECHARGEMENT',
+            'transporteur_nom': 'Froid Express',
+            'immatriculation_camion': '987-TN-6543',
+            'type_camion': 'FRIGORIFIQUE',
+            'chauffeur_nom': 'Nader Trabelsi',
+            'type_marchandise': 'FRIGORIFIQUE',  # Incompatible avec quai Standard
+            'nb_palettes': 20,
+        }
+        form_frigo = DemandeCreneauForm(data=data_incompatible)
+        self.assertFalse(form_frigo.is_valid())
+        self.assertIn('type_marchandise', form_frigo.errors)
+        self.assertIn("Équipement inadapté", form_frigo.errors['type_marchandise'][0])
+
+        # 2. Création d'un premier créneau confirmé
+        target_date = self.today + timedelta(days=3)
+        Creneau.objects.create(
+            entrepot=self.entrepot,
+            quai=self.quai,
+            date_creneau=target_date,
+            heure_debut=time(14, 0),
+            heure_fin=time(15, 30),
+            transporteur_nom="Transports Existant",
+            immatriculation_camion="111-TN-2222",
+            chauffeur_nom="Chauffeur Un",
+            statut='CONFIRME'
+        )
+
+        # 3. Tentative de planifier un créneau en chevauchement (15:00 - 16:00) sur le même quai
+        data_overlap = {
+            'entrepot': self.entrepot.id,
+            'quai': self.quai.id,
+            'date_creneau': target_date,
+            'heure_debut': '15:00',
+            'heure_fin': '16:00',
+            'type_operation': 'CHARGEMENT',
+            'transporteur_nom': 'Transports Deux',
+            'immatriculation_camion': '333-TN-4444',
+            'type_camion': 'SEMI_REMORQUE',
+            'chauffeur_nom': 'Chauffeur Deux',
+            'type_marchandise': 'STANDARD',
+            'nb_palettes': 15,
+        }
+        form_overlap = CreneauForm(data=data_overlap)
+        self.assertFalse(form_overlap.is_valid())
+        self.assertIn('heure_debut', form_overlap.errors)
+        self.assertIn("Conflit quai détecté", form_overlap.errors['heure_debut'][0])
+
+    def test_form_valid_submission_creates_slot(self):
+        """Vérifie la soumission réussie d'une demande et d'une planification directe."""
+        valid_demande_data = {
+            'entrepot': self.entrepot.id,
+            'quai': self.quai.id,
+            'date_creneau': self.today + timedelta(days=4),
+            'heure_debut': '09:00',
+            'heure_fin': '10:00',
+            'type_operation': 'DECHARGEMENT',
+            'transporteur_nom': 'Trans Global Logistics',
+            'immatriculation_camion': '555-TN-6666',
+            'type_camion': 'SEMI_REMORQUE',
+            'chauffeur_nom': 'Walid Ben Amor',
+            'chauffeur_telephone': '+216 20 123 456',
+            'type_marchandise': 'STANDARD',
+            'nb_palettes': 24,
+            'numero_bl': 'BL-2026-999',
+            'consignes': 'Attention matériel fragile',
+        }
+
+        # Demande de créneau via POST HTTP
+        res_demande = self.client.post(reverse('creneaux:demande_creneau'), valid_demande_data)
+        self.assertEqual(res_demande.status_code, 302)
+        creneau_demande = Creneau.objects.get(immatriculation_camion='555-TN-6666')
+        self.assertEqual(creneau_demande.statut, 'EN_ATTENTE')
+        self.assertEqual(creneau_demande.numero_bl, 'BL-2026-999')
+
+        # Planification directe via POST HTTP
+        valid_plan_data = {
+            **valid_demande_data,
+            'immatriculation_camion': '777-TN-8888',
+            'heure_debut': '10:30',
+            'heure_fin': '12:00',
+            'priorite': 'URGENTE',
+            'poids_kg': 18000,
+        }
+        res_plan = self.client.post(reverse('creneaux:creneau_create'), valid_plan_data)
+        self.assertEqual(res_plan.status_code, 302)
+        creneau_plan = Creneau.objects.get(immatriculation_camion='777-TN-8888')
+        self.assertEqual(creneau_plan.statut, 'CONFIRME')
+        self.assertEqual(creneau_plan.priorite, 'URGENTE')
+        self.assertEqual(creneau_plan.poids_kg, 18000)
+
+    def test_empty_form_submission_returns_errors_without_crash(self):
+        """Vérifie que la soumission d'un formulaire vide réaffiche le formulaire avec erreurs sans lever RelatedObjectDoesNotExist."""
+        # 1. Planification directe vide
+        res_create = self.client.post(reverse('creneaux:creneau_create'), {})
+        self.assertEqual(res_create.status_code, 200)
+        form_create = res_create.context['form']
+        self.assertIn('entrepot', form_create.errors)
+        self.assertIn('quai', form_create.errors)
+        self.assertIn('date_creneau', form_create.errors)
+
+        # 2. Demande de créneau vide
+        res_demande = self.client.post(reverse('creneaux:demande_creneau'), {})
+        self.assertEqual(res_demande.status_code, 200)
+        form_demande = res_demande.context['form']
+        self.assertIn('entrepot', form_demande.errors)
+        self.assertIn('quai', form_demande.errors)
+        self.assertIn('date_creneau', form_demande.errors)
+
+
+

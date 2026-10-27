@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bon de livraison {{ livraison.reference }} &bull; CargoLink</title>
+    <style>
+        /* Feuille d'impression autonome (format A4), indépendante du thème de l'application */
+        @page { size: A4; margin: 14mm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; font-size: 11pt; margin: 0; background: #ffffff; }
+        .page { max-width: 190mm; margin: 0 auto; padding: 8mm 0; }
+        header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #0a192f; padding-bottom: 8px; }
+        .brand { font-size: 20pt; font-weight: 800; color: #0a192f; }
+        .brand span { color: #f97316; }
+        h1 { font-size: 15pt; margin: 4px 0 0; text-align: right; }
+        .ref { font-family: Consolas, monospace; font-size: 12pt; text-align: right; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+        .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; }
+        .box h2 { font-size: 9pt; text-transform: uppercase; letter-spacing: .05em; color: #475569; margin: 0 0 6px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+        th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; font-size: 10pt; }
+        th { background: #f1f5f9; }
+        .signatures { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 18px; }
+        .sign { border: 1px solid #cbd5e1; border-radius: 6px; height: 34mm; padding: 6px 8px; font-size: 9pt; color: #475569; }
+        .sign img { max-height: 24mm; max-width: 100%; display: block; margin-top: 4px; }
+        .foot { margin-top: 14px; font-size: 8.5pt; color: #64748b; display: flex; justify-content: space-between; gap: 10px; }
+        .toolbar { text-align: center; margin: 10px 0; }
+        .toolbar button { padding: 8px 18px; border-radius: 8px; border: none; background: #f97316; color: #fff; font-weight: 700; cursor: pointer; }
+        @media print { .toolbar { display: none; } }
+    </style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">Imprimer / Enregistrer en PDF</button></div>
+<div class="page">
+    <header>
+        <div>
+            <div class="brand">Cargo<span>Link</span></div>
+            <div style="font-size: 9pt; color: #475569;">Plateforme logistique • Régulation des quais &amp; livraisons</div>
+        </div>
+        <div>
+            <h1>BON DE LIVRAISON</h1>
+            <div class="ref">{{ livraison.reference }}</div>
+            <div style="text-align:right; font-size: 9pt;">BL / CMR : {{ livraison.numero_bl|default:"—" }}</div>
+        </div>
+    </header>
+
+    <div class="grid">
+        <div class="box">
+            <h2>Expéditeur</h2>
+            <strong>{{ livraison.entrepot_origine.nom }}</strong><br>
+            {{ livraison.entrepot_origine.adresse }}<br>
+            {{ livraison.entrepot_origine.code_postal }} {{ livraison.entrepot_origine.ville }}
+        </div>
+        <div class="box">
+            <h2>Destinataire</h2>
+            {% if livraison.type_livraison == 'INTER_ENTREPOT' %}
+            <strong>{{ livraison.entrepot_destination.nom }}</strong><br>
+            {{ livraison.entrepot_destination.adresse }}<br>
+            {{ livraison.entrepot_destination.code_postal }} {{ livraison.entrepot_destination.ville }}
+            {% else %}
+            <strong>{{ livraison.destinataire_nom }}</strong><br>
+            {{ livraison.adresse_livraison }}<br>
+            {{ livraison.ville_livraison }}{% if livraison.destinataire_telephone %} • {{ livraison.destinataire_telephone }}{% endif %}
+            {% endif %}
+        </div>
+        <div class="box">
+            <h2>Transport</h2>
+            Camion : <strong>{{ livraison.camion.immatriculation|default:"—" }}</strong>{% if livraison.camion %} ({{ livraison.camion.get_type_camion_display }}){% endif %}<br>
+            Chauffeur : <strong>{{ livraison.chauffeur.nom_complet|default:"—" }}</strong><br>
+            Société : {{ livraison.camion.societe_transport|default:livraison.chauffeur.entreprise_transport|default:"—" }}
+        </div>
+        <div class="box">
+            <h2>Planning</h2>
+            Départ prévu : {{ livraison.date_depart_prevue|date:"d/m/Y H:i" }}<br>
+            Échéance : {{ livraison.date_livraison_prevue|date:"d/m/Y H:i" }}<br>
+            Priorité : {{ livraison.get_priorite_display }}
+        </div>
+    </div>
+
+    <table>
+        <thead><tr><th>Désignation</th><th>Nature</th><th>Palettes</th><th>Poids (kg)</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>{{ livraison.description_marchandise|default:"Marchandise" }}</td>
+                <td>{{ livraison.get_type_marchandise_display }}</td>
+                <td>{{ livraison.nb_palettes }}</td>
+                <td>{{ livraison.poids_kg|default:"—" }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% if livraison.consignes %}<p style="font-size: 9.5pt;"><strong>Consignes :</strong> {{ livraison.consignes }}</p>{% endif %}
+
+    <div class="signatures">
+        <div class="sign">Expéditeur (cachet &amp; signature)</div>
+        <div class="sign">Transporteur / Chauffeur</div>
+        <div class="sign">Réceptionnaire{% if livraison.receptionnaire_nom %} : <strong>{{ livraison.receptionnaire_nom }}</strong>{% endif %}
+            {% if livraison.signature %}<img src="{{ livraison.signature.url }}" alt="Signature">{% endif %}
+            {% if livraison.reserves %}<div>Réserves : {{ livraison.reserves }}</div>{% endif %}
+        </div>
+    </div>
+
+    <div class="foot">
+        <span>Suivi en ligne : {{ url_suivi_public }} (code {{ livraison.code_suivi }})</span>
+        <span>Imprimé le {{ imprime_le|date:"d/m/Y H:i" }}</span>
+    </div>
+</div>
+</body>
+</html>

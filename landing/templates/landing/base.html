@@ -69,6 +69,11 @@
                             Chauffeurs
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{% url 'livraisons:livraison_list' %}" class="nav-link {% if request.resolver_match.app_name == 'livraisons' %}active{% endif %}" data-i18n="nav_deliveries">
+                            Livraisons
+                        </a>
+                    </li>
                 </ul>
             </nav>
 
@@ -323,6 +328,8 @@
                     <li><a href="{% url 'creneaux:creneau_list' %}">Réservation de Créneaux</a></li>
                     <li><a href="{% url 'camions:camion_list' %}">Suivi de Flotte & Camions</a></li>
                     <li><a href="{% url 'chauffeurs:chauffeur_list' %}">Portail Chauffeurs</a></li>
+                    <li><a href="{% url 'livraisons:livraison_list' %}">Suivi des Livraisons</a></li>
+                    <li><a href="{% url 'livraisons:suivi_recherche' %}">Suivre un colis (public)</a></li>
                 </ul>
             </div>
 

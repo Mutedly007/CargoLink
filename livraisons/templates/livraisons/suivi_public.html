@@ -1,0 +1,79 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}Suivi de livraison &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'livraisons/css/livraisons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="liv-container liv-container-narrow">
+    <div class="liv-public-hero">
+        <h1>Suivre une livraison</h1>
+        <p class="liv-muted">Saisissez le code de suivi reçu par SMS ou indiqué sur votre bon de livraison.</p>
+        <form method="get" action="{% url 'livraisons:suivi_recherche' %}" class="liv-public-form">
+            <input class="liv-input" name="code" value="{{ code }}" maxlength="12" placeholder="EX : K7P2QX9M" aria-label="Code de suivi" required>
+            <button class="btn btn-accent">{% include "livraisons/_icone.html" with nom="search" %} Suivre</button>
+        </form>
+    </div>
+
+    {% if introuvable %}
+    <div class="liv-card liv-empty">
+        {% include "livraisons/_icone.html" with nom="x" classe="liv-icon-lg" %}
+        <p>Aucune livraison ne correspond au code « {{ code }} ».</p>
+    </div>
+    {% elif livraison %}
+    <section class="liv-card">
+        <div class="liv-detail-head">
+            <div>
+                <div class="liv-kicker">Livraison {{ livraison.reference }}</div>
+                <div class="liv-route" style="margin-top: 0.4rem;">
+                    {{ livraison.ville_depart }} {% include "livraisons/_icone.html" with nom="arrow-right" %} {{ livraison.ville_arrivee }}
+                </div>
+            </div>
+            {% include "livraisons/_statut_badge.html" with l=livraison %}
+        </div>
+
+        {% if livraison.statut == 'ANNULEE' %}
+        <p class="liv-danger-text">Cette livraison a été annulée. Contactez votre expéditeur pour plus d'informations.</p>
+        {% else %}
+        <div class="liv-tracker {% if livraison.statut == 'ECHEC' %}echec{% endif %}">
+            {% for etape in livraison.etapes %}
+            {% if not forloop.first %}
+            <div class="liv-step {{ etape.etat }}">
+                <div class="liv-step-dot">{% if etape.etat == 'fait' %}&#10003;{% else %}{{ forloop.counter0 }}{% endif %}</div>
+                <span class="liv-step-label">{{ etape.libelle }}</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="liv-grid-2">
+            <div>
+                <div class="liv-muted liv-small">{% if livraison.statut == 'LIVREE' %}Livrée le{% else %}Arrivée estimée{% endif %}</div>
+                <div class="liv-eta-big">{% if livraison.statut == 'LIVREE' %}{{ livraison.date_livraison_reelle|date:"d/m H:i" }}{% else %}{{ livraison.eta|date:"d/m H:i" }}{% endif %}</div>
+            </div>
+            <dl class="liv-kv">
+                <div><dt>Colis</dt><dd>{{ livraison.nb_palettes }} palette{{ livraison.nb_palettes|pluralize }}</dd></div>
+                <div><dt>Départ</dt><dd>{{ livraison.entrepot_origine.nom }}</dd></div>
+                {% if livraison.statut == 'LIVREE' and livraison.receptionnaire_nom %}<div><dt>Réceptionnée par</dt><dd>{{ livraison.receptionnaire_nom }}</dd></div>{% endif %}
+            </dl>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="liv-card">
+        <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="activity" %} Étapes</span></div>
+        <ul class="liv-timeline">
+            {% for s in etapes_publiques %}
+            <li>
+                <div class="when">{{ s.date|date:"d/m/Y H:i" }}{% if s.localisation %} • {{ s.localisation }}{% endif %}</div>
+                <div class="what">{{ s.get_statut_display }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

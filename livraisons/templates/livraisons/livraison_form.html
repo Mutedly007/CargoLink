@@ -1,0 +1,133 @@
+{% extends "landing/base.html" %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Modifier {{ livraison.reference }}{% else %}Nouvelle livraison{% endif %} &bull; CargoLink{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'livraisons/css/livraisons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="liv-container" style="max-width: 1040px;">
+    <a class="liv-back-link" href="{% if is_edit %}{% url 'livraisons:livraison_detail' livraison.pk %}{% else %}{% url 'livraisons:livraison_list' %}{% endif %}">
+        {% include "livraisons/_icone.html" with nom="arrow-left" %} Retour
+    </a>
+    <header class="liv-top-bar">
+        <div class="liv-title">
+            <h1>{% include "livraisons/_icone.html" with nom="package" %} {% if is_edit %}Modifier {{ livraison.reference }}{% else %}Nouvelle livraison{% endif %}</h1>
+            <p>Les ressources proposées respectent automatiquement les règles de capacité, de permis et de disponibilité.</p>
+        </div>
+    </header>
+
+    {% if form.non_field_errors %}
+    <div class="liv-form-errors">{% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}</div>
+    {% endif %}
+
+    <form method="post" id="livraisonForm" novalidate
+          data-url-estimation="{% url 'livraisons:api_estimation' %}"
+          data-url-creneaux="{% url 'livraisons:api_creneaux' %}"
+          data-url-assign="{% url 'livraisons:api_smart_assign' %}"
+          data-livraison-pk="{{ livraison.pk|default:'' }}">
+        {% csrf_token %}
+
+        <!-- 1. Type & trajet -->
+        <section class="liv-card liv-form-section">
+            <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="route" %} 1. Type et trajet</span></div>
+            <div class="liv-type-choice" style="margin-bottom: 1rem;">
+                {% for radio in form.type_livraison %}
+                <label>{{ radio.tag }} {{ radio.choice_label }}</label>
+                {% endfor %}
+            </div>
+            <div class="liv-form-grid">
+                {% include "livraisons/_champ.html" with champ=form.entrepot_origine %}
+                {% include "livraisons/_champ.html" with champ=form.priorite %}
+                {% include "livraisons/_champ.html" with champ=form.entrepot_destination classe="bloc-inter" %}
+            </div>
+            <div class="liv-form-grid bloc-client" style="margin-top: 1rem;">
+                {% include "livraisons/_champ.html" with champ=form.destinataire_nom %}
+                {% include "livraisons/_champ.html" with champ=form.destinataire_telephone %}
+                {% include "livraisons/_champ.html" with champ=form.adresse_livraison %}
+                {% include "livraisons/_champ.html" with champ=form.ville_livraison %}
+                {% include "livraisons/_champ.html" with champ=form.destinataire_email %}
+            </div>
+            <datalist id="villes-connues">{% for v in villes_connues %}<option value="{{ v }}">{% endfor %}</datalist>
+        </section>
+
+        <!-- 2. Marchandise -->
+        <section class="liv-card liv-form-section">
+            <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="package" %} 2. Marchandise</span></div>
+            <div class="liv-form-grid-3">
+                {% include "livraisons/_champ.html" with champ=form.type_marchandise %}
+                {% include "livraisons/_champ.html" with champ=form.nb_palettes %}
+                {% include "livraisons/_champ.html" with champ=form.poids_kg %}
+                {% include "livraisons/_champ.html" with champ=form.description_marchandise classe="liv-span-2" %}
+                {% include "livraisons/_champ.html" with champ=form.numero_bl %}
+                {% include "livraisons/_champ.html" with champ=form.consignes classe="liv-span-3" %}
+            </div>
+        </section>
+
+        <!-- 3. Planning -->
+        <section class="liv-card liv-form-section">
+            <div class="liv-card-title"><span>{% include "livraisons/_icone.html" with nom="calendar" %} 3. Planning</span></div>
+            <div class="liv-form-grid">
+                {% include "livraisons/_champ.html" with champ=form.date_depart_prevue %}
+                {% include "livraisons/_champ.html" with champ=form.date_livraison_prevue %}
+            </div>
+            <div class="liv-estimation" id="estimation" hidden>
+                <span>{% include "livraisons/_icone.html" with nom="route" %} Distance : <strong data-est="distance">—</strong></span>
+                <span>{% include "livraisons/_icone.html" with nom="clock" %} Trajet estimé : <strong data-est="duree">—</strong></span>
+                <span>{% include "livraisons/_icone.html" with nom="leaf" %} CO<sub>2</sub> estimé : <strong data-est="co2">—</strong></span>
+                <button type="button" class="btn btn-outline btn-sm" id="btnAppliquerEta" hidden>Utiliser l'échéance suggérée</button>
+            </div>
+        </section>
+
+        <!-- 4. Affectation -->
+        <section class="liv-card liv-form-section">
+            <div class="liv-card-title">
+                <span>{% include "livraisons/_icone.html" with nom="truck" %} 4. Affectation et créneaux</span>
+                <span class="liv-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="btnSmartAssign" data-ia="0">
+                        {% include "livraisons/_icone.html" with nom="activity" %} Affectation intelligente
+                    </button>
+                    <button type="button" class="btn btn-ai btn-sm" id="btnSmartAssignIA" data-ia="1">
+                        {% include "livraisons/_icone.html" with nom="sparkles" %} + explication IA
+                    </button>
+                </span>
+            </div>
+            <div class="liv-form-grid">
+                {% include "livraisons/_champ.html" with champ=form.camion %}
+                {% include "livraisons/_champ.html" with champ=form.chauffeur %}
+            </div>
+
+            <div class="liv-assign-panel" id="assignPanel" hidden aria-live="polite">
+                <div class="liv-assign-synthese" id="assignSynthese"></div>
+                <div class="liv-assign-list" id="assignList"></div>
+                <details class="liv-exclusions" id="assignExclusions" hidden><summary></summary><ul></ul></details>
+            </div>
+
+            <div class="liv-form-grid" style="margin-top: 1rem;">
+                {% include "livraisons/_champ.html" with champ=form.creneau_chargement %}
+                {% include "livraisons/_champ.html" with champ=form.creneau_dechargement classe="bloc-inter" %}
+            </div>
+            <p class="liv-help">
+                Pas de créneau adapté ? Enregistrez la livraison puis utilisez « Réserver automatiquement » :
+                l'allocateur de quais du module Créneaux choisit le meilleur quai.
+            </p>
+        </section>
+
+        <div class="liv-form-actions">
+            <a href="{% url 'livraisons:livraison_list' %}" class="btn btn-outline">Annuler</a>
+            {% if is_edit %}
+            <button type="submit" class="btn btn-accent">{% include "livraisons/_icone.html" with nom="check" %} Enregistrer les modifications</button>
+            {% else %}
+            <button type="submit" class="btn btn-outline">Enregistrer en brouillon</button>
+            <button type="submit" name="planifier" value="1" class="btn btn-accent">{% include "livraisons/_icone.html" with nom="check" %} Enregistrer et planifier</button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'livraisons/js/livraisons.js' %}"></script>
+{% endblock %}

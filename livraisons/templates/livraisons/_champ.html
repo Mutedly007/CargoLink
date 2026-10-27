@@ -1,0 +1,6 @@
+<div class="{{ classe }}" id="bloc_{{ champ.name }}">
+    <label class="liv-label" for="{{ champ.id_for_label }}">{{ champ.label }}{% if champ.field.required %} *{% endif %}</label>
+    {{ champ }}
+    {% if champ.help_text %}<div class="liv-help">{{ champ.help_text }}</div>{% endif %}
+    {% for erreur in champ.errors %}<div class="liv-error">{{ erreur }}</div>{% endfor %}
+</div>

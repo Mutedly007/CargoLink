@@ -1,0 +1,21 @@
+{
+  "description": "Message au destinataire : 15 livraisons (5 par objectif), chacune rédigée dans les 3 langues, soit 45 messages. Chaque message est contrôlé sur 5 critères automatiques.",
+  "langues": ["fr", "ar", "en"],
+  "cas": [
+    {"id": "M01", "objectif": "information", "statut": "EN_TRANSIT", "origine": "RADES", "destination": "SFAX", "camion": "semi_euro6", "chauffeur": "tarak", "palettes": 20, "poids": 15000, "depart_min": -60, "echeance": {"eta_plus": 60}},
+    {"id": "M02", "objectif": "information", "statut": "PLANIFIEE", "client": {"nom": "Délice Sousse", "ville": "Sousse"}, "origine": "TUNIS", "camion": "fourgon", "chauffeur": "nader", "palettes": 4, "poids": 1500, "depart_min": 300, "echeance": {"eta_plus": 90}},
+    {"id": "M03", "objectif": "information", "statut": "EN_TRANSIT", "origine": "SFAX", "destination": "TUNIS", "camion": "frigo", "chauffeur": "walid", "marchandise": "FRIGORIFIQUE", "palettes": 18, "poids": 9000, "depart_min": -30, "echeance": {"eta_plus": 45}},
+    {"id": "M04", "objectif": "information", "statut": "PLANIFIEE", "client": {"nom": "Bureau Plus", "ville": "Monastir"}, "origine": "SOUSSE", "camion": "porteur", "chauffeur": "walid", "palettes": 8, "poids": 4000, "depart_min": 600, "echeance": {"eta_plus": 120}},
+    {"id": "M05", "objectif": "information", "statut": "EN_TRANSIT", "origine": "TUNIS", "destination": "SOUSSE", "camion": "semi_euro6", "chauffeur": "khalil", "palettes": 25, "poids": 17000, "depart_min": -20, "echeance": {"eta_plus": 30}},
+    {"id": "M06", "objectif": "retard", "statut": "EN_TRANSIT", "origine": "RADES", "destination": "SFAX", "camion": "semi_ct", "chauffeur": "tarak", "palettes": 26, "poids": 19000, "depart_min": -90, "echeance": {"eta_plus": -40}, "en_retard": true},
+    {"id": "M07", "objectif": "retard", "statut": "EN_TRANSIT", "client": {"nom": "Pharmacie Centrale Gabès", "ville": "Gabès"}, "origine": "SFAX", "camion": "fourgon", "chauffeur": "nader", "palettes": 3, "poids": 900, "depart_min": -45, "echeance": {"eta_plus": -25}, "en_retard": true},
+    {"id": "M08", "objectif": "retard", "statut": "EN_TRANSIT", "origine": "TUNIS", "destination": "SOUSSE", "camion": "porteur", "chauffeur": "walid", "palettes": 14, "poids": 9500, "depart_min": -30, "echeance": {"eta_plus": -60}, "en_retard": true},
+    {"id": "M09", "objectif": "retard", "statut": "EN_TRANSIT", "origine": "SFAX", "destination": "RADES", "camion": "frigo", "chauffeur": "walid", "marchandise": "FRIGORIFIQUE", "palettes": 16, "poids": 8000, "depart_min": -120, "echeance": {"eta_plus": -15}, "en_retard": true},
+    {"id": "M10", "objectif": "retard", "statut": "EN_TRANSIT", "client": {"nom": "Électro Bizerte", "ville": "Bizerte"}, "origine": "TUNIS", "camion": "semi_euro6", "chauffeur": "khalil", "palettes": 22, "poids": 14000, "depart_min": -20, "echeance": {"eta_plus": -30}, "en_retard": true},
+    {"id": "M11", "objectif": "livree", "statut": "LIVREE", "origine": "RADES", "destination": "SFAX", "camion": "semi_euro6", "chauffeur": "khalil", "palettes": 24, "poids": 18000, "depart_min": -480, "echeance": {"eta_plus": 30}, "livree_min": 300},
+    {"id": "M12", "objectif": "livree", "statut": "LIVREE", "client": {"nom": "Délice Sousse", "ville": "Sousse"}, "origine": "TUNIS", "camion": "fourgon", "chauffeur": "nader", "palettes": 4, "poids": 1500, "depart_min": -300, "echeance": {"eta_plus": 60}, "livree_min": 150},
+    {"id": "M13", "objectif": "livree", "statut": "LIVREE", "origine": "SFAX", "destination": "TUNIS", "camion": "frigo", "chauffeur": "walid", "marchandise": "FRIGORIFIQUE", "palettes": 18, "poids": 9000, "depart_min": -420, "echeance": {"eta_plus": 30}, "livree_min": 320},
+    {"id": "M14", "objectif": "livree", "statut": "LIVREE", "client": {"nom": "Bureau Plus", "ville": "Monastir"}, "origine": "SOUSSE", "camion": "porteur", "chauffeur": "walid", "palettes": 8, "poids": 4000, "depart_min": -200, "echeance": {"eta_plus": 30}, "livree_min": 60},
+    {"id": "M15", "objectif": "livree", "statut": "LIVREE", "origine": "TUNIS", "destination": "RADES", "camion": "porteur", "chauffeur": "walid", "palettes": 12, "poids": 8000, "depart_min": -120, "echeance": {"eta_plus": 30}, "livree_min": 45}
+  ]
+}

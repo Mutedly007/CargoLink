@@ -1,0 +1,20 @@
+{
+  "description": "Explication de l'affectation intelligente : 15 demandes d'affectation (charge, marchandise, départ dans N heures, durée en heures). Le classement est calculé par le moteur de règles ; on vérifie que l'explication de CargoLink AI lui est fidèle.",
+  "cas": [
+    {"id": "A01", "poids": 18000, "palettes": 24, "marchandise": "STANDARD", "depart_h": 48, "duree_h": 5},
+    {"id": "A02", "poids": 1500, "palettes": 4, "marchandise": "STANDARD", "depart_h": 48, "duree_h": 2},
+    {"id": "A03", "poids": 9000, "palettes": 18, "marchandise": "FRIGORIFIQUE", "depart_h": 48, "duree_h": 4},
+    {"id": "A04", "poids": 16000, "palettes": 18, "marchandise": "ADR", "depart_h": 48, "duree_h": 5},
+    {"id": "A05", "poids": 12000, "palettes": 15, "marchandise": "STANDARD", "depart_h": 2, "duree_h": 3},
+    {"id": "A06", "poids": 24000, "palettes": 32, "marchandise": "STANDARD", "depart_h": 72, "duree_h": 6},
+    {"id": "A07", "poids": 3000, "palettes": 6, "marchandise": "PALETTES", "depart_h": 30, "duree_h": 1},
+    {"id": "A08", "poids": 15000, "palettes": 20, "marchandise": "GROS_VOLUME", "depart_h": 96, "duree_h": 4},
+    {"id": "A09", "poids": 7000, "palettes": 10, "marchandise": "STANDARD", "depart_h": 4, "duree_h": 2},
+    {"id": "A10", "poids": 20000, "palettes": 28, "marchandise": "STANDARD", "depart_h": 120, "duree_h": 5},
+    {"id": "A11", "poids": 5000, "palettes": 12, "marchandise": "FRIGORIFIQUE", "depart_h": 26, "duree_h": 3},
+    {"id": "A12", "poids": 10000, "palettes": 14, "marchandise": "ADR", "depart_h": 72, "duree_h": 3},
+    {"id": "A13", "poids": 800, "palettes": 2, "marchandise": "STANDARD", "depart_h": 1, "duree_h": 1},
+    {"id": "A14", "poids": 22000, "palettes": 30, "marchandise": "STANDARD", "depart_h": 6, "duree_h": 5},
+    {"id": "A15", "poids": 13000, "palettes": 16, "marchandise": "STANDARD", "depart_h": 168, "duree_h": 4}
+  ]
+}
