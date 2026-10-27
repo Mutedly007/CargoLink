@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Base Stylesheet -->
-    <link rel="stylesheet" href="{% static 'landing/css/base.css' %}?v=2.4">
+    <link rel="stylesheet" href="{% static 'landing/css/base.css' %}?v=3.1">
     {% block extra_css %}{% endblock %}
 
     <!-- Prevent Theme, Lang (RTL), and Accessibility Flash on Page Load -->
@@ -288,12 +288,180 @@
                         </div>
                     </div>
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline">Connexion</a>
-                    <a href="{% url 'signup' %}" class="btn btn-accent">Créer un compte &rarr;</a>
+                    <div class="nav-auth-buttons">
+                        <a href="{% url 'login' %}" class="btn btn-outline nav-btn-login">Connexion</a>
+                        <a href="{% url 'signup' %}" class="btn btn-accent nav-btn-signup">Créer un compte &rarr;</a>
+                    </div>
                 {% endif %}
+
+                <!-- Hamburger Menu Trigger (Mobile & Tablet) -->
+                <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu de navigation" aria-expanded="false" aria-controls="mobileNavDrawer">
+                    <span class="hamburger-box">
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                    </span>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation Drawer & Backdrop -->
+    <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+    <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-label="Menu principal" aria-hidden="true">
+        <div class="mobile-drawer-header">
+            <a href="{% url 'landing' %}" class="brand-logo" id="mobileDrawerBrandLogo">
+                <div class="brand-icon-box">🚛</div>
+                <div class="brand-text">
+                    <span class="brand-name">CargoLink</span>
+                    <span class="brand-tagline">LOGISTIQUE &bull; QUAIS</span>
+                </div>
+            </a>
+            <button type="button" class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Fermer le menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-drawer-scrollable">
+            <!-- User Profile Card OR Guest CTA -->
+            {% if user.is_authenticated %}
+                <div class="mobile-user-card">
+                    <div class="mobile-user-avatar {% if user.profile.is_admin %}admin-avatar{% endif %}">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="" class="user-avatar-img" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                            <span class="user-avatar-fallback" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">{% if user.profile.initials %}{{ user.profile.initials }}{% else %}{{ user.username|slice:':1'|upper }}{% endif %}</span>
+                        {% elif user.profile.initials %}
+                            {{ user.profile.initials }}
+                        {% else %}
+                            {{ user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="mobile-user-details">
+                        <div class="mobile-user-name">{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</div>
+                        <span class="mobile-user-role">
+                            {% if user.profile.is_admin %}
+                                🛡️ Administrateur
+                            {% else %}
+                                {{ user.profile.get_role_display|default:"Membre actif" }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="mobile-user-actions-grid">
+                    <a href="{% url 'profile' %}" class="mobile-user-action-btn">
+                        <span>👤 Mon Profil</span>
+                    </a>
+                    {% if user.profile.is_admin %}
+                        <a href="{% url 'admin:index' %}" class="mobile-user-action-btn admin-action">
+                            <span>⚙️ Admin Django</span>
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}" class="mobile-user-action-btn logout-action">
+                        <span>🚪 Déconnexion</span>
+                    </a>
+                </div>
+            {% else %}
+                <div class="mobile-guest-card">
+                    <div class="mobile-guest-tag">Espace Plateforme</div>
+                    <h3 class="mobile-guest-title">Optimisez vos flux logistiques</h3>
+                    <p class="mobile-guest-desc">Accédez à votre espace dédié ou créez votre compte en quelques secondes.</p>
+                    <div class="mobile-guest-buttons">
+                        <a href="{% url 'signup' %}" class="btn btn-accent mobile-cta-btn">Créer un compte &rarr;</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline mobile-cta-btn">Se connecter</a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Mobile Navigation Links -->
+            <nav class="mobile-nav-group" aria-label="Navigation mobile">
+                <div class="mobile-group-title">Modules CargoLink</div>
+                <ul class="mobile-nav-list">
+                    <li>
+                        <a href="{% url 'entrepots:entrepot_list' %}" class="mobile-nav-link {% if request.resolver_match.app_name == 'entrepots' %}active{% endif %}" data-i18n="nav_warehouses">
+                            <span class="mobile-nav-icon">🏢</span>
+                            <span class="mobile-nav-label">Entrepôts & Quais</span>
+                            <span class="mobile-nav-arrow">&rarr;</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'creneaux:creneau_list' %}" class="mobile-nav-link {% if request.resolver_match.app_name == 'creneaux' %}active{% endif %}" data-i18n="nav_slots">
+                            <span class="mobile-nav-icon">⏱️</span>
+                            <span class="mobile-nav-label">Planning & Créneaux</span>
+                            <span class="mobile-nav-arrow">&rarr;</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'camions:camion_list' %}" class="mobile-nav-link {% if request.resolver_match.app_name == 'camions' %}active{% endif %}" data-i18n="nav_fleet">
+                            <span class="mobile-nav-icon">🚚</span>
+                            <span class="mobile-nav-label">Flotte & Camions</span>
+                            <span class="mobile-nav-arrow">&rarr;</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'chauffeurs:chauffeur_list' %}" class="mobile-nav-link {% if request.resolver_match.app_name == 'chauffeurs' %}active{% endif %}" data-i18n="nav_drivers">
+                            <span class="mobile-nav-icon">🦺</span>
+                            <span class="mobile-nav-label">Chauffeurs</span>
+                            <span class="mobile-nav-arrow">&rarr;</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'livraisons:livraison_list' %}" class="mobile-nav-link {% if request.resolver_match.app_name == 'livraisons' %}active{% endif %}" data-i18n="nav_deliveries">
+                            <span class="mobile-nav-icon">📦</span>
+                            <span class="mobile-nav-label">Livraisons</span>
+                            <span class="mobile-nav-arrow">&rarr;</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'livraisons:suivi_recherche' %}" class="mobile-nav-link">
+                            <span class="mobile-nav-icon">🔍</span>
+                            <span class="mobile-nav-label">Suivi Colis Public</span>
+                            <span class="mobile-nav-arrow">&rarr;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Display & Accessibility Preferences in Drawer -->
+            <div class="mobile-prefs-group">
+                <div class="mobile-group-title">Langue & Accessibilité</div>
+                <div class="mobile-lang-row">
+                    <button type="button" class="lang-pill-btn" data-lang-choice="fr" title="Passer en Français">
+                        <span>🇫🇷</span> <span>Français</span>
+                    </button>
+                    <button type="button" class="lang-pill-btn" data-lang-choice="en" title="Switch to English">
+                        <span>🇬🇧</span> <span>English</span>
+                    </button>
+                    <button type="button" class="lang-pill-btn" data-lang-choice="ar" title="التبديل إلى العربية">
+                        <span>🇹🇳</span> <span>العربية</span>
+                    </button>
+                </div>
+
+                <div class="mobile-toggles-grid">
+                    <button type="button" class="mobile-toggle-card" id="mobileDrawerTextSizeBtn" onclick="window.toggleTextSize && window.toggleTextSize()">
+                        <span class="mobile-toggle-icon">Aa</span>
+                        <div class="mobile-toggle-text">
+                            <span class="mobile-toggle-title">Mode Grand Texte</span>
+                            <span class="mobile-toggle-status" id="mobileDrawerTextSizeStatus">100% (Standard)</span>
+                        </div>
+                    </button>
+                    <button type="button" class="mobile-toggle-card" id="mobileDrawerThemeBtn">
+                        <span class="mobile-toggle-icon">🌓</span>
+                        <div class="mobile-toggle-text">
+                            <span class="mobile-toggle-title">Mode Sombre / Clair</span>
+                            <span class="mobile-toggle-status" id="mobileDrawerThemeStatus">Basculer le thème</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-drawer-footer">
+            <span>CargoLink &bull; Régulation Logistique Temps Réel</span>
+        </div>
+    </aside>
 
     {% if messages %}
     <div class="messages-container">
@@ -393,13 +561,91 @@
             }
 
             // Theme Switcher Persistence Logic
+            function applyTheme(newTheme) {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('cargolink_theme', newTheme);
+                const themeStatus = document.getElementById('mobileDrawerThemeStatus');
+                if (themeStatus) {
+                    themeStatus.textContent = newTheme === 'light' ? 'Mode Clair actif (☀️)' : 'Mode Sombre actif (🌙)';
+                }
+            }
+
             const themeBtn = document.getElementById('themeToggleBtn');
             if (themeBtn) {
                 themeBtn.addEventListener('click', function() {
                     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                    document.documentElement.setAttribute('data-theme', newTheme);
-                    localStorage.setItem('cargolink_theme', newTheme);
+                    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+                });
+            }
+
+            const mobileDrawerThemeBtn = document.getElementById('mobileDrawerThemeBtn');
+            if (mobileDrawerThemeBtn) {
+                mobileDrawerThemeBtn.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+                });
+                const initialTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                const themeStatus = document.getElementById('mobileDrawerThemeStatus');
+                if (themeStatus) {
+                    themeStatus.textContent = initialTheme === 'light' ? 'Mode Clair actif (☀️)' : 'Mode Sombre actif (🌙)';
+                }
+            }
+
+            // Mobile Navigation Drawer Toggle Logic
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            const mobileDrawer = document.getElementById('mobileNavDrawer');
+            const mobileBackdrop = document.getElementById('mobileNavBackdrop');
+            const mobileClose = document.getElementById('mobileDrawerClose');
+
+            function openMobileDrawer() {
+                if (!mobileDrawer || !mobileBackdrop) return;
+                mobileDrawer.classList.add('open');
+                mobileBackdrop.classList.add('show');
+                document.body.classList.add('mobile-nav-open');
+                if (mobileToggle) {
+                    mobileToggle.setAttribute('aria-expanded', 'true');
+                    mobileToggle.classList.add('active');
+                }
+            }
+
+            function closeMobileDrawer() {
+                if (!mobileDrawer || !mobileBackdrop) return;
+                mobileDrawer.classList.remove('open');
+                mobileBackdrop.classList.remove('show');
+                document.body.classList.remove('mobile-nav-open');
+                if (mobileToggle) {
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    mobileToggle.classList.remove('active');
+                }
+            }
+
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (mobileDrawer.classList.contains('open')) {
+                        closeMobileDrawer();
+                    } else {
+                        openMobileDrawer();
+                    }
+                });
+            }
+
+            if (mobileClose) mobileClose.addEventListener('click', closeMobileDrawer);
+            if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeMobileDrawer);
+
+            // Close on escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && mobileDrawer && mobileDrawer.classList.contains('open')) {
+                    closeMobileDrawer();
+                }
+            });
+
+            // Close drawer when any internal navigation link is clicked
+            if (mobileDrawer) {
+                mobileDrawer.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        closeMobileDrawer();
+                    });
                 });
             }
 
@@ -426,6 +672,10 @@
                 }
                 if (textSizeBtn) {
                     textSizeBtn.setAttribute('aria-pressed', isLarge ? "true" : "false");
+                }
+                const drawerStatus = document.getElementById('mobileDrawerTextSizeStatus');
+                if (drawerStatus) {
+                    drawerStatus.textContent = isLarge ? "120% (Grand Texte)" : "100% (Standard)";
                 }
                 const profileBtn = document.getElementById('profileA11yBtnText');
                 if (profileBtn) {

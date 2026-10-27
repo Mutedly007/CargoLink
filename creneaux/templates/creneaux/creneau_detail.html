@@ -4,17 +4,17 @@
 {% block title %}Créneau {{ creneau.reference }} &bull; CargoLink{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}?v=4.0">
 {% endblock %}
 
 {% block content %}
 <div class="creneaux-container">
     <!-- Navigation retour & actions rapides -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-        <a href="{% url 'creneaux:creneau_list' %}" style="color: #60a5fa; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;" data-i18n="detail_back_link">
+    <div class="detail-top-nav-bar">
+        <a href="{% url 'creneaux:creneau_list' %}" class="detail-back-link" data-i18n="detail_back_link">
             ◀ Retour à la liste des créneaux
         </a>
-        <div style="display: flex; gap: 0.75rem;">
+        <div class="detail-top-buttons">
             <button onclick="window.print();" class="btn btn-outline" style="font-size: 0.85rem;" data-i18n="btn_print_voucher">
                 🖨️ Imprimer Bon de Passage
             </button>
@@ -139,70 +139,70 @@
             {% endif %}
 
             <!-- GRILLES D'INFORMATIONS DU CRÉNEAU -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="detail-info-grid">
                 <!-- Bloc Horaires & Timing -->
-                <div style="background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.25rem;">
+                <div class="detail-info-block">
                     <h3 style="font-size: 0.95rem; color: #60a5fa; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.04em;">
                         ⏱️ Horaires Planifiés & Réels
                     </h3>
                     <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.9rem;">
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Plage prévue :</span>
-                            <strong style="color: #ffffff;">{{ creneau.heure_debut|time:"H:i" }} - {{ creneau.heure_fin|time:"H:i" }}</strong>
+                            <span class="info-label" style="color: var(--text-muted);">Plage prévue :</span>
+                            <strong class="info-val" style="color: #ffffff;">{{ creneau.heure_debut|time:"H:i" }} - {{ creneau.heure_fin|time:"H:i" }}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Durée allouée :</span>
-                            <span style="color: #ffffff;">{{ creneau.duree_minutes }} minutes</span>
+                            <span class="info-label" style="color: var(--text-muted);">Durée allouée :</span>
+                            <span class="info-val" style="color: #ffffff;">{{ creneau.duree_minutes }} minutes</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.5rem;">
-                            <span style="color: var(--text-muted);">Arrivée constatée :</span>
-                            <span style="color: #ffffff;">{{ creneau.heure_arrivee_reelle|date:"d/m/Y H:i"|default:"Non encore pointé" }}</span>
+                            <span class="info-label" style="color: var(--text-muted);">Arrivée constatée :</span>
+                            <span class="info-val" style="color: #ffffff;">{{ creneau.heure_arrivee_reelle|date:"d/m/Y H:i"|default:"Non encore pointé" }}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Début effectif à quai :</span>
-                            <span style="color: #ffffff;">{{ creneau.heure_debut_operation|date:"d/m/Y H:i"|default:"En attente de mise à quai" }}</span>
+                            <span class="info-label" style="color: var(--text-muted);">Début effectif à quai :</span>
+                            <span class="info-val" style="color: #ffffff;">{{ creneau.heure_debut_operation|date:"d/m/Y H:i"|default:"En attente de mise à quai" }}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Départ & fin :</span>
-                            <span style="color: #ffffff;">{{ creneau.heure_fin_operation|date:"d/m/Y H:i"|default:"Non terminée" }}</span>
+                            <span class="info-label" style="color: var(--text-muted);">Départ & fin :</span>
+                            <span class="info-val" style="color: #ffffff;">{{ creneau.heure_fin_operation|date:"d/m/Y H:i"|default:"Non terminée" }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Bloc Transporteur & Chauffeur -->
-                <div style="background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.25rem;">
+                <div class="detail-info-block">
                     <h3 style="font-size: 0.95rem; color: #4ade80; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.04em;">
                         🚛 Transporteur & Chauffeur
                     </h3>
                     <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.9rem;">
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Société :</span>
-                            <strong style="color: #ffffff;">{{ creneau.transporteur_nom }}</strong>
+                            <span class="info-label" style="color: var(--text-muted);">Société :</span>
+                            <strong class="info-val" style="color: #ffffff;">{{ creneau.transporteur_nom }}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Immatriculation :</span>
-                            <span style="color: #ffffff; font-family: monospace; font-weight: 700; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px;">
+                            <span class="info-label" style="color: var(--text-muted);">Immatriculation :</span>
+                            <span class="info-val" style="color: #ffffff; font-family: monospace; font-weight: 700; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px;">
                                 {{ creneau.immatriculation_camion }}
                             </span>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Gabarit véhicule :</span>
-                            <span style="color: #ffffff;">{{ creneau.get_type_camion_display }}</span>
+                            <span class="info-label" style="color: var(--text-muted);">Gabarit véhicule :</span>
+                            <span class="info-val" style="color: #ffffff;">{{ creneau.get_type_camion_display }}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.5rem;">
-                            <span style="color: var(--text-muted);">Chauffeur :</span>
-                            <strong style="color: #ffffff;">{{ creneau.chauffeur_nom }}</strong>
+                            <span class="info-label" style="color: var(--text-muted);">Chauffeur :</span>
+                            <strong class="info-val" style="color: #ffffff;">{{ creneau.chauffeur_nom }}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-muted);">Téléphone :</span>
-                            <span style="color: #60a5fa;">{{ creneau.chauffeur_telephone|default:"Non renseigné" }}</span>
+                            <span class="info-label" style="color: var(--text-muted);">Téléphone :</span>
+                            <span class="info-val" style="color: #60a5fa;">{{ creneau.chauffeur_telephone|default:"Non renseigné" }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Bloc Fret & Consignes -->
-            <div style="background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.25rem; margin-bottom: 2rem;">
+            <div class="detail-info-block" style="margin-bottom: 2rem;">
                 <h3 style="font-size: 0.95rem; color: #fb923c; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.04em;">
                     📦 Fret, Marchandise & Consignes
                 </h3>
@@ -247,7 +247,7 @@
                 </h3>
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                     {% for h in creneau.historique.all %}
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(30,41,59,0.3); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; border-left: 3px solid #3b82f6;">
+                    <div class="audit-history-item">
                         <div>
                             <span class="badge-slot badge-info" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
                                 {{ h.get_statut_display }}
