@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: cargolink
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn cargolink.wsgi:application"
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY_CAMION
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
