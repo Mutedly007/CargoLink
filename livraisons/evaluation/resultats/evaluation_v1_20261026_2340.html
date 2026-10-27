@@ -1,0 +1,42 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Évaluation CargoLink AI</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%;margin:.5rem 0 1.5rem}th,td{border-bottom:1px solid #ddd;padding:4px 8px;text-align:left}th{border-bottom:2px solid #333}h2{color:#1f3a93}</style></head><body>
+<h1>Évaluation CargoLink AI</h1><p>Date : 2026-10-26 23:37 — modèle : deepseek-chat — durée : 195.0 s</p>
+<h2>1. Recherche en langage naturel (42 phrases)</h2><table>
+<tr><th>Moteur</th><th>Précision</th><th>Rappel</th><th>F1</th><th>Correspondance exacte</th></tr>
+<tr><td>CargoLink AI</td><td>95.8 %</td><td>97.1 %</td><td>96.5 %</td><td>95.2 %</td></tr>
+<tr><td>Moteur local</td><td>69.4 %</td><td>61.4 %</td><td>65.2 %</td><td>42.9 %</td></tr>
+</table>
+<h2>2. Analyse de risque (20 situations)</h2><table>
+<tr><th>Moteur</th><th>Exactitude</th><th>Macro-F1</th></tr>
+<tr><td>CargoLink AI</td><td>70.0 %</td><td>68.0 %</td></tr>
+<tr><td>Moteur local</td><td>65.0 %</td><td>60.9 %</td></tr>
+</table><table>
+<tr><th>Attendu \ Prédit (CargoLink AI)</th><th>faible</th><th>moyen</th><th>eleve</th></tr>
+<tr><td>faible</td><td>7</td><td>1</td><td>1</td></tr>
+<tr><td>moyen</td><td>1</td><td>4</td><td>0</td></tr>
+<tr><td>eleve</td><td>0</td><td>3</td><td>3</td></tr>
+</table><p>Nombres cités fondés sur les données : 97.3 % (226 nombres).</p>
+<h2>3. Messages au destinataire (45 messages)</h2><table>
+<tr><th>Critère</th><th>CargoLink AI</th><th>Modèle local</th></tr>
+<tr><td>langue</td><td>100.0 %</td><td>100.0 %</td></tr>
+<tr><td>reference_et_code</td><td>100.0 %</td><td>100.0 %</td></tr>
+<tr><td>objectif</td><td>100.0 %</td><td>100.0 %</td></tr>
+<tr><td>heures_fondees</td><td>100.0 %</td><td>100.0 %</td></tr>
+<tr><td>longueur</td><td>100.0 %</td><td>100.0 %</td></tr>
+<tr><td>Tous les critères</td><td>100.0 %</td><td>100.0 %</td></tr>
+</table>
+<h2>4. Explication de l'affectation (14 cas)</h2><table>
+<tr><th>Mesure</th><th>Résultat</th></tr>
+<tr><td>Premier choix correctement nommé</td><td>78.6 %</td></tr>
+<tr><td>Nombres cités fondés</td><td>100.0 % (229 nombres)</td></tr>
+<tr><td>Alertes reprises quand il y en a</td><td>100.0 % (14 cas)</td></tr>
+</table>
+<h2>5. Moteur d'affectation (sans IA)</h2><p>200 cas aléatoires, 393 propositions, 0 violation(s) de règle (0.0 %), 66 cas sans solution, 13.0 ms par calcul (médiane).</p>
+<h2>6. Temps de réponse (121 appels)</h2><table>
+<tr><th>Fonction</th><th>Appels</th><th>Médiane (s)</th><th>P95 (s)</th><th>Max (s)</th><th>Timeouts</th><th>Replis</th><th>Jetons moyens</th></tr>
+<tr><td>recherche</td><td>42</td><td>1.12</td><td>1.46</td><td>1.54</td><td>0</td><td>0</td><td>1159</td></tr>
+<tr><td>risque</td><td>20</td><td>2.08</td><td>2.54</td><td>2.73</td><td>0</td><td>0</td><td>1339</td></tr>
+<tr><td>message</td><td>45</td><td>1.24</td><td>1.55</td><td>2.42</td><td>0</td><td>0</td><td>879</td></tr>
+<tr><td>explication</td><td>14</td><td>1.82</td><td>2.10</td><td>2.17</td><td>0</td><td>0</td><td>1722</td></tr>
+</table><p>Cache : 2.25 s sans cache, 0.03 ms avec cache (médianes, 8 analyses).</p>
+</body></html>
