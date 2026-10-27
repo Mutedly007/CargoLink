@@ -4,7 +4,7 @@
 {% block title %}Planning & Créneaux de Quais &bull; CargoLink{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}">
+<link rel="stylesheet" href="{% static 'creneaux/css/creneaux.css' %}?v=4.0">
 {% endblock %}
 
 {% block content %}
@@ -175,8 +175,22 @@
         </form>
     </div>
 
+    <!-- Switcher de vue Mobile (Cartes / Tableau) -->
+    <div class="mobile-view-mode-bar">
+        <span class="mobile-view-count">{{ creneaux|length }} créneau(x) actif(s)</span>
+        <div class="view-mode-toggle-group" role="tablist" aria-label="Mode d'affichage">
+            <button type="button" class="view-mode-btn active" id="btnViewCards" aria-selected="true" title="Affichage Cartes">
+                📱 Cartes
+            </button>
+            <button type="button" class="view-mode-btn" id="btnViewTable" aria-selected="false" title="Affichage Tableau">
+                📊 Tableau
+            </button>
+        </div>
+    </div>
+
     <!-- Table des Créneaux -->
     <div class="creneaux-table-card">
+        <!-- VUE TABLEAU (Desktop & Tablette) -->
         <div class="table-responsive">
             <table class="creneaux-table">
                 <thead>
@@ -275,6 +289,125 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- VUE CARTES MOBILES (< 768px) -->
+        <div class="creneaux-mobile-cards">
+            {% for c in creneaux %}
+            <div class="creneau-mobile-card">
+                <div class="cmc-header">
+                    <div class="cmc-ref-col">
+                        <a href="{% url 'creneaux:creneau_detail' c.pk %}" class="creneau-ref-link">
+                            {{ c.reference }}
+                        </a>
+                        <div class="cmc-date">📅 {{ c.date_creneau|date:"d/m/Y" }}</div>
+                    </div>
+                    <div class="cmc-status-col">
+                        <span class="badge-slot {{ c.badge_statut_css }}">
+                            {% if c.statut == 'EN_COURS' %}<span class="pulse-dot"></span>{% endif %}
+                            {{ c.get_statut_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="cmc-grid">
+                    <div class="cmc-field">
+                        <span class="cmc-field-label">Plage Horaire</span>
+                        <div class="slot-time-badge">
+                            ⏱️ {{ c.heure_debut|time:"H:i" }} - {{ c.heure_fin|time:"H:i" }}
+                        </div>
+                        <span class="cmc-field-sub">Durée : {{ c.duree_minutes }} min</span>
+                    </div>
+
+                    <div class="cmc-field">
+                        <span class="cmc-field-label">Quai & Entrepôt</span>
+                        <div class="cmc-field-value">
+                            <strong class="cell-title-text">{{ c.quai.numero }}</strong>
+                            <div class="cmc-field-sub">🏭 {{ c.entrepot.nom }}</div>
+                        </div>
+                    </div>
+
+                    <div class="cmc-field">
+                        <span class="cmc-field-label">Opération</span>
+                        <div class="cmc-field-value">
+                            {% if c.type_operation == 'DECHARGEMENT' %}
+                                <span style="color: #60a5fa; font-weight: 600;">📥 Déchargement</span>
+                            {% else %}
+                                <span style="color: #f59e0b; font-weight: 600;">📤 Chargement</span>
+                            {% endif %}
+                            <div class="cmc-field-sub">{{ c.nb_palettes }} palettes ({{ c.get_type_marchandise_display }})</div>
+                        </div>
+                    </div>
+
+                    <div class="cmc-field">
+                        <span class="cmc-field-label">Transporteur & Camion</span>
+                        <div class="cmc-field-value">
+                            <div class="cell-primary-text">{{ c.transporteur_nom }}</div>
+                            <div class="truck-plate-badge">🚛 {{ c.immatriculation_camion }}</div>
+                        </div>
+                    </div>
+
+                    <div class="cmc-field cmc-field-full">
+                        <span class="cmc-field-label">Chauffeur</span>
+                        <div class="cmc-driver-row">
+                            <div class="cell-primary-text">👤 {{ c.chauffeur_nom }}</div>
+                            {% if c.chauffeur_telephone %}
+                            <a href="tel:{{ c.chauffeur_telephone }}" class="cmc-call-btn">
+                                📞 Appeler {{ c.chauffeur_telephone }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cmc-footer">
+                    <a href="{% url 'creneaux:creneau_detail' c.pk %}" class="btn btn-outline cmc-action-btn">
+                        Consulter & Réguler ➔
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="cmc-empty-state">
+                <div style="font-size: 2.75rem; margin-bottom: 0.75rem;">📅</div>
+                <h3 class="cell-title-text" style="margin-bottom: 0.35rem;">Aucun créneau planifié</h3>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">
+                    Aucun créneau ne correspond aux critères de recherche actuels.
+                </p>
+                {% if not is_entrepot_role %}
+                <a href="{% url 'creneaux:creneau_create' %}" class="btn btn-accent" style="width: 100%; justify-content: center;">
+                    Planifier le Premier Créneau
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnCards = document.getElementById('btnViewCards');
+        const btnTable = document.getElementById('btnViewTable');
+        const tableCard = document.querySelector('.creneaux-table-card');
+
+        if (btnCards && btnTable && tableCard) {
+            btnCards.addEventListener('click', function() {
+                btnCards.classList.add('active');
+                btnCards.setAttribute('aria-selected', 'true');
+                btnTable.classList.remove('active');
+                btnTable.setAttribute('aria-selected', 'false');
+                tableCard.classList.remove('force-table-view');
+                tableCard.classList.add('force-cards-view');
+            });
+
+            btnTable.addEventListener('click', function() {
+                btnTable.classList.add('active');
+                btnTable.setAttribute('aria-selected', 'true');
+                btnCards.classList.remove('active');
+                btnCards.setAttribute('aria-selected', 'false');
+                tableCard.classList.remove('force-cards-view');
+                tableCard.classList.add('force-table-view');
+            });
+        }
+    });
+</script>
 {% endblock %}
