@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -477,6 +478,61 @@ class SmartCapacityOptimizerTests(TestCase):
         )
         self.assertEqual(res2.status_code, 200)
         self.assertTrue(res2.json()['is_dismissed'])
+
+    def test_optimizer_chat_api_post_success(self):
+        """Vérifie que l'endpoint de chat IA répond avec succès à une question sur les quais."""
+        payload = {
+            'message': 'Quels sont les quais disponibles ?',
+            'history': []
+        }
+        res = self.client.post(
+            reverse('entrepots:capacity_optimizer_chat'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertTrue(data['success'])
+        self.assertIn('reply', data)
+        self.assertTrue(len(data['reply']) > 10)
+        self.assertIn('source', data)
+
+    def test_optimizer_chat_api_empty_message(self):
+        """Vérifie le rejet d'un message vide (code 400)."""
+        res = self.client.post(
+            reverse('entrepots:capacity_optimizer_chat'),
+            data=json.dumps({'message': '   '}),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(res.json()['success'])
+
+    def test_optimizer_chat_api_get_rejected(self):
+        """Vérifie que les requêtes GET sont rejetées (code 400)."""
+        res = self.client.get(reverse('entrepots:capacity_optimizer_chat'))
+        self.assertEqual(res.status_code, 400)
+
+    def test_gemini_recommender_chat_deterministic_docks(self):
+        """Vérifie la réponse déterministe pour une demande de quais disponibles."""
+        from entrepots.services import GeminiCapacityRecommender
+        ctx = GeminiCapacityRecommender._build_live_inventory_context()
+        self.assertIn('quais_disponibles', ctx)
+        reply = GeminiCapacityRecommender._deterministic_chat_reply("Quels quais sont disponibles ?", ctx)
+        self.assertIn("quai", reply.lower())
+
+    def test_gemini_recommender_chat_deterministic_capacity(self):
+        """Vérifie la réponse déterministe pour une demande de capacité."""
+        from entrepots.services import GeminiCapacityRecommender
+        ctx = GeminiCapacityRecommender._build_live_inventory_context()
+        reply = GeminiCapacityRecommender._deterministic_chat_reply("Quelle est la capacité globale ?", ctx)
+        self.assertIn("palettes", reply.lower())
+
+    def test_gemini_recommender_chat_deterministic_arabic(self):
+        """Vérifie la réponse déterministe en arabe."""
+        from entrepots.services import GeminiCapacityRecommender
+        ctx = GeminiCapacityRecommender._build_live_inventory_context()
+        reply = GeminiCapacityRecommender._deterministic_chat_reply("ما هي الأرصفة المتاحة؟", ctx)
+        self.assertTrue(any('\u0600' <= char <= '\u06FF' for char in reply))
 
 
 class EntrepotRolePermissionTests(TestCase):

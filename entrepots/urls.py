@@ -25,4 +25,5 @@ urlpatterns = [
     path('optimizer/simulate/', views.capacity_optimizer_simulate_api, name='capacity_optimizer_simulate'),
     path('optimizer/action/', views.capacity_optimizer_action_api, name='capacity_optimizer_action'),
     path('optimizer/refresh/', views.capacity_optimizer_refresh_api, name='capacity_optimizer_refresh'),
+    path('optimizer/chat/', views.capacity_optimizer_chat_api, name='capacity_optimizer_chat'),
 ]

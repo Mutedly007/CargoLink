@@ -24,11 +24,14 @@ class GeminiCapacityRecommender:
 
     @classmethod
     def get_api_key(cls) -> Optional[str]:
-        return os.getenv('GOOGLE_API_KEY')
+        return os.getenv('GEMINI_API_KEY_CAMION') or os.getenv('GOOGLE_API_KEY')
 
     @classmethod
     def get_model_name(cls) -> str:
-        return os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
+        model = os.getenv('GEMINI_MODEL', 'gemini-3.5-flash')
+        if '2.5' in model:
+            return 'gemini-3.5-flash'
+        return model
 
     @classmethod
     def generate_recommendations(
@@ -344,4 +347,359 @@ SCHÉMA JSON ATTENDU :
             'recommendations': recs,
             'source': 'deterministic_fallback',
             'fallback_reason': reason,
+        }
+
+    # =========================================================================
+    # ASSISTANT IA CONVERSATIONNEL (DISPONIBILITÉ DES QUAIS & CAPACITÉ)
+    # =========================================================================
+
+    @classmethod
+    def _build_live_inventory_context(cls) -> Dict[str, Any]:
+        """Extrait l'inventaire complet et en temps réel des entrepôts et quais pour l'assistant."""
+        from entrepots.models import Entrepot, Quai
+
+        warehouses = list(Entrepot.objects.prefetch_related('quais').all())
+        total_palettes = sum(w.capacite_palettes or 0 for w in warehouses)
+        total_m2 = sum(w.superficie_m2 or 0 for w in warehouses)
+
+        wh_list = []
+        all_dispo_quais = []
+
+        total_quais = 0
+        total_dispo = 0
+        total_occupes = 0
+        total_reserves = 0
+        total_maintenance = 0
+
+        for w in warehouses:
+            docks = list(w.quais.all())
+            w_total = len(docks)
+            w_dispo = [q for q in docks if q.statut == 'DISPONIBLE']
+            w_occupe = [q for q in docks if q.statut == 'OCCUPE']
+            w_reserve = [q for q in docks if q.statut == 'RESERVE']
+            w_maint = [q for q in docks if q.statut == 'MAINTENANCE']
+
+            total_quais += w_total
+            total_dispo += len(w_dispo)
+            total_occupes += len(w_occupe)
+            total_reserves += len(w_reserve)
+            total_maintenance += len(w_maint)
+
+            for q in w_dispo:
+                all_dispo_quais.append({
+                    'id': q.id,
+                    'numero': q.numero,
+                    'type': q.get_type_quai_display(),
+                    'type_code': q.type_quai,
+                    'entrepot_nom': w.nom,
+                    'entrepot_code': w.code,
+                    'ville': w.ville,
+                    'debit_palettes_heure': q.capacite_palettes_heure,
+                    'sas_isotherme': q.a_sas_isotherme,
+                    'niveleur': q.a_niveleur,
+                })
+
+            wh_list.append({
+                'id': w.id,
+                'nom': w.nom,
+                'code': w.code,
+                'ville': w.ville,
+                'statut': w.get_statut_display(),
+                'capacite_palettes': w.capacite_palettes,
+                'superficie_m2': w.superficie_m2,
+                'total_quais': w_total,
+                'nb_disponibles': len(w_dispo),
+                'nb_occupes': len(w_occupe),
+                'nb_reserves': len(w_reserve),
+                'nb_maintenance': len(w_maint),
+                'quais': [
+                    {
+                        'id': q.id,
+                        'numero': q.numero,
+                        'type': q.get_type_quai_display(),
+                        'type_code': q.type_quai,
+                        'statut': q.get_statut_display(),
+                        'statut_code': q.statut,
+                        'debit_palettes_heure': q.capacite_palettes_heure,
+                    }
+                    for q in docks
+                ]
+            })
+
+        return {
+            'total_entrepots': len(warehouses),
+            'total_capacite_palettes': total_palettes,
+            'total_superficie_m2': total_m2,
+            'total_quais': total_quais,
+            'quais_disponibles_count': total_dispo,
+            'quais_occupes_count': total_occupes,
+            'quais_reserves_count': total_reserves,
+            'quais_maintenance_count': total_maintenance,
+            'entrepots': wh_list,
+            'quais_disponibles': all_dispo_quais,
+        }
+
+    @classmethod
+    def _deterministic_chat_reply(cls, user_message: str, context: Dict[str, Any]) -> str:
+        """Moteur déterministe local fournissant des réponses factuelles et structurées multilingues."""
+        import re
+
+        msg = user_message.lower().strip()
+        is_ar = bool(re.search(r'[\u0600-\u06FF]', user_message))
+        is_en = any(w in msg for w in ['available', 'dock', 'warehouse', 'capacity', 'free', 'how many', 'which', 'what is', 'hello', 'hi'])
+
+        entrepots = context.get('entrepots', [])
+        quais_dispo = context.get('quais_disponibles', [])
+        total_entrepots = context.get('total_entrepots', 0)
+        total_quais = context.get('total_quais', 0)
+        total_palettes = context.get('total_capacite_palettes', 0)
+        total_dispo = context.get('quais_disponibles_count', 0)
+        total_m2 = context.get('total_superficie_m2', 0)
+
+        # 1. Vérifier si un entrepôt spécifique est mentionné
+        matched_wh = None
+        for wh in entrepots:
+            nom_clean = wh['nom'].lower()
+            code_clean = wh['code'].lower()
+            ville_clean = wh['ville'].lower()
+            if code_clean in msg or ville_clean in msg or any(part in msg for part in nom_clean.split() if len(part) > 3):
+                matched_wh = wh
+                break
+
+        if matched_wh:
+            dispo_list = [q for q in matched_wh['quais'] if q['statut_code'] == 'DISPONIBLE']
+            occup_list = [q for q in matched_wh['quais'] if q['statut_code'] == 'OCCUPE']
+            res_list = [q for q in matched_wh['quais'] if q['statut_code'] == 'RESERVE']
+            maint_list = [q for q in matched_wh['quais'] if q['statut_code'] == 'MAINTENANCE']
+
+            if is_ar:
+                lines = [
+                    f"🏢 **{matched_wh['nom']} ({matched_wh['ville']})**",
+                    f"- **طاقة الاستيعاب:** {matched_wh['capacite_palettes']:,} لوح خشبي (باليت) | المساحة: {matched_wh['superficie_m2']:,} م²",
+                    f"- **الأرصفة:** {matched_wh['total_quais']} إجمالي ({len(dispo_list)} متاح، {len(occup_list)} مشغول، {len(res_list)} محجوز، {len(maint_list)} في الصيانة)",
+                ]
+                if dispo_list:
+                    lines.append("\n**الأرصفة المتاحة حالياً في هذا المستودع:**")
+                    for q in dispo_list:
+                        lines.append(f"  • **{q['numero']}** ({q['type']}) — سعة التدفق: {q['debit_palettes_heure']} باليت/ساعة")
+                else:
+                    lines.append("\n⚠️ **لا توجد أرصفة شاغرة حالياً في هذا المستودع.**")
+                return "\n".join(lines)
+
+            elif is_en:
+                lines = [
+                    f"🏢 **{matched_wh['nom']} ({matched_wh['ville']})**",
+                    f"- **Storage Capacity:** {matched_wh['capacite_palettes']:,} pallets | Surface: {matched_wh['superficie_m2']:,} m²",
+                    f"- **Docks Overview:** {matched_wh['total_quais']} total ({len(dispo_list)} available, {len(occup_list)} occupied, {len(res_list)} reserved, {len(maint_list)} in maintenance)",
+                ]
+                if dispo_list:
+                    lines.append("\n**Currently Available Docks at this warehouse:**")
+                    for q in dispo_list:
+                        lines.append(f"  • **{q['numero']}** ({q['type']}) — Throughput: {q['debit_palettes_heure']} pal./h")
+                else:
+                    lines.append("\n⚠️ **No docks currently available at this site.**")
+                return "\n".join(lines)
+
+            else:
+                lines = [
+                    f"🏢 **{matched_wh['nom']} ({matched_wh['ville']})**",
+                    f"- **Capacité de stockage :** {matched_wh['capacite_palettes']:,} palettes | Surface : {matched_wh['superficie_m2']:,} m²",
+                    f"- **État des quais :** {matched_wh['total_quais']} au total ({len(dispo_list)} libre(s), {len(occup_list)} occupé(s), {len(res_list)} réservé(s), {len(maint_list)} en maintenance)",
+                ]
+                if dispo_list:
+                    lines.append("\n**Quais actuellement disponibles sur ce site :**")
+                    for q in dispo_list:
+                        lines.append(f"  • **{q['numero']}** ({q['type']}) — Débit : {q['debit_palettes_heure']} pal./h")
+                else:
+                    lines.append("\n⚠️ **Aucun quai n'est actuellement disponible sur ce site.**")
+                return "\n".join(lines)
+
+        # 2. Requête sur les quais frigorifiques
+        if any(w in msg for w in ['frigo', 'frigorifique', 'refrigerated', 'cold', 'froid', 'مبرد', 'تبريد']):
+            frigo_docks = [q for q in quais_dispo if q['type_code'] == 'FRIGORIFIQUE']
+            if is_ar:
+                if frigo_docks:
+                    res = [f"❄️ **يوجد {len(frigo_docks)} رصيف تبريد متاح حالياً:**"]
+                    for q in frigo_docks:
+                        res.append(f"- **{q['numero']}** بمستودع **{q['entrepot_nom']}** ({q['ville']}) — تدفق: {q['debit_palettes_heure']} باليت/ساعة")
+                    return "\n".join(res)
+                return "❄️ لا توجد أرصفة تبريد شاغرة في الوقت الراهن."
+            elif is_en:
+                if frigo_docks:
+                    res = [f"❄️ **There are {len(frigo_docks)} refrigerated dock(s) currently available:**"]
+                    for q in frigo_docks:
+                        res.append(f"- **{q['numero']}** at **{q['entrepot_nom']}** ({q['ville']}) — Flow: {q['debit_palettes_heure']} pal./h")
+                    return "\n".join(res)
+                return "❄️ No refrigerated docks are currently available."
+            else:
+                if frigo_docks:
+                    res = [f"❄️ **Il y a actuellement {len(frigo_docks)} quai(s) frigorifique(s) disponible(s) :**"]
+                    for q in frigo_docks:
+                        res.append(f"- **{q['numero']}** à **{q['entrepot_nom']}** ({q['ville']}) — Débit : {q['debit_palettes_heure']} pal./h")
+                    return "\n".join(res)
+                return "❄️ Aucun quai frigorifique n'est actuellement disponible sur le réseau."
+
+        # 3. Requête sur la disponibilité des quais
+        if any(w in msg for w in ['disponible', 'dispo', 'libre', 'available', 'free', 'docks', 'quais', 'quai', 'متاح', 'شاغر', 'رصيف', 'أرصفة']):
+            if is_ar:
+                res = [
+                    f"✅ **يتوفر حالياً {total_dispo} رصيف شاغر من أصل {total_quais} على مستوى الشبكة:**",
+                    ""
+                ]
+                for q in quais_dispo:
+                    res.append(f"- **{q['numero']}** ({q['type']}) — مستودع **{q['entrepot_nom']}** ({q['ville']}) | تدفق: {q['debit_palettes_heure']} باليت/ساعة")
+                return "\n".join(res)
+            elif is_en:
+                res = [
+                    f"✅ **There are currently {total_dispo} available dock(s) out of {total_quais} across the network:**",
+                    ""
+                ]
+                for q in quais_dispo:
+                    res.append(f"- **{q['numero']}** ({q['type']}) — at **{q['entrepot_nom']}** ({q['ville']}) | Throughput: {q['debit_palettes_heure']} pal./h")
+                return "\n".join(res)
+            else:
+                res = [
+                    f"✅ **Il y a actuellement {total_dispo} quai(s) disponible(s) sur un total de {total_quais} dans le réseau :**",
+                    ""
+                ]
+                for q in quais_dispo:
+                    res.append(f"- **{q['numero']}** ({q['type']}) — à **{q['entrepot_nom']}** ({q['ville']}) | Débit : {q['debit_palettes_heure']} pal./h")
+                return "\n".join(res)
+
+        # 4. Requête sur les capacités de stockage
+        if any(w in msg for w in ['capacite', 'capacité', 'palettes', 'surface', 'm2', 'capacity', 'space', 'سعة', 'طاقة', 'مساحة']):
+            if is_ar:
+                res = [
+                    f"📊 **سعة التخزين الإجمالية للشبكة: {total_palettes:,} باليت** عبر **{total_entrepots} مستودعات** (إجمالي المساحة: {total_m2:,} م²)",
+                    "",
+                    "**تفاصيل السعة حسب المستودع:**"
+                ]
+                for wh in entrepots:
+                    res.append(f"- **{wh['nom']}** ({wh['ville']}): {wh['capacite_palettes']:,} باليت ({wh['superficie_m2']:,} م²) — {wh['nb_disponibles']}/{wh['total_quais']} رصيف متاح")
+                return "\n".join(res)
+            elif is_en:
+                res = [
+                    f"📊 **Total Network Storage Capacity: {total_palettes:,} pallets** across **{total_entrepots} warehouses** (Total area: {total_m2:,} m²)",
+                    "",
+                    "**Capacity Breakdown per Warehouse:**"
+                ]
+                for wh in entrepots:
+                    res.append(f"- **{wh['nom']}** ({wh['ville']}): {wh['capacite_palettes']:,} pallets ({wh['superficie_m2']:,} m²) — {wh['nb_disponibles']}/{wh['total_quais']} docks free")
+                return "\n".join(res)
+            else:
+                res = [
+                    f"📊 **Capacité totale de stockage du réseau : {total_palettes:,} palettes** réparties sur **{total_entrepots} entrepôts** (Superficie totale : {total_m2:,} m²)",
+                    "",
+                    "**Détail des capacités par site :**"
+                ]
+                for wh in entrepots:
+                    res.append(f"- **{wh['nom']}** ({wh['ville']}) : {wh['capacite_palettes']:,} palettes ({wh['superficie_m2']:,} m²) — {wh['nb_disponibles']}/{wh['total_quais']} quai(s) libre(s)")
+                return "\n".join(res)
+
+        # 5. Salutation / Résumé général par défaut
+        if is_ar:
+            return (
+                f"👋 **مرحباً بك في المساعد الذكي لمستودعات وأرصفة CargoLink!**\n\n"
+                f"- **عدد المستودعات:** {total_entrepots} مواقع\n"
+                f"- **طاقة الاستيعاب الإجمالية:** {total_palettes:,} باليت\n"
+                f"- **الأرصفة الشاغرة الآن:** {total_dispo} متاح من أصل {total_quais}\n\n"
+                f"💡 *يمكنك سؤالي عن: الأرصفة المتاحة، سعة أي مستودع بالاسم، أو أرصفة التبريد.*"
+            )
+        elif is_en:
+            return (
+                f"👋 **Hello! I am your CargoLink Warehouse & Dock Capacity Assistant.**\n\n"
+                f"- **Total Warehouses:** {total_entrepots} sites\n"
+                f"- **Total Storage Capacity:** {total_palettes:,} pallets\n"
+                f"- **Available Docks Right Now:** {total_dispo} free out of {total_quais}\n\n"
+                f"💡 *Try asking: 'Which docks are available?', 'What is the capacity of Radès warehouse?', or 'Show refrigerated docks'.*"
+            )
+        else:
+            return (
+                f"👋 **Bonjour ! Je suis votre assistant IA pour la capacité des entrepôts et la disponibilité des quais.**\n\n"
+                f"- **Entrepôts actifs :** {total_entrepots} sites\n"
+                f"- **Capacité globale :** {total_palettes:,} palettes ({total_m2:,} m²)\n"
+                f"- **Quais immédiatement disponibles :** {total_dispo} libres sur {total_quais}\n\n"
+                f"💡 *Exemples de questions :*\n"
+                f"• *« Quels quais sont disponibles actuellement ? »*\n"
+                f"• *« Quelle est la capacité de l'entrepôt de Radès ? »*\n"
+                f"• *« Y a-t-il des quais frigorifiques libres ? »*"
+            )
+
+    @classmethod
+    def ask_capacity_assistant(
+        cls,
+        user_message: str,
+        history: Optional[List[Dict[str, str]]] = None
+    ) -> Dict[str, Any]:
+        """
+        Génère une réponse conversationnelle précise à propos de la disponibilité des quais
+        et des capacités des entrepôts. Tente Gemini puis bascule automatiquement sur le moteur déterministe.
+        """
+        context = cls._build_live_inventory_context()
+        api_key = cls.get_api_key()
+
+        if api_key:
+            try:
+                from google import genai
+                from google.genai import types
+
+                client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=10000))
+                models_to_try = [cls.get_model_name(), 'gemini-3.5-flash', 'gemini-3.5-flash-lite']
+                seen_models = set()
+
+                prompt = (
+                    "Tu es l'assistant logistique officiel de CargoLink spécialisé dans la gestion de capacité des entrepôts et des quais.\n"
+                    "L'utilisateur te pose une question directe sur la disponibilité des quais, la capacité de stockage (palettes, m²), ou les spécifications techniques.\n\n"
+                    "RÈGLES STRICTES :\n"
+                    "1. Utilise EXCLUSIVEMENT les données réelles fournies ci-dessous. N'invente aucun entrepôt ni aucun quai.\n"
+                    "2. Réponds dans la langue utilisée par l'utilisateur (français, anglais ou arabe).\n"
+                    "3. Sois direct, concis et formate avec du Markdown clair (listes à puces, noms d'entrepôts et numéros de quais en gras).\n\n"
+                    f"INVENTAIRE RÉEL EN BASE DE DONNÉES :\n{json.dumps(context, ensure_ascii=False, indent=2)}\n\n"
+                    f"HISTORIQUE RÉCENT :\n{json.dumps(history or [], ensure_ascii=False)}\n\n"
+                    f"QUESTION DE L'UTILISATEUR :\n{user_message}"
+                )
+
+                for model in models_to_try:
+                    if model in seen_models:
+                        continue
+                    seen_models.add(model)
+                    try:
+                        resp = client.models.generate_content(
+                            model=model,
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                temperature=0.2,
+                            )
+                        )
+                        if resp and resp.text:
+                            return {
+                                'success': True,
+                                'reply': resp.text.strip(),
+                                'source': 'gemini',
+                                'model': model,
+                                'stats': {
+                                    'total_entrepots': context['total_entrepots'],
+                                    'total_quais': context['total_quais'],
+                                    'quais_disponibles': context['quais_disponibles_count'],
+                                }
+                            }
+                    except Exception as model_err:
+                        logger.warning("Modèle Gemini %s indisponible pour le chat : %s", model, model_err)
+                        continue
+
+            except Exception as exc:
+                logger.warning("Erreur client Gemini pour le chat : %s. Bascule sur le moteur déterministe.", exc)
+
+        # Repli déterministe immédiat
+        reply = cls._deterministic_chat_reply(user_message, context)
+        return {
+            'success': True,
+            'reply': reply,
+            'source': 'deterministic',
+            'model': 'local-deterministic',
+            'stats': {
+                'total_entrepots': context['total_entrepots'],
+                'total_quais': context['total_quais'],
+                'quais_disponibles': context['quais_disponibles_count'],
+            }
         }
