@@ -34,6 +34,12 @@
         </div>
 
         <div class="optimizer-header-actions">
+            <a href="#aiChatSection" class="btn-ai-chat-jump" title="Poser une question sur les quais disponibles ou la capacité">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>Assistant IA Quais</span>
+            </a>
             <a href="{% url 'entrepots:capacity_optimizer_refresh' %}" class="btn-ai-refresh" id="btnRefreshAnalysis">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="23 4 23 10 17 10"/>
@@ -227,6 +233,111 @@
     </div>
     {% endif %}
 
+
+    <!-- Section Chat IA : Assistant Capacité & Disponibilité des Quais -->
+    <div class="ai-chat-section-wrapper" id="aiChatSection">
+        <div class="ai-chat-card">
+            <!-- Chat Card Header -->
+            <div class="ai-chat-header">
+                <div class="ai-chat-header-left">
+                    <div class="ai-chat-avatar-glow">
+                        <svg class="ai-chat-sparkle-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
+                        </svg>
+                        <span class="live-dot-ping"></span>
+                    </div>
+                    <div>
+                        <div class="ai-chat-title-row">
+                            <h3 class="ai-chat-title">Assistant IA &bull; Disponibilité des Quais & Capacité</h3>
+                            <span class="chat-status-pill online">
+                                <span class="status-pulse-dot"></span> En direct
+                            </span>
+                        </div>
+                        <p class="ai-chat-subtitle">Interrogez en direct les quais disponibles, la capacité des entrepôts et les flux en français, anglais ou arabe.</p>
+                    </div>
+                </div>
+
+                <div class="ai-chat-header-actions">
+                    <button type="button" class="btn-chat-action" id="btnChatReset" title="Réinitialiser la conversation">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        <span>Effacer</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Suggestion Chips -->
+            <div class="ai-chat-chips-bar">
+                <span class="chips-label">Questions fréquentes :</span>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Quels sont les quais actuellement disponibles ?')">
+                    🟢 Quais disponibles actuellement
+                </button>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Quelle est la capacité de stockage de chaque entrepôt ?')">
+                    📦 Capacité de stockage des sites
+                </button>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Y a-t-il des quais frigorifiques libres ?')">
+                    ❄️ Quais frigorifiques libres
+                </button>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Quel est l\'état et la capacité de l\'entrepôt de Radès ?')">
+                    📍 Entrepôt de Radès
+                </button>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('ما هي الأرصفة المتاحة حالياً وما هي طاقة الاستيعاب؟')">
+                    🇸🇦 الأرصفة المتاحة والسعة
+                </button>
+            </div>
+
+            <!-- Messages Stream Area -->
+            <div class="ai-chat-messages" id="chatMessagesStream">
+                <!-- Welcome greeting from AI -->
+                <div class="chat-bubble-row bot">
+                    <div class="chat-msg-avatar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+                    </div>
+                    <div class="chat-msg-content">
+                        <div class="chat-msg-header">
+                            <span class="chat-msg-author">CargoLink Capacity AI</span>
+                            <span class="chat-msg-time">À l'instant</span>
+                            <span class="chat-src-tag gemini">Assistant En Ligne</span>
+                        </div>
+                        <div class="chat-msg-body">
+                            Bonjour ! Je suis l'assistant IA de CargoLink connecté en direct à votre base de données. Vous pouvez m'interroger sur la <strong>disponibilité des quais</strong>, la <strong>capacité de stockage</strong> (palettes, superficie) ou demander des détails sur un <strong>entrepôt précis</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing indicator -->
+            <div class="chat-typing-row" id="chatTypingIndicator" style="display: none;">
+                <div class="chat-msg-avatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+                </div>
+                <div class="typing-bubble">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-text">Analyse de la capacité et des quais en direct...</span>
+                </div>
+            </div>
+
+            <!-- Chat Input Form -->
+            <form class="ai-chat-input-bar" id="chatForm" onsubmit="handleChatSubmit(event)">
+                <div class="chat-input-wrapper">
+                    <input type="text"
+                           id="chatInputMessage"
+                           class="chat-input"
+                           placeholder="Posez votre question (ex: Quels quais sont disponibles à Radès ?)..."
+                           autocomplete="off"
+                           maxlength="500">
+                    <button type="submit" class="btn-chat-send" id="btnChatSend" title="Envoyer le message">
+                        <span>Envoyer</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Section D : What-If Capacity Simulator (Enhanced) -->
     <div class="simulator-workspace" id="simulatorSection">
@@ -934,6 +1045,158 @@ function validateOnServer() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     onSelectWarehouseChange();
+});
+
+// =========================================================================
+// AI CHAT SECTION CLIENT LOGIC
+// =========================================================================
+const CHAT_API_URL = "{% url 'entrepots:capacity_optimizer_chat' %}";
+let chatConversationHistory = [];
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
+}
+
+function formatChatMarkdown(text) {
+    if (!text) return '';
+    let html = escapeHtml(text);
+    // Bold: **text**
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text* or _text_
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // Bullet points: lines starting with * or -
+    html = html.replace(/^(?:[\*\-]\s+)(.*)$/gm, '<li class="chat-li">$1</li>');
+    // Wrap consecutive lis in ul
+    html = html.replace(/((?:<li class="chat-li">.*?<\/li>\s*)+)/g, '<ul class="chat-ul">$1</ul>');
+    // Convert newlines to gaps where appropriate
+    html = html.replace(/\n\n/g, '<div class="chat-p-gap"></div>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+}
+
+function appendChatMessage(role, text, source, model) {
+    const container = document.getElementById('chatMessagesStream');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = `chat-bubble-row ${role}`;
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    let sourceTag = '';
+    if (role === 'bot') {
+        const isGemini = source === 'gemini';
+        sourceTag = `<span class="chat-src-tag ${isGemini ? 'gemini' : 'det'}">${isGemini ? (model || 'Gemini 3.5') : 'Moteur Local'}</span>`;
+    }
+
+    const avatarHtml = role === 'bot'
+        ? `<div class="chat-msg-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg></div>`
+        : `<div class="chat-msg-avatar user"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
+
+    row.innerHTML = `
+        ${avatarHtml}
+        <div class="chat-msg-content">
+            <div class="chat-msg-header">
+                <span class="chat-msg-author">${role === 'bot' ? 'CargoLink Capacity AI' : 'Vous'}</span>
+                <span class="chat-msg-time">${timeStr}</span>
+                ${sourceTag}
+            </div>
+            <div class="chat-msg-body">${formatChatMarkdown(text)}</div>
+        </div>
+    `;
+
+    container.appendChild(row);
+    container.scrollTop = container.scrollHeight;
+}
+
+async function sendChatMessage(message) {
+    const trimmed = (message || '').trim();
+    if (!trimmed) return;
+
+    const input = document.getElementById('chatInputMessage');
+    const sendBtn = document.getElementById('btnChatSend');
+    const typing = document.getElementById('chatTypingIndicator');
+
+    // Display user message immediately
+    appendChatMessage('user', trimmed);
+    if (input) input.value = '';
+
+    // Show typing indicator
+    if (typing) {
+        typing.style.display = 'flex';
+        const stream = document.getElementById('chatMessagesStream');
+        if (stream) stream.scrollTop = stream.scrollHeight;
+    }
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+        const resp = await fetch(CHAT_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN,
+            },
+            body: JSON.stringify({
+                message: trimmed,
+                history: chatConversationHistory.slice(-6)
+            })
+        });
+
+        const data = await resp.json();
+        if (typing) typing.style.display = 'none';
+
+        if (data && data.reply) {
+            appendChatMessage('bot', data.reply, data.source, data.model);
+            chatConversationHistory.push({ role: 'user', content: trimmed });
+            chatConversationHistory.push({ role: 'assistant', content: data.reply });
+        } else {
+            appendChatMessage('bot', "Désolé, une erreur s'est produite lors de la génération de la réponse.", 'error');
+        }
+    } catch (err) {
+        if (typing) typing.style.display = 'none';
+        appendChatMessage('bot', "Erreur de connexion avec le serveur. Veuillez réessayer.", 'error');
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        if (input) input.focus();
+    }
+}
+
+function handleChatSubmit(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('chatInputMessage');
+    if (!input) return;
+    sendChatMessage(input.value);
+}
+
+function sendQuickPrompt(promptText) {
+    sendChatMessage(promptText);
+}
+
+document.getElementById('btnChatReset')?.addEventListener('click', () => {
+    const stream = document.getElementById('chatMessagesStream');
+    if (!stream) return;
+    stream.innerHTML = `
+        <div class="chat-bubble-row bot">
+            <div class="chat-msg-avatar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+            </div>
+            <div class="chat-msg-content">
+                <div class="chat-msg-header">
+                    <span class="chat-msg-author">CargoLink Capacity AI</span>
+                    <span class="chat-msg-time">À l'instant</span>
+                    <span class="chat-src-tag gemini">Assistant En Ligne</span>
+                </div>
+                <div class="chat-msg-body">
+                    Conversation réinitialisée. Posez une nouvelle question sur les quais disponibles ou les capacités !
+                </div>
+            </div>
+        </div>
+    `;
+    chatConversationHistory = [];
 });
 </script>
 {% endblock %}

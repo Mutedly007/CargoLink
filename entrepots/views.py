@@ -633,3 +633,31 @@ def capacity_optimizer_refresh_api(request):
 
     messages.success(request, "L'analyse IA de capacité a été recalculée avec succès !")
     return redirect('entrepots:capacity_optimizer')
+
+
+def capacity_optimizer_chat_api(request):
+    """
+    Endpoint conversationnel IA pour interroger les disponibilités de quais
+    et les capacités de stockage des entrepôts.
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Méthode non autorisée. Utilisez POST.")
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except (ValueError, UnicodeDecodeError):
+        return JsonResponse({'success': False, 'error': "Format JSON invalide."}, status=400)
+
+    user_message = data.get('message', '').strip()
+    if not user_message:
+        return JsonResponse({'success': False, 'error': "Le message ne peut pas être vide."}, status=400)
+
+    if len(user_message) > 600:
+        return JsonResponse({'success': False, 'error': "Message trop long (max 600 caractères)."}, status=400)
+
+    history = data.get('history', [])
+    if not isinstance(history, list):
+        history = []
+
+    res = GeminiCapacityRecommender.ask_capacity_assistant(user_message, history=history)
+    return JsonResponse(res)
