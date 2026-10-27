@@ -5,27 +5,207 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'chauffeurs/css/chauffeurs.css' %}">
+<style>
+    /* RTL Support for Form */
+    html[dir="rtl"] .chauffeur-form-container,
+    .chauffeur-form-container[dir="rtl"] {
+        text-align: right;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .top-bar-nav,
+    .chauffeur-form-container[dir="rtl"] .top-bar-nav {
+        flex-direction: row-reverse;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-section-title,
+    .chauffeur-form-container[dir="rtl"] .form-section-title {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-group,
+    .chauffeur-form-container[dir="rtl"] .form-group {
+        text-align: right;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-label,
+    .chauffeur-form-container[dir="rtl"] .form-label {
+        text-align: right;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container input[type="text"],
+    html[dir="rtl"] .chauffeur-form-container input[type="email"],
+    html[dir="rtl"] .chauffeur-form-container input[type="tel"],
+    html[dir="rtl"] .chauffeur-form-container input[type="number"],
+    html[dir="rtl"] .chauffeur-form-container input[type="date"],
+    html[dir="rtl"] .chauffeur-form-container select,
+    html[dir="rtl"] .chauffeur-form-container textarea,
+    .chauffeur-form-container[dir="rtl"] input[type="text"],
+    .chauffeur-form-container[dir="rtl"] input[type="email"],
+    .chauffeur-form-container[dir="rtl"] input[type="tel"],
+    .chauffeur-form-container[dir="rtl"] input[type="number"],
+    .chauffeur-form-container[dir="rtl"] input[type="date"],
+    .chauffeur-form-container[dir="rtl"] select,
+    .chauffeur-form-container[dir="rtl"] textarea {
+        text-align: right;
+        direction: rtl;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .checkbox-label,
+    .chauffeur-form-container[dir="rtl"] .checkbox-label {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-actions-bottom,
+    .chauffeur-form-container[dir="rtl"] .form-actions-bottom {
+        flex-direction: row-reverse;
+    }
+
+    html[dir="rtl"] .chauffeur-form-container .form-errors-box ul,
+    .chauffeur-form-container[dir="rtl"] .form-errors-box ul {
+        margin: 0.5rem 1.25rem 0 0;
+        padding-right: 1.25rem;
+        padding-left: 0;
+    }
+
+    /* Validation & Feedback Styles */
+    .form-input.is-invalid, .form-select.is-invalid, .form-textarea.is-invalid {
+        border-color: #ef4444 !important;
+        background-color: rgba(239, 68, 68, 0.08) !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+    }
+
+    .form-input.is-valid, .form-select.is-valid, .form-textarea.is-valid {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+    }
+
+    .field-error-feedback {
+        color: #f87171;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        animation: fadeInError 0.2s ease-in-out;
+    }
+
+    .field-live-hint {
+        font-size: 0.78rem;
+        margin-top: 0.35rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        animation: fadeInError 0.2s ease-in-out;
+    }
+
+    .hint-valid {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .hint-warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .hint-danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    @keyframes fadeInError {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shakeCard {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-8px); }
+        40%, 80% { transform: translateX(8px); }
+    }
+
+    .shake-invalid {
+        animation: shakeCard 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    /* Client validation banner */
+    .client-validation-banner {
+        display: none;
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+        border-radius: var(--radius-sm);
+        padding: 0.9rem 1.25rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        animation: fadeInError 0.25s ease;
+    }
+
+    .client-validation-banner.active {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    /* Submitting Spinner */
+    .btn-spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #ffffff;
+        animation: spin 0.6s linear infinite;
+        vertical-align: middle;
+        margin-right: 0.4rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="chauffeur-form-container">
-    <div style="margin-bottom: 1.5rem;">
+<div class="chauffeur-form-container" id="chauffeurFormContainer" dir="ltr" data-is-edit="{% if chauffeur %}1{% else %}0{% endif %}" data-chauffeur-name="{{ chauffeur.nom_complet|default:'' }}" data-initial-lang="{{ current_lang|default:'fr' }}">
+    <!-- Top Bar with Back Button -->
+    <div class="top-bar-nav" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-            &larr; Annuler et retourner
+            <span id="formBackArrow">&larr;</span> <span data-i18n="btn_cancel_back">Annuler et retourner</span>
         </a>
     </div>
 
-    <div class="form-card-box">
-        <h1 style="font-size: 1.8rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;">
+    <div class="form-card-box" id="formCardBox">
+        <h1 id="formMainTitle" style="font-size: 1.8rem; font-weight: 800; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;" data-chauffeur-name="{{ chauffeur.nom_complet|default:'' }}">
             {{ action_title }}
         </h1>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+        <p data-i18n="form_subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
             Renseignez les données administratives, les catégories de permis et le véhicule attitré du conducteur.
         </p>
 
+        <!-- Client validation error banner -->
+        <div class="client-validation-banner" id="clientValidationBanner" role="alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span id="clientValidationBannerText">Veuillez corriger les champs obligatoires signalés en rouge ci-dessous.</span>
+        </div>
+
         {% if form.errors %}
-            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5; font-size: 0.9rem;">
-                <strong>Erreurs détectées :</strong>
+            <div class="form-errors-box" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem; color: #fca5a5; font-size: 0.9rem;">
+                <strong data-i18n="form_errors_title">Erreurs détectées :</strong>
                 <ul style="margin: 0.5rem 0 0 1.25rem;">
                     {% for field, errors in form.errors.items %}
                         {% for error in errors %}
@@ -36,7 +216,7 @@
             </div>
         {% endif %}
 
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="chauffeurForm" novalidate>
             {% csrf_token %}
 
             <!-- Section 1: Informations Personnelles -->
@@ -45,49 +225,89 @@
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
-                1. Informations Personnelles & Contact
+                <span data-i18n="sec1_title">1. Informations Personnelles & Contact</span>
             </div>
 
             <div class="form-grid-2col">
-                <div class="form-group">
-                    <label class="form-label">Prénom *</label>
+                <div class="form-group" data-field-group="prenom">
+                    <label class="form-label" data-i18n="lbl_prenom">Prénom *</label>
                     {{ form.prenom }}
+                    <div class="field-error-feedback" id="err_prenom" {% if not form.prenom.errors %}style="display: none;"{% endif %}>
+                        {% if form.prenom.errors %}⚠️ {{ form.prenom.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Nom de famille *</label>
+
+                <div class="form-group" data-field-group="nom">
+                    <label class="form-label" data-i18n="lbl_nom">Nom de famille *</label>
                     {{ form.nom }}
+                    <div class="field-error-feedback" id="err_nom" {% if not form.nom.errors %}style="display: none;"{% endif %}>
+                        {% if form.nom.errors %}⚠️ {{ form.nom.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Numéro CIN / Passeport</label>
+
+                <div class="form-group" data-field-group="cin">
+                    <label class="form-label" data-i18n="lbl_cin">Numéro CIN / Passeport</label>
                     {{ form.cin }}
+                    <div class="field-error-feedback" id="err_cin" {% if not form.cin.errors %}style="display: none;"{% endif %}>
+                        {% if form.cin.errors %}⚠️ {{ form.cin.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Adresse Email</label>
+
+                <div class="form-group" data-field-group="email">
+                    <label class="form-label" data-i18n="lbl_email">Adresse Email</label>
                     {{ form.email }}
+                    <div class="field-error-feedback" id="err_email" {% if not form.email.errors %}style="display: none;"{% endif %}>
+                        {% if form.email.errors %}⚠️ {{ form.email.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Téléphone principal *</label>
+
+                <div class="form-group" data-field-group="telephone">
+                    <label class="form-label" data-i18n="lbl_phone">Téléphone principal *</label>
                     {{ form.telephone }}
+                    <div class="field-error-feedback" id="err_telephone" {% if not form.telephone.errors %}style="display: none;"{% endif %}>
+                        {% if form.telephone.errors %}⚠️ {{ form.telephone.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Téléphone d'urgence</label>
+
+                <div class="form-group" data-field-group="telephone_urgence">
+                    <label class="form-label" data-i18n="lbl_emergency_phone">Téléphone d'urgence</label>
                     {{ form.telephone_urgence }}
+                    <div class="field-error-feedback" id="err_telephone_urgence" {% if not form.telephone_urgence.errors %}style="display: none;"{% endif %}>
+                        {% if form.telephone_urgence.errors %}⚠️ {{ form.telephone_urgence.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Date de naissance</label>
+
+                <div class="form-group" data-field-group="date_naissance">
+                    <label class="form-label" data-i18n="lbl_birthdate">Date de naissance</label>
                     {{ form.date_naissance }}
+                    <div id="hint_date_naissance" class="field-live-hint" style="display: none;"></div>
+                    <div class="field-error-feedback" id="err_date_naissance" {% if not form.date_naissance.errors %}style="display: none;"{% endif %}>
+                        {% if form.date_naissance.errors %}⚠️ {{ form.date_naissance.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Date d'embauche</label>
+
+                <div class="form-group" data-field-group="date_embauche">
+                    <label class="form-label" data-i18n="lbl_hiredate">Date d'embauche</label>
                     {{ form.date_embauche }}
+                    <div class="field-error-feedback" id="err_date_embauche" {% if not form.date_embauche.errors %}style="display: none;"{% endif %}>
+                        {% if form.date_embauche.errors %}⚠️ {{ form.date_embauche.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Ville de résidence</label>
+
+                <div class="form-group" data-field-group="ville_residence">
+                    <label class="form-label" data-i18n="lbl_residence">Ville de résidence</label>
                     {{ form.ville_residence }}
+                    <div class="field-error-feedback" id="err_ville_residence" {% if not form.ville_residence.errors %}style="display: none;"{% endif %}>
+                        {% if form.ville_residence.errors %}⚠️ {{ form.ville_residence.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Photo du chauffeur</label>
+
+                <div class="form-group" data-field-group="photo">
+                    <label class="form-label" data-i18n="lbl_photo">Photo du chauffeur</label>
                     {{ form.photo }}
+                    <div class="field-error-feedback" id="err_photo" {% if not form.photo.errors %}style="display: none;"{% endif %}>
+                        {% if form.photo.errors %}⚠️ {{ form.photo.errors.0 }}{% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -98,25 +318,41 @@
                     <line x1="7" y1="8" x2="17" y2="8"/>
                     <line x1="7" y1="12" x2="13" y2="12"/>
                 </svg>
-                2. Permis de Conduire & Validité
+                <span data-i18n="sec2_title">2. Permis de Conduire & Validité</span>
             </div>
 
             <div class="form-grid-2col">
-                <div class="form-group">
-                    <label class="form-label">Numéro de Permis *</label>
+                <div class="form-group" data-field-group="numero_permis">
+                    <label class="form-label" data-i18n="lbl_license_num">Numéro de Permis *</label>
                     {{ form.numero_permis }}
+                    <div class="field-error-feedback" id="err_numero_permis" {% if not form.numero_permis.errors %}style="display: none;"{% endif %}>
+                        {% if form.numero_permis.errors %}⚠️ {{ form.numero_permis.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Catégorie de Permis *</label>
+
+                <div class="form-group" data-field-group="categorie_permis">
+                    <label class="form-label" data-i18n="lbl_license_cat">Catégorie de Permis *</label>
                     {{ form.categorie_permis }}
+                    <div class="field-error-feedback" id="err_categorie_permis" {% if not form.categorie_permis.errors %}style="display: none;"{% endif %}>
+                        {% if form.categorie_permis.errors %}⚠️ {{ form.categorie_permis.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Date de délivrance</label>
+
+                <div class="form-group" data-field-group="date_delivrance_permis">
+                    <label class="form-label" data-i18n="lbl_license_issued">Date de délivrance</label>
                     {{ form.date_delivrance_permis }}
+                    <div class="field-error-feedback" id="err_date_delivrance_permis" {% if not form.date_delivrance_permis.errors %}style="display: none;"{% endif %}>
+                        {% if form.date_delivrance_permis.errors %}⚠️ {{ form.date_delivrance_permis.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Date d'expiration / Validité *</label>
+
+                <div class="form-group" data-field-group="date_expiration_permis">
+                    <label class="form-label" data-i18n="lbl_license_expiry">Date d'expiration / Validité *</label>
                     {{ form.date_expiration_permis }}
+                    <div id="hint_date_expiration_permis" class="field-live-hint" style="display: none;"></div>
+                    <div class="field-error-feedback" id="err_date_expiration_permis" {% if not form.date_expiration_permis.errors %}style="display: none;"{% endif %}>
+                        {% if form.date_expiration_permis.errors %}⚠️ {{ form.date_expiration_permis.errors.0 }}{% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -124,37 +360,60 @@
             <div class="form-section-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #34d399;">
                     <rect x="1" y="3" width="15" height="13"/>
-                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
                     <circle cx="5.5" cy="18.5" r="2.5"/>
                     <circle cx="18.5" cy="18.5" r="2.5"/>
                 </svg>
-                3. Entreprise de Transport & Véhicule Associé
+                <span data-i18n="sec3_title">3. Entreprise de Transport & Véhicule Associé</span>
             </div>
 
             <div class="form-grid-2col">
-                <div class="form-group">
-                    <label class="form-label">Société / Entreprise de Transport *</label>
+                <div class="form-group" data-field-group="entreprise_transport">
+                    <label class="form-label" data-i18n="lbl_company">Société / Entreprise de Transport *</label>
                     {{ form.entreprise_transport }}
+                    <div class="field-error-feedback" id="err_entreprise_transport" {% if not form.entreprise_transport.errors %}style="display: none;"{% endif %}>
+                        {% if form.entreprise_transport.errors %}⚠️ {{ form.entreprise_transport.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Compte Utilisateur Transporteur</label>
+
+                <div class="form-group" data-field-group="transporteur_user">
+                    <label class="form-label" data-i18n="lbl_carrier_account">Compte Utilisateur Transporteur</label>
                     {{ form.transporteur_user }}
+                    <div class="field-error-feedback" id="err_transporteur_user" {% if not form.transporteur_user.errors %}style="display: none;"{% endif %}>
+                        {% if form.transporteur_user.errors %}⚠️ {{ form.transporteur_user.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Immatriculation du Camion</label>
+
+                <div class="form-group" data-field-group="immatriculation_camion">
+                    <label class="form-label" data-i18n="lbl_truck_plate">Immatriculation du Camion</label>
                     {{ form.immatriculation_camion }}
+                    <div class="field-error-feedback" id="err_immatriculation_camion" {% if not form.immatriculation_camion.errors %}style="display: none;"{% endif %}>
+                        {% if form.immatriculation_camion.errors %}⚠️ {{ form.immatriculation_camion.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Marque / Modèle</label>
+
+                <div class="form-group" data-field-group="marque_camion">
+                    <label class="form-label" data-i18n="lbl_truck_model">Marque / Modèle</label>
                     {{ form.marque_camion }}
+                    <div class="field-error-feedback" id="err_marque_camion" {% if not form.marque_camion.errors %}style="display: none;"{% endif %}>
+                        {% if form.marque_camion.errors %}⚠️ {{ form.marque_camion.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Type de gabarit</label>
+
+                <div class="form-group" data-field-group="type_camion">
+                    <label class="form-label" data-i18n="lbl_truck_type">Type de gabarit</label>
                     {{ form.type_camion }}
+                    <div class="field-error-feedback" id="err_type_camion" {% if not form.type_camion.errors %}style="display: none;"{% endif %}>
+                        {% if form.type_camion.errors %}⚠️ {{ form.type_camion.errors.0 }}{% endif %}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Capacité (Tonnes)</label>
+
+                <div class="form-group" data-field-group="capacite_camion_tonnes">
+                    <label class="form-label" data-i18n="lbl_truck_capacity">Capacité (Tonnes)</label>
                     {{ form.capacite_camion_tonnes }}
+                    <div class="field-error-feedback" id="err_capacite_camion_tonnes" {% if not form.capacite_camion_tonnes.errors %}style="display: none;"{% endif %}>
+                        {% if form.capacite_camion_tonnes.errors %}⚠️ {{ form.capacite_camion_tonnes.errors.0 }}{% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -164,22 +423,27 @@
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                 </svg>
-                4. Statut Opérationnel & Sécurité
+                <span data-i18n="sec4_title">4. Statut Opérationnel & Sécurité</span>
             </div>
 
             <div class="form-grid-2col">
-                <div class="form-group">
-                    <label class="form-label">Statut Opérationnel *</label>
+                <div class="form-group" data-field-group="statut">
+                    <label class="form-label" data-i18n="lbl_statut">Statut Opérationnel *</label>
                     {{ form.statut }}
+                    <div class="field-error-feedback" id="err_statut" {% if not form.statut.errors %}style="display: none;"{% endif %}>
+                        {% if form.statut.errors %}⚠️ {{ form.statut.errors.0 }}{% endif %}
+                    </div>
                 </div>
+
                 <div class="form-group" style="justify-content: center;">
-                    <label style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.65rem; color: #ffffff; cursor: pointer; font-size: 0.95rem;">
                         {{ form.badge_acces_portuaire }}
-                        <span>Badge d'accès portuaire / sécurisé actif</span>
+                        <span data-i18n="lbl_badge_portuaire">Badge d'accès portuaire / sécurisé actif</span>
                     </label>
                 </div>
+
                 <div class="form-group" style="grid-column: 1 / -1;">
-                    <label class="form-label">Remarques & Habilitations particulières</label>
+                    <label class="form-label" data-i18n="lbl_remarks">Remarques & Habilitations particulières</label>
                     {{ form.observations }}
                 </div>
             </div>
@@ -187,13 +451,589 @@
             <!-- Bottom Actions -->
             <div class="form-actions-bottom">
                 <a href="{% if chauffeur %}{% url 'chauffeurs:chauffeur_detail' chauffeur.pk %}{% else %}{% url 'chauffeurs:chauffeur_list' %}{% endif %}" class="btn btn-outline">
-                    Annuler
+                    <span data-i18n="btn_cancel">Annuler</span>
                 </a>
-                <button type="submit" class="btn btn-accent" style="padding: 0.75rem 2rem;">
+                <button type="submit" id="btnSubmitForm" class="btn btn-accent" style="padding: 0.75rem 2rem;">
                     {{ button_text }}
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Global CargoLink i18n Bridge & Real-Time Input Validation for Chauffeur Form -->
+<script>
+    // Trilingual Validation Messages
+    const VALIDATION_I18N = {
+        fr: {
+            prenom_required: "Le prénom est obligatoire (au moins 2 lettres).",
+            prenom_invalid: "Le prénom ne doit contenir que des lettres, tirets ou apostrophes.",
+            nom_required: "Le nom de famille est obligatoire (au moins 2 lettres).",
+            nom_invalid: "Le nom ne doit contenir que des lettres, tirets ou apostrophes.",
+            cin_invalid: "Numéro CIN / Passeport invalide (6 à 20 caractères alphanumériques).",
+            email_invalid: "Veuillez saisir une adresse email valide (ex: chauffeur@cargolink.tn).",
+            phone_required: "Le numéro de téléphone principal est obligatoire.",
+            phone_invalid: "Numéro de téléphone invalide (au moins 8 chiffres requis, ex: +216 98 123 456).",
+            phone_urg_invalid: "Numéro d'urgence invalide (au moins 8 chiffres requis).",
+            phone_urg_same: "Le numéro d'urgence doit être distinct du numéro principal.",
+            birthdate_future: "La date de naissance ne peut pas être dans le futur.",
+            birthdate_underage: "Le chauffeur doit être majeur (au moins 18 ans révolus).",
+            birthdate_overage: "Veuillez vérifier l'année de naissance (âge maximum 75 ans).",
+            age_conforme: "Âge : {age} ans — Conforme",
+            age_mineur: "Âge : {age} ans — Chauffeur mineur non autorisé",
+            age_over: "Âge : {age} ans — Vérifier la conformité médicale",
+            hiredate_future: "La date d'embauche ne peut pas dépasser 60 jours dans le futur.",
+            hiredate_before_birth: "La date d'embauche ne peut pas précéder la majorité du chauffeur.",
+            photo_size: "La taille de la photo ne doit pas dépasser 5 Mo.",
+            photo_type: "Formats acceptés : JPG, JPEG, PNG, WEBP.",
+            license_num_required: "Le numéro de permis est obligatoire (min 4 caractères).",
+            license_cat_required: "Veuillez sélectionner une catégorie de permis.",
+            license_issued_future: "La date de délivrance ne peut pas être située dans le futur.",
+            license_issued_underage: "Le chauffeur ne pouvait pas détenir un permis avant ses 18 ans.",
+            license_expiry_required: "La date d'expiration du permis est obligatoire.",
+            license_expiry_before_issued: "La date d'expiration doit être strictement postérieure à la date de délivrance.",
+            lic_valid_hint: "✅ Permis valide (expire dans {days} jours)",
+            lic_soon_hint: "⚠️ Expiration imminente (dans {days} jours) !",
+            lic_expired_hint: "🚨 Attention : Ce permis est expiré depuis {days} jours !",
+            company_required: "Le nom de l'entreprise de transport est obligatoire.",
+            truck_plate_invalid: "Format d'immatriculation invalide (min 4 caractères).",
+            truck_capacity_invalid: "La capacité doit être comprise entre 0.5 et 60 tonnes.",
+            statut_required: "Veuillez sélectionner un statut opérationnel.",
+            form_has_errors: "Veuillez corriger les champs obligatoires signalés en rouge ci-dessous.",
+            saving_in_progress: "Enregistrement en cours..."
+        },
+        en: {
+            prenom_required: "First name is required (at least 2 letters).",
+            prenom_invalid: "First name must only contain letters, hyphens or apostrophes.",
+            nom_required: "Last name is required (at least 2 letters).",
+            nom_invalid: "Last name must only contain letters, hyphens or apostrophes.",
+            cin_invalid: "Invalid National ID / Passport (6 to 20 alphanumeric characters).",
+            email_invalid: "Please enter a valid email address (e.g. driver@cargolink.tn).",
+            phone_required: "Primary phone number is required.",
+            phone_invalid: "Invalid phone number (at least 8 digits required, e.g. +216 98 123 456).",
+            phone_urg_invalid: "Invalid emergency phone number (at least 8 digits required).",
+            phone_urg_same: "Emergency phone must be different from primary phone.",
+            birthdate_future: "Date of birth cannot be in the future.",
+            birthdate_underage: "Driver must be of legal adult age (at least 18 years old).",
+            birthdate_overage: "Please verify birth year (maximum age 75).",
+            age_conforme: "Age: {age} yrs — Compliant",
+            age_mineur: "Age: {age} yrs — Minor driver not allowed",
+            age_over: "Age: {age} yrs — Check medical fitness",
+            hiredate_future: "Hire date cannot exceed 60 days in the future.",
+            hiredate_before_birth: "Hire date cannot precede driver's 18th birthday.",
+            photo_size: "Driver photo file size must not exceed 5 MB.",
+            photo_type: "Accepted formats: JPG, JPEG, PNG, WEBP.",
+            license_num_required: "License number is required (min 4 characters).",
+            license_cat_required: "Please select a license category.",
+            license_issued_future: "Issue date cannot be in the future.",
+            license_issued_underage: "Driver could not hold a commercial license before age 18.",
+            license_expiry_required: "License expiration date is required.",
+            license_expiry_before_issued: "Expiration date must be strictly after issue date.",
+            lic_valid_hint: "✅ Valid license (expires in {days} days)",
+            lic_soon_hint: "⚠️ Expiring soon (in {days} days)!",
+            lic_expired_hint: "🚨 Warning: This license expired {days} days ago!",
+            company_required: "Transport company name is required.",
+            truck_plate_invalid: "Invalid truck plate format (min 4 characters).",
+            truck_capacity_invalid: "Capacity must be between 0.5 and 60 tons.",
+            statut_required: "Please select an operational status.",
+            form_has_errors: "Please correct the required fields highlighted in red below.",
+            saving_in_progress: "Saving in progress..."
+        },
+        ar: {
+            prenom_required: "الاسم إجباري (حرفان على الأقل).",
+            prenom_invalid: "يجب أن يحتوي الاسم على أحرف وفواصل فقط.",
+            nom_required: "اللقب إجباري (حرفان على الأقل).",
+            nom_invalid: "يجب أن يحتوي اللقب على أحرف وفواصل فقط.",
+            cin_invalid: "رقم ب.ت.و / جواز السفر غير صالح (بين 6 و20 حرف ورقم).",
+            email_invalid: "يرجى إدخال عنوان بريد إلكتروني صالح.",
+            phone_required: "رقم الهاتف الرئيسي إجباري.",
+            phone_invalid: "رقم هاتف غير صالح (8 أرقام على الأقل، مثل: 98123456).",
+            phone_urg_invalid: "رقم هاتف الطوارئ غير صالح (8 أرقام على الأقل).",
+            phone_urg_same: "يجب أن يكون هاتف الطوارئ مختلفاً عن الهاتف الرئيسي.",
+            birthdate_future: "لا يمكن أن يكون تاريخ الولادة في المستقبل.",
+            birthdate_underage: "يجب أن يكون السائق بالغاً (18 سنة على الأقل).",
+            birthdate_overage: "يرجى التحقق من سنة الولادة (الحد الأقصى للسن 75 سنة).",
+            age_conforme: "العمر : {age} سنة — مطابق للشروط",
+            age_mineur: "العمر : {age} سنة — السائق قاصر وغير مسموح به",
+            age_over: "العمر : {age} سنة — يرجى التأكد من الفحص الطبي",
+            hiredate_future: "تاريخ بداية العمل لا يمكن أن يتجاوز 60 يوماً في المستقبل.",
+            hiredate_before_birth: "لا يمكن أن يسبق تاريخ التوظيف بلوغ السائق سن 18.",
+            photo_size: "يجب ألا يتجاوز حجم صورة السائق 5 ميغابايت.",
+            photo_type: "الصيغ المقبولة: JPG, JPEG, PNG, WEBP.",
+            license_num_required: "رقم رخصة القيادة إجباري (4 أحرف على الأقل).",
+            license_cat_required: "يرجى اختيار صنف رخصة القيادة.",
+            license_issued_future: "لا يمكن أن يكون تاريخ إصدار الرخصة في المستقبل.",
+            license_issued_underage: "لا يمكن أن يكون السائق حاملاً لرخصة قبل بلوغ سن 18.",
+            license_expiry_required: "تاريخ انتهاء صلاحية الرخصة إجباري.",
+            license_expiry_before_issued: "يجب أن يكون تاريخ الانتهاء لاحقاً لتاريخ الإصدار.",
+            lic_valid_hint: "✅ الرخصة صالحة (تنتهي خلال {days} يوم)",
+            lic_soon_hint: "⚠️ صلاحية الرخصة تنتهي قريباً (خلال {days} يوم)!",
+            lic_expired_hint: "🚨 تنبيه : هذه الرخصة منتهية منذ {days} يوم!",
+            company_required: "اسم شركة النقل إجباري.",
+            truck_plate_invalid: "صيغة لوحة الشاحنة غير صالحة (4 رموز على الأقل).",
+            truck_capacity_invalid: "الحمولة يجب أن تكون بين 0.5 و60 طن.",
+            statut_required: "يرجى تحديد الحالة التشغيلية.",
+            form_has_errors: "يرجى تصحيح الحقول الإلزامية المميزة بالأحمر أدناه.",
+            saving_in_progress: "جارٍ الحفظ..."
+        }
+    };
+
+    function getFormLang() {
+        return (window.CargoLinkI18n && window.CargoLinkI18n.currentLang) || localStorage.getItem('cargolink_lang') || 'fr';
+    }
+
+    function getValidationDict() {
+        const lang = getFormLang();
+        return VALIDATION_I18N[lang] || VALIDATION_I18N.fr;
+    }
+
+    // Helper: Show/hide error
+    function setFieldError(field, errorMsg) {
+        if (!field) return;
+        const errEl = document.getElementById('err_' + field.name);
+        if (errorMsg) {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+            if (errEl) {
+                errEl.textContent = '⚠️ ' + errorMsg;
+                errEl.style.display = 'flex';
+            }
+        } else {
+            field.classList.remove('is-invalid');
+            if (errEl) {
+                errEl.textContent = '';
+                errEl.style.display = 'none';
+            }
+            if (field.value && field.value.trim().length > 0) {
+                field.classList.add('is-valid');
+            } else {
+                field.classList.remove('is-valid');
+            }
+        }
+    }
+
+    // Individual field validation logic
+    function validateInput(field) {
+        if (!field || !field.name) return true;
+        const val = (field.value || '').trim();
+        const dict = getValidationDict();
+        const name = field.name;
+
+        // 1. Prénom
+        if (name === 'prenom') {
+            if (!val || val.length < 2) {
+                setFieldError(field, dict.prenom_required);
+                return false;
+            }
+            const nameRegex = /^[a-zA-ZÀ-ÿ\s\-'\.]+$/;
+            if (!nameRegex.test(val)) {
+                setFieldError(field, dict.prenom_invalid);
+                return false;
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 2. Nom
+        if (name === 'nom') {
+            if (!val || val.length < 2) {
+                setFieldError(field, dict.nom_required);
+                return false;
+            }
+            const nameRegex = /^[a-zA-ZÀ-ÿ\s\-'\.]+$/;
+            if (!nameRegex.test(val)) {
+                setFieldError(field, dict.nom_invalid);
+                return false;
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 3. CIN
+        if (name === 'cin') {
+            if (val) {
+                const cinRegex = /^[a-zA-Z0-9\-\s]{6,20}$/;
+                if (!cinRegex.test(val)) {
+                    setFieldError(field, dict.cin_invalid);
+                    return false;
+                }
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 4. Email
+        if (name === 'email') {
+            if (val) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(val)) {
+                    setFieldError(field, dict.email_invalid);
+                    return false;
+                }
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 5. Téléphone principal
+        if (name === 'telephone') {
+            if (!val) {
+                setFieldError(field, dict.phone_required);
+                return false;
+            }
+            const cleaned = val.replace(/[\s\-\.]/g, '');
+            const phoneRegex = /^\+?[0-9]{8,15}$/;
+            if (!phoneRegex.test(cleaned)) {
+                setFieldError(field, dict.phone_invalid);
+                return false;
+            }
+            setFieldError(field, null);
+            // Vérifier aussi la cohérence avec le téléphone d'urgence
+            const urgField = document.querySelector('input[name="telephone_urgence"]');
+            if (urgField && urgField.value.trim()) {
+                validateInput(urgField);
+            }
+            return true;
+        }
+
+        // 6. Téléphone d'urgence
+        if (name === 'telephone_urgence') {
+            if (val) {
+                const cleaned = val.replace(/[\s\-\.]/g, '');
+                const phoneRegex = /^\+?[0-9]{8,15}$/;
+                if (!phoneRegex.test(cleaned)) {
+                    setFieldError(field, dict.phone_urg_invalid);
+                    return false;
+                }
+                const telField = document.querySelector('input[name="telephone"]');
+                if (telField && telField.value.trim()) {
+                    const cMain = telField.value.trim().replace(/[\s\-\.]/g, '');
+                    if (cleaned === cMain) {
+                        setFieldError(field, dict.phone_urg_same);
+                        return false;
+                    }
+                }
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 7. Date de naissance
+        if (name === 'date_naissance') {
+            const hintEl = document.getElementById('hint_date_naissance');
+            if (val) {
+                const birth = new Date(val);
+                const today = new Date();
+                if (birth >= today) {
+                    if (hintEl) hintEl.style.display = 'none';
+                    setFieldError(field, dict.birthdate_future);
+                    return false;
+                }
+                let age = today.getFullYear() - birth.getFullYear();
+                const m = today.getMonth() - birth.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+                if (age < 18) {
+                    if (hintEl) {
+                        hintEl.textContent = dict.age_mineur.replace('{age}', age);
+                        hintEl.className = 'field-live-hint hint-danger';
+                        hintEl.style.display = 'inline-flex';
+                    }
+                    setFieldError(field, dict.birthdate_underage);
+                    return false;
+                }
+                if (age > 75) {
+                    if (hintEl) {
+                        hintEl.textContent = dict.age_over.replace('{age}', age);
+                        hintEl.className = 'field-live-hint hint-warning';
+                        hintEl.style.display = 'inline-flex';
+                    }
+                    setFieldError(field, dict.birthdate_overage);
+                    return false;
+                }
+                if (hintEl) {
+                    hintEl.textContent = dict.age_conforme.replace('{age}', age);
+                    hintEl.className = 'field-live-hint hint-valid';
+                    hintEl.style.display = 'inline-flex';
+                }
+            } else {
+                if (hintEl) hintEl.style.display = 'none';
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 8. Date d'embauche
+        if (name === 'date_embauche') {
+            if (val) {
+                const emb = new Date(val);
+                const maxFuture = new Date();
+                maxFuture.setDate(maxFuture.getDate() + 60);
+                if (emb > maxFuture) {
+                    setFieldError(field, dict.hiredate_future);
+                    return false;
+                }
+                const birthField = document.querySelector('input[name="date_naissance"]');
+                if (birthField && birthField.value) {
+                    const birth = new Date(birthField.value);
+                    const minEmbauche = new Date(birth);
+                    minEmbauche.setFullYear(minEmbauche.getFullYear() + 18);
+                    if (emb < minEmbauche) {
+                        setFieldError(field, dict.hiredate_before_birth);
+                        return false;
+                    }
+                }
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 9. Photo
+        if (name === 'photo') {
+            if (field.files && field.files.length > 0) {
+                const file = field.files[0];
+                if (file.size > 5 * 1024 * 1024) {
+                    setFieldError(field, dict.photo_size);
+                    return false;
+                }
+                const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    setFieldError(field, dict.photo_type);
+                    return false;
+                }
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 10. Numéro de Permis
+        if (name === 'numero_permis') {
+            if (!val || val.length < 4) {
+                setFieldError(field, dict.license_num_required);
+                return false;
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 11. Catégorie de Permis
+        if (name === 'categorie_permis') {
+            if (!val) {
+                setFieldError(field, dict.license_cat_required);
+                return false;
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 12. Date de délivrance
+        if (name === 'date_delivrance_permis') {
+            if (val) {
+                const issued = new Date(val);
+                const today = new Date();
+                if (issued > today) {
+                    setFieldError(field, dict.license_issued_future);
+                    return false;
+                }
+                const birthField = document.querySelector('input[name="date_naissance"]');
+                if (birthField && birthField.value) {
+                    const birth = new Date(birthField.value);
+                    const minDate = new Date(birth);
+                    minDate.setFullYear(minDate.getFullYear() + 18);
+                    if (issued < minDate) {
+                        setFieldError(field, dict.license_issued_underage);
+                        return false;
+                    }
+                }
+            }
+            setFieldError(field, null);
+            // Re-valider expiration si déjà renseignée
+            const expField = document.querySelector('input[name="date_expiration_permis"]');
+            if (expField && expField.value) {
+                validateInput(expField);
+            }
+            return true;
+        }
+
+        // 13. Date d'expiration
+        if (name === 'date_expiration_permis') {
+            const hintEl = document.getElementById('hint_date_expiration_permis');
+            if (!val) {
+                if (hintEl) hintEl.style.display = 'none';
+                setFieldError(field, dict.license_expiry_required);
+                return false;
+            }
+            const exp = new Date(val);
+            const issuedField = document.querySelector('input[name="date_delivrance_permis"]');
+            if (issuedField && issuedField.value) {
+                const issued = new Date(issuedField.value);
+                if (exp <= issued) {
+                    if (hintEl) hintEl.style.display = 'none';
+                    setFieldError(field, dict.license_expiry_before_issued);
+                    return false;
+                }
+            }
+
+            // Calcul live des jours restants
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diffTime = exp.getTime() - today.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+            if (hintEl) {
+                if (diffDays < 0) {
+                    hintEl.textContent = dict.lic_expired_hint.replace('{days}', Math.abs(diffDays));
+                    hintEl.className = 'field-live-hint hint-danger';
+                    hintEl.style.display = 'inline-flex';
+                } else if (diffDays <= 30) {
+                    hintEl.textContent = dict.lic_soon_hint.replace('{days}', diffDays);
+                    hintEl.className = 'field-live-hint hint-warning';
+                    hintEl.style.display = 'inline-flex';
+                } else {
+                    hintEl.textContent = dict.lic_valid_hint.replace('{days}', diffDays);
+                    hintEl.className = 'field-live-hint hint-valid';
+                    hintEl.style.display = 'inline-flex';
+                }
+            }
+
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 14. Entreprise de transport
+        if (name === 'entreprise_transport') {
+            if (!val || val.length < 2) {
+                setFieldError(field, dict.company_required);
+                return false;
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 15. Immatriculation camion
+        if (name === 'immatriculation_camion') {
+            if (val && val.length < 4) {
+                setFieldError(field, dict.truck_plate_invalid);
+                return false;
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 16. Capacité camion
+        if (name === 'capacite_camion_tonnes') {
+            if (val) {
+                const num = parseFloat(val);
+                if (isNaN(num) || num <= 0 || num > 60) {
+                    setFieldError(field, dict.truck_capacity_invalid);
+                    return false;
+                }
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        // 17. Statut opérationnel
+        if (name === 'statut') {
+            if (!val) {
+                setFieldError(field, dict.statut_required);
+                return false;
+            }
+            setFieldError(field, null);
+            return true;
+        }
+
+        return true;
+    }
+
+    // Attach event listeners to all interactive inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('chauffeurForm');
+        if (!form) return;
+
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateInput(this);
+            });
+            input.addEventListener('input', function() {
+                // If it was already invalid, re-validate immediately on input
+                if (this.classList.contains('is-invalid')) {
+                    validateInput(this);
+                }
+            });
+            input.addEventListener('change', function() {
+                validateInput(this);
+            });
+        });
+
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+            let formIsValid = true;
+            let firstInvalidField = null;
+
+            inputs.forEach(input => {
+                if (input.type === 'hidden' || input.type === 'submit') return;
+                const ok = validateInput(input);
+                if (!ok) {
+                    formIsValid = false;
+                    if (!firstInvalidField) {
+                        firstInvalidField = input;
+                    }
+                }
+            });
+
+            const banner = document.getElementById('clientValidationBanner');
+            const bannerText = document.getElementById('clientValidationBannerText');
+            const card = document.getElementById('formCardBox');
+            const dict = getValidationDict();
+
+            if (!formIsValid) {
+                e.preventDefault();
+
+                if (banner && bannerText) {
+                    bannerText.textContent = dict.form_has_errors;
+                    banner.classList.add('active');
+                }
+
+                if (card) {
+                    card.classList.remove('shake-invalid');
+                    void card.offsetWidth; // Trigger reflow
+                    card.classList.add('shake-invalid');
+                }
+
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                if (banner) banner.classList.remove('active');
+                const submitBtn = document.getElementById('btnSubmitForm');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="btn-spinner"></span> ' + dict.saving_in_progress;
+                }
+            }
+        });
+
+        // Trigger live helpers if dates already present (e.g. edit mode or reload)
+        const birthField = document.querySelector('input[name="date_naissance"]');
+        if (birthField && birthField.value) validateInput(birthField);
+        const expField = document.querySelector('input[name="date_expiration_permis"]');
+        if (expField && expField.value) validateInput(expField);
+
+        // Global i18n Bridge for Form
+        window.addEventListener('cargolink:languageChanged', function(e) {
+            if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+                window.CargoLinkI18n.translateChauffeurs(e.detail.lang);
+            }
+        });
+
+        const currentLang = (window.CargoLinkI18n && window.CargoLinkI18n.currentLang) || localStorage.getItem('cargolink_lang') || 'fr';
+        if (window.CargoLinkI18n && typeof window.CargoLinkI18n.translateChauffeurs === 'function') {
+            window.CargoLinkI18n.translateChauffeurs(currentLang);
+        }
+    });
+</script>
 {% endblock %}

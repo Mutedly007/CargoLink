@@ -11,7 +11,7 @@
 <div class="camions-container">
     <div style="margin-bottom: 1.5rem;">
         <a href="{% url 'camions:camion_list' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-            &larr; Retour à la liste des camions
+            <span id="truckBackArrow">&larr;</span> <span data-i18n="truck_form_back">Retour à la liste des camions</span>
         </a>
     </div>
 
@@ -27,7 +27,7 @@
             </div>
             <h1 style="font-size: 1.6rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">{{ title }}</h1>
             <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
-                Renseignez les spécifications techniques et l'état opérationnel du véhicule.
+                <span data-i18n="truck_form_sub">Renseignez les spécifications techniques et l'état opérationnel du véhicule.</span>
             </p>
         </header>
 
@@ -45,12 +45,12 @@
             <!-- Section 1 : Identification -->
             <fieldset style="border: none; margin-bottom: 1.5rem;">
                 <legend style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.4rem; width: 100%;">
-                    1. Identification & Gabarit
+                    <span data-i18n="truck_sec_id">1. Identification & Gabarit</span>
                 </legend>
 
                 <div class="form-group">
                     <label for="{{ form.immatriculation.id_for_label }}">
-                        Immatriculation <span style="color: #f87171;">*</span>
+                        <span data-i18n="truck_lbl_immat">Immatriculation</span> <span style="color: #f87171;">*</span>
                     </label>
                     {{ form.immatriculation }}
                     {% if form.immatriculation.errors %}
@@ -61,13 +61,13 @@
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="{{ form.marque.id_for_label }}">Marque <span style="color: #f87171;">*</span></label>
+                        <label for="{{ form.marque.id_for_label }}"><span data-i18n="truck_lbl_marque">Marque</span> <span style="color: #f87171;">*</span></label>
                         {{ form.marque }}
                         {% if form.marque.errors %}<span class="form-error-msg">{{ form.marque.errors.0 }}</span>{% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.modele.id_for_label }}">Modèle <span style="color: #f87171;">*</span></label>
+                        <label for="{{ form.modele.id_for_label }}"><span data-i18n="truck_lbl_modele">Modèle</span> <span style="color: #f87171;">*</span></label>
                         {{ form.modele }}
                         {% if form.modele.errors %}<span class="form-error-msg">{{ form.modele.errors.0 }}</span>{% endif %}
                     </div>
@@ -75,13 +75,13 @@
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="{{ form.annee_fabrication.id_for_label }}">Année de mise en service</label>
+                        <label for="{{ form.annee_fabrication.id_for_label }}"><span data-i18n="truck_lbl_year">Année de mise en service</span></label>
                         {{ form.annee_fabrication }}
                         {% if form.annee_fabrication.errors %}<span class="form-error-msg">{{ form.annee_fabrication.errors.0 }}</span>{% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.type_camion.id_for_label }}">Type / Silhouette de camion</label>
+                        <label for="{{ form.type_camion.id_for_label }}"><span data-i18n="truck_lbl_type">Type / Silhouette de camion</span></label>
                         {{ form.type_camion }}
                     </div>
                 </div>
@@ -90,23 +90,23 @@
             <!-- Section 2 : Capacités Fret -->
             <fieldset style="border: none; margin-bottom: 1.5rem;">
                 <legend style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.4rem; width: 100%;">
-                    2. Capacités de Chargement
+                    <span data-i18n="truck_sec_capacities">2. Capacités de Chargement</span>
                 </legend>
 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
                     <div class="form-group">
-                        <label for="{{ form.capacite_tonnage.id_for_label }}">Charge utile (Tonnes)</label>
+                        <label for="{{ form.capacite_tonnage.id_for_label }}"><span data-i18n="truck_lbl_tonnage">Charge utile (Tonnes)</span></label>
                         {{ form.capacite_tonnage }}
                         {% if form.capacite_tonnage.errors %}<span class="form-error-msg">{{ form.capacite_tonnage.errors.0 }}</span>{% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.volume_m3.id_for_label }}">Volume utile (m³)</label>
+                        <label for="{{ form.volume_m3.id_for_label }}"><span data-i18n="truck_lbl_volume">Volume utile (m³)</span></label>
                         {{ form.volume_m3 }}
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.capacite_palettes.id_for_label }}">Max Palettes Euro</label>
+                        <label for="{{ form.capacite_palettes.id_for_label }}"><span data-i18n="truck_lbl_palettes">Max Palettes Euro</span></label>
                         {{ form.capacite_palettes }}
                     </div>
                 </div>
@@ -115,41 +115,41 @@
             <!-- Section 3 : Exploitation & Maintenance -->
             <fieldset style="border: none; margin-bottom: 1.5rem;">
                 <legend style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.4rem; width: 100%;">
-                    3. Exploitation & Maintenance Préventive
+                    <span data-i18n="truck_sec_maintenance">3. Exploitation & Maintenance Préventive</span>
                 </legend>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="{{ form.etat.id_for_label }}">État Opérationnel</label>
+                        <label for="{{ form.etat.id_for_label }}"><span data-i18n="truck_lbl_etat">État Opérationnel</span></label>
                         {{ form.etat }}
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.norme_anti_pollution.id_for_label }}">Norme Écologique / Émission</label>
+                        <label for="{{ form.norme_anti_pollution.id_for_label }}"><span data-i18n="truck_lbl_norm">Norme Écologique / Émission</span></label>
                         {{ form.norme_anti_pollution }}
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="{{ form.kilometrage.id_for_label }}">Kilométrage Actuel (km)</label>
+                        <label for="{{ form.kilometrage.id_for_label }}"><span data-i18n="truck_lbl_km">Kilométrage Actuel (km)</span></label>
                         {{ form.kilometrage }}
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.societe_transport.id_for_label }}">Société de Transport</label>
+                        <label for="{{ form.societe_transport.id_for_label }}"><span data-i18n="truck_lbl_societe">Société de Transport</span></label>
                         {{ form.societe_transport }}
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="{{ form.date_derniere_maintenance.id_for_label }}">Dernière Révision</label>
+                        <label for="{{ form.date_derniere_maintenance.id_for_label }}"><span data-i18n="truck_lbl_last_ct">Dernière Révision</span></label>
                         {{ form.date_derniere_maintenance }}
                     </div>
 
                     <div class="form-group">
-                        <label for="{{ form.date_prochain_controle.id_for_label }}">Prochain Contrôle Technique</label>
+                        <label for="{{ form.date_prochain_controle.id_for_label }}"><span data-i18n="truck_lbl_next_ct">Prochain Contrôle Technique</span></label>
                         {{ form.date_prochain_controle }}
                         {% if form.date_prochain_controle.errors %}<span class="form-error-msg">{{ form.date_prochain_controle.errors.0 }}</span>{% endif %}
                     </div>
@@ -157,8 +157,8 @@
             </fieldset>
 
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem;">
-                <a href="{% url 'camions:camion_list' %}" class="btn btn-secondary">Annuler</a>
-                <button type="submit" class="btn btn-accent" id="btn-submit-truck">{{ btn_text }}</button>
+                <a href="{% url 'camions:camion_list' %}" class="btn btn-secondary" data-i18n="btn_cancel">Annuler</a>
+                <button type="submit" class="btn btn-accent" id="btn-submit-truck" data-i18n="truck_btn_save">{{ btn_text }}</button>
             </div>
         </form>
     </div>

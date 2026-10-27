@@ -735,3 +735,62 @@
     align-items: center;
     gap: 0.5rem;
 }
+
+/* ==============================================================================
+   RTL (ARABIC) STYLES FOR FLOTTE & CAMIONS
+   ============================================================================== */
+html[dir="rtl"] .camions-container,
+.camions-container[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .page-title-box h1,
+.camions-container[dir="rtl"] .page-title-box h1,
+html[dir="rtl"] .page-title-box p,
+.camions-container[dir="rtl"] .page-title-box p {
+    text-align: right;
+}
+
+html[dir="rtl"] .search-input-wrap input,
+.camions-container[dir="rtl"] .search-input-wrap input {
+    padding-right: 2.5rem;
+    padding-left: 1rem;
+    text-align: right;
+}
+
+html[dir="rtl"] .search-input-wrap svg,
+.camions-container[dir="rtl"] .search-input-wrap svg {
+    right: 0.85rem;
+    left: auto;
+}
+
+html[dir="rtl"] .spec-cell,
+.camions-container[dir="rtl"] .spec-cell {
+    text-align: right;
+}
+
+html[dir="rtl"] .meta-footer-row,
+.camions-container[dir="rtl"] .meta-footer-row {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .card-actions-row,
+.camions-container[dir="rtl"] .card-actions-row {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .timeline-card,
+.camions-container[dir="rtl"] .timeline-card {
+    text-align: right;
+}
+
+html[dir="rtl"] .ai-diagnostic-box,
+.camions-container[dir="rtl"] .ai-diagnostic-box {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-group label,
+.camions-container[dir="rtl"] .form-group label {
+    text-align: right;
+}

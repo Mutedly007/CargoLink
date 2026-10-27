@@ -150,7 +150,10 @@ class Creneau(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.reference or 'Créneau'} • {self.quai.numero} ({self.date_creneau} {self.heure_debut.strftime('%H:%M')}-{self.heure_fin.strftime('%H:%M')}) [{self.get_statut_display()}]"
+        has_quai = hasattr(self, 'quai_id') and self.quai_id is not None
+        quai_num = self.quai.numero if has_quai else "Quai non assigné"
+        heures = f"{self.heure_debut.strftime('%H:%M')}-{self.heure_fin.strftime('%H:%M')}" if (self.heure_debut and self.heure_fin) else ""
+        return f"{self.reference or 'Créneau'} • {quai_num} ({self.date_creneau or ''} {heures}) [{self.get_statut_display()}]"
 
     def get_absolute_url(self):
         return reverse('creneaux:creneau_detail', kwargs={'pk': self.pk})
@@ -176,46 +179,52 @@ class Creneau(models.Model):
         super().clean()
         errors = {}
 
+        has_entrepot = hasattr(self, 'entrepot_id') and self.entrepot_id is not None
+        has_quai = hasattr(self, 'quai_id') and self.quai_id is not None
+
+        entrepot = self.entrepot if has_entrepot else None
+        quai = self.quai if has_quai else None
+
         if self.heure_debut and self.heure_fin:
             if self.heure_debut >= self.heure_fin:
                 errors['heure_fin'] = "L'heure de fin doit être postérieure à l'heure de début."
 
         # Vérifier que le quai appartient bien à l'entrepôt
-        if self.entrepot and self.quai:
-            if self.quai.entrepot_id != self.entrepot.id:
-                errors['quai'] = f"Le quai {self.quai.numero} n'appartient pas à l'entrepôt sélectionné ({self.entrepot.nom})."
+        if entrepot and quai:
+            if quai.entrepot_id != entrepot.id:
+                errors['quai'] = f"Le quai {quai.numero} n'appartient pas à l'entrepôt sélectionné ({entrepot.nom})."
 
         # Vérifier les horaires de l'entrepôt
-        if self.entrepot and self.heure_debut and self.heure_fin:
-            if self.entrepot.horaire_ouverture and self.heure_debut < self.entrepot.horaire_ouverture:
+        if entrepot and self.heure_debut and self.heure_fin:
+            if entrepot.horaire_ouverture and self.heure_debut < entrepot.horaire_ouverture:
                 errors['heure_debut'] = (
                     f"L'heure de début ({self.heure_debut.strftime('%H:%M')}) est antérieure à l'ouverture de "
-                    f"l'entrepôt ({self.entrepot.horaire_ouverture.strftime('%H:%M')})."
+                    f"l'entrepôt ({entrepot.horaire_ouverture.strftime('%H:%M')})."
                 )
-            if self.entrepot.horaire_fermeture and self.heure_fin > self.entrepot.horaire_fermeture:
+            if entrepot.horaire_fermeture and self.heure_fin > entrepot.horaire_fermeture:
                 errors['heure_fin'] = (
                     f"L'heure de fin ({self.heure_fin.strftime('%H:%M')}) dépasse l'heure de fermeture de "
-                    f"l'entrepôt ({self.entrepot.horaire_fermeture.strftime('%H:%M')})."
+                    f"l'entrepôt ({entrepot.horaire_fermeture.strftime('%H:%M')})."
                 )
 
         # Vérifier compatibilité marchandise / quai
-        if self.quai and self.type_marchandise:
-            if self.type_marchandise == 'FRIGORIFIQUE' and self.quai.type_quai != 'FRIGORIFIQUE':
+        if quai and self.type_marchandise:
+            if self.type_marchandise == 'FRIGORIFIQUE' and quai.type_quai != 'FRIGORIFIQUE':
                 errors['type_marchandise'] = (
-                    f"Le quai {self.quai.numero} n'est pas équipé pour la température dirigée (Type: {self.quai.get_type_quai_display()}). "
+                    f"Le quai {quai.numero} n'est pas équipé pour la température dirigée (Type: {quai.get_type_quai_display()}). "
                     f"Veuillez choisir un quai frigorifique."
                 )
-            if self.type_marchandise == 'ADR' and self.quai.type_quai != 'ADR':
+            if self.type_marchandise == 'ADR' and quai.type_quai != 'ADR':
                 errors['type_marchandise'] = (
-                    f"Le quai {self.quai.numero} n'est pas habilité pour les matières dangereuses (ADR). "
+                    f"Le quai {quai.numero} n'est pas habilité pour les matières dangereuses (ADR). "
                     f"Veuillez choisir un quai ADR."
                 )
 
         # Prévention des conflits : aucun chevauchement sur le même quai pour la même date
-        if self.quai and self.date_creneau and self.heure_debut and self.heure_fin:
+        if quai and self.date_creneau and self.heure_debut and self.heure_fin:
             # Créneaux actifs pouvant entrer en conflit
             conflits = Creneau.objects.filter(
-                quai=self.quai,
+                quai=quai,
                 date_creneau=self.date_creneau,
                 heure_debut__lt=self.heure_fin,
                 heure_fin__gt=self.heure_debut,
@@ -227,7 +236,7 @@ class Creneau(models.Model):
             if conflits.exists():
                 c = conflits.first()
                 errors['heure_debut'] = (
-                    f"Conflit de créneau détecté ! Le quai {self.quai.numero} est déjà occupé de "
+                    f"Conflit de créneau détecté ! Le quai {quai.numero} est déjà occupé de "
                     f"{c.heure_debut.strftime('%H:%M')} à {c.heure_fin.strftime('%H:%M')} "
                     f"(Réf: {c.reference} - {c.transporteur_nom})."
                 )
